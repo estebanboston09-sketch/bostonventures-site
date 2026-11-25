@@ -4,7 +4,7 @@ export const SITE = {
   tagline: 'Honest reviews from a local. Cancún & the Riviera Maya.',
   youtube: 'https://www.youtube.com/@BostonVentures',
   youtubeSubscribe: 'https://www.youtube.com/@BostonVentures?sub_confirmation=1',
-  email: 'hello@bostonventures.com', // placeholder until the domain is bought
+  email: 'hello@bostonventurestravel.com', // placeholder until the domain is bought
 };
 
 export const AFFILIATE = {

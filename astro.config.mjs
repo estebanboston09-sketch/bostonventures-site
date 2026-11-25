@@ -10,7 +10,7 @@ const drafts = fs.readdirSync('./src/content/hotels')
 
 // Change `site` to the real domain once it's bought.
 export default defineConfig({
-  site: 'https://bostonventures-site.esteban-boston09.workers.dev',
+  site: 'https://bostonventurestravel.com',
   trailingSlash: 'never',
   build: { format: 'file' },
   integrations: [sitemap({ filter: (page) => !drafts.some((d) => page.endsWith(d)) && !page.endsWith('/404') })],
