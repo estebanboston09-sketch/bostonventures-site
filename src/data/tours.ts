@@ -19,7 +19,7 @@ export interface Tour {
   localTip: string;
   goodFor: string;
   skipIf: string;
-  reviewed?: { videoId?: string; videoDate?: string; verdict?: string; notes?: string[]; prices?: { text: string; checked: string } };
+  reviewed?: { videoId?: string; chapters?: { label: string; start: number }[]; videoDate?: string; verdict?: string; notes?: string[]; prices?: { text: string; checked: string } };
 }
 
 export const INTEREST_LABELS: Record<Interest, string> = {
@@ -91,6 +91,7 @@ export const TOURS: Tour[] = [
     skipIf: "You're already at a big all-inclusive resort, or you want real reef snorkeling or lots of adventure (pick Xplor instead).",
     reviewed: {
       videoId: 'WliNeiRTrXg', videoDate: '2026-04',
+      chapters: [{ label: 'Tickets & info', start: 15 }, { label: 'Vibe', start: 97 }, { label: 'Activities', start: 266 }, { label: 'Scenic tower', start: 384 }, { label: 'Food & drinks', start: 487 }, { label: 'Is it worth it?', start: 597 }],
       verdict: "Worth it if you're not staying at an all-inclusive and want a relaxing day in nature. If your resort already has pools, a beach and unlimited food and drinks, it feels like more of the same.",
       notes: [
         'Two tickets with the same activities: Light (soft drinks only) and All-Inclusive (breakfast, lunch, three restaurants and an open bar with well-known brands).',
@@ -183,6 +184,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You expect a big, polished park like the Xcaret ones.',
     reviewed: {
       videoId: '7byIwY88o6c', videoDate: '2025-09',
+      chapters: [{ label: 'Prices', start: 20 }, { label: 'Wildlife', start: 69 }, { label: 'Hands-on', start: 127 }, { label: 'Crocodiles', start: 222 }, { label: 'Verdict', start: 313 }],
       verdict: 'Absolutely worth it for the price. It is not as upscale as the Xcaret parks, but it is much cheaper, and walking among the crocodiles is something you will remember.',
       notes: [
         'The guided tour takes about 1 hour 10 minutes, in English or Spanish.',
@@ -203,6 +205,7 @@ export const TOURS: Tour[] = [
     skipIf: "You don't like heat and crowds — there's no air conditioning.",
     reviewed: {
       videoId: '6QrZUG7GmAU', videoDate: '2023-11',
+      chapters: [{ label: 'Pork snacks', start: 75 }, { label: 'Drinks & cheese', start: 305 }, { label: 'Exotic fruit', start: 418 }, { label: 'Chilies', start: 628 }, { label: 'Candy', start: 1026 }, { label: 'Tortillas', start: 1261 }, { label: 'Verdict', start: 1372 }],
       verdict: 'A fun, real slice of local life with food and fruit you will not find in a supermarket. Go for the experience, not for the cheapest prices.',
       notes: [
         'Try the pork snacks: cochinita-style pork with crispy skin was a 9/10 for me; a kilo of pork belly was about 350 pesos.',

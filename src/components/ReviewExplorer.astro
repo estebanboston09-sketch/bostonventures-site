@@ -1,0 +1,51 @@
+---
+import type { Section } from '../lib/sections';
+interface Props { sections: Section[] }
+const { sections } = Astro.props;
+const icon = (t: string) => /room|bubble|inside/i.test(t) ? '🛏️' : /food|dining|restaurant/i.test(t) ? '🍽️' : /beach|pool/i.test(t) ? '🏖️' : /kid/i.test(t) ? '🧒' : /activit|entertain|vibe|atmos/i.test(t) ? '🎉' : /service/i.test(t) ? '🤝' : /spa/i.test(t) ? '💆' : /cenote/i.test(t) ? '💧' : '📍';
+const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+---
+<section id="explore" class="explorer reveal scroll-mt-24">
+  <h2 class="text-2xl font-bold text-navy">Explore my review</h2>
+  <p class="mt-1 text-sm text-ink/60">Pick a category. Every one can jump straight to that part of the video.</p>
+  <div class="mt-4 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]" role="tablist">
+    {sections.map((s, i) => (
+      <button type="button" role="tab" class="tab-btn" aria-selected={i === 0 ? 'true' : 'false'} data-tab={i} data-label={s.title}>
+        <span aria-hidden="true">{icon(s.title)}</span> {s.title}{s.score != null && <span class="tab-score">{s.score}</span>}
+      </button>
+    ))}
+  </div>
+  <div class="card mt-2 overflow-hidden">
+    {sections.map((s, i) => (
+      <article data-panel={i} hidden={i !== 0} class="panel p-6 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h3 class="flex items-center gap-2 text-xl font-bold text-navy"><span class="text-2xl">{icon(s.title)}</span>{s.title}</h3>
+          {s.score != null && <span class="rounded-full bg-navy px-3 py-1 font-serif text-lg font-bold text-sun">{s.score}<span class="text-xs text-teal">/10</span></span>}
+        </div>
+        <div class="prose-bv mt-3" set:html={s.html} />
+        {s.start != null && (
+          <button type="button" data-play-at={s.start} class="mt-5 inline-flex items-center gap-2 rounded-full bg-[#ff0033] px-4 py-2 text-sm font-bold text-white shadow transition hover:brightness-110 active:scale-95">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg> Watch this part ({fmt(s.start)})
+          </button>
+        )}
+      </article>
+    ))}
+  </div>
+</section>
+<script>
+  const ex = document.querySelector<HTMLElement>('.explorer');
+  if (ex) {
+    const show = (i: string) => {
+      ex.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', String((b as HTMLElement).dataset.tab === i)));
+      ex.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== i; if (!p.hidden) { p.classList.remove('fade-in'); void p.offsetWidth; p.classList.add('fade-in'); } });
+    };
+    ex.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-tab]'); if (b) show(b.dataset.tab!); });
+    // Score bars in the verdict card open the matching tab.
+    document.addEventListener('click', (e) => {
+      const g = (e.target as HTMLElement).closest<HTMLElement>('[data-goto]'); if (!g) return;
+      const want = g.dataset.goto!.toLowerCase().split(/[\s(&]/)[0];
+      const tab = [...ex.querySelectorAll<HTMLElement>('[data-tab]')].find((t) => t.dataset.label!.toLowerCase().includes(want));
+      if (tab) { show(tab.dataset.tab!); ex.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  }
+</script>

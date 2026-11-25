@@ -11,7 +11,7 @@ import { TOURS, INTEREST_LABELS } from '../../data/tours';
   </div></section>
   <div class="wrap mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
     {[...TOURS].sort((a, b) => Number(!!b.reviewed?.videoId) - Number(!!a.reviewed?.videoId)).map((t) => (
-      <a href={`/tours/${t.slug}`} class="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md">
+      <a href={`/tours/${t.slug}`} class="card lift reveal group flex flex-col overflow-hidden">
         {t.reviewed?.videoId && <div class="relative aspect-video overflow-hidden bg-navy"><img src={`https://i.ytimg.com/vi/${t.reviewed.videoId}/hqdefault.jpg`} alt="" loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" /></div>}
         <div class="flex flex-1 flex-col p-5">
         <div class="flex flex-wrap gap-1.5">{t.interests.slice(0, 2).map((i) => <span class="chip">{INTEREST_LABELS[i]}</span>)}</div>

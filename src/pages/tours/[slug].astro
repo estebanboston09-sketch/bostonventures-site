@@ -35,7 +35,7 @@ const faq = [
             <h2 class="text-xl font-bold text-navy">Watch my video</h2>
             <a href={`https://www.youtube.com/watch?v=${t.reviewed.videoId}`} target="_blank" rel="noopener" class="text-sm font-semibold text-navy underline">Open on YouTube</a>
           </div>
-          <LiteYouTube id={t.reviewed.videoId} title={t.name} />
+          <LiteYouTube id={t.reviewed.videoId} title={t.name} chapters={t.reviewed.chapters} />
         </section>
       )}
       {t.reviewed?.verdict && (

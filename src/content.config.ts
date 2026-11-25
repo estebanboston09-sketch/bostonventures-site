@@ -40,6 +40,7 @@ const hotels = defineCollection({
         // Categories differ between videos, so scores are a list. Only scores Esteban actually gave.
         scores: z.array(z.object({ label: z.string(), value: score })).default([]),
         overall: z.number().min(0).max(10).optional(), // set by hand; otherwise the average when 4+ categories are scored
+        chapters: z.array(z.object({ label: z.string(), start: z.number() })).default([]),
         verdict: z.string().optional(),
         pros: z.array(z.string()).default([]),
         cons: z.array(z.string()).default([]),

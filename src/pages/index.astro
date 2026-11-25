@@ -8,31 +8,44 @@ const hotels = await getCollection('hotels');
 const reviewed = hotels.filter((h) => h.data.review);
 const featured = [...reviewed, ...hotels.filter((h) => !h.data.review && !h.data.needsReview)].slice(0, 6);
 const topTours = ['whale-shark-tour-cancun', 'chichen-itza-day-trip', 'isla-mujeres-day-trip', 'cenote-tour'].map((s) => TOURS.find((t) => t.slug === s)!);
+const reviewedCount = reviewed.length;
+const videoTours = TOURS.filter((t) => t.reviewed?.videoId).length;
 const areaPick = ['hotel-zone', 'playa-del-carmen', 'south-cancun', 'costa-mujeres'];
 ---
 <Base title={`${SITE.name}: Honest Cancún & Riviera Maya Travel Guide From a Local`} description="Honest hotel reviews with real scores, tours worth your time, airport tips and free trip-planning tools for Cancún and the Riviera Maya — from a local."
   schema={{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: Astro.site?.href }}>
-  <section class="relative overflow-hidden bg-navy text-white">
+  <section class="relative overflow-hidden bg-navy pb-10 text-white">
     <div class="wrap relative py-16 sm:py-24">
       <p class="eyebrow">Cancún · Playa del Carmen · Tulum</p>
-      <h1 class="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-6xl">Plan your Riviera Maya trip with a <span class="text-sun">local</span>.</h1>
+      <h1 class="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-6xl">Plan your
+        <span class="rotator text-sun" aria-label="Riviera Maya trip"><span class="on">beach escape</span><span>food crawl</span><span>whale shark swim</span><span>cenote day</span><span>family trip</span></span>
+        <br class="hidden sm:block" />with a local.</h1>
       <p class="mt-4 max-w-2xl text-lg text-white/75">Honest hotel reviews with real scores, the tours that are actually worth it, and free tools to plan every day — no hype.</p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a href="/tools/trip-planner" class="btn-sun">Plan my trip — free</a>
         <a href="/tools/hotel-match" class="btn-ghost-dark">Find my hotel</a>
       </div>
+      <dl class="mt-10 flex flex-wrap gap-x-10 gap-y-4">
+        <div><dt class="text-xs font-bold uppercase tracking-widest text-teal">Hotels reviewed</dt><dd class="font-serif text-4xl font-bold"><span class="countup" data-to={reviewedCount}>0</span></dd></div>
+        <div><dt class="text-xs font-bold uppercase tracking-widest text-teal">Tours on video</dt><dd class="font-serif text-4xl font-bold"><span class="countup" data-to={videoTours}>0</span></dd></div>
+        <div><dt class="text-xs font-bold uppercase tracking-widest text-teal">Sign-ups needed</dt><dd class="font-serif text-4xl font-bold">0</dd></div>
+      </dl>
+    </div>
+    <div class="waves" aria-hidden="true">
+      <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0 40 C120 20 240 20 360 40 S600 60 720 40 S960 20 1080 40 S1320 60 1440 40 V70 H0Z" fill="#F3F8F7"/></svg>
+      <svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0 30 C150 50 210 10 360 30 S570 50 720 30 S930 10 1080 30 S1290 50 1440 30 V70 H0Z" fill="#F3F8F7"/></svg>
     </div>
   </section>
 
-  <section class="wrap -mt-8 relative grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <section class="wrap relative z-10 -mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     {[
       ['/tools/trip-planner', '🗓️', 'Trip planner', 'Day-by-day plan in a minute'],
       ['/tools/hotel-match', '🏨', 'Hotel matcher', '6 questions, your best hotels'],
       ['/tools/tour-finder', '🐋', 'Tour finder', 'What to do — and what to skip'],
       ['/guides/cancun-airport', '✈️', 'Airport guide', 'Plane to pool, no scams'],
     ].map(([href, icon, name, sub]) => (
-      <a href={href} class="card group flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-        <span class="text-3xl" aria-hidden="true">{icon}</span>
+      <a href={href} class="card lift reveal group flex items-center gap-4 p-5">
+        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-sand-2 text-2xl transition group-hover:scale-110 group-hover:-rotate-6" aria-hidden="true">{icon}</span>
         <span><span class="block font-bold text-navy group-hover:underline">{name}</span><span class="text-sm text-ink/60">{sub}</span></span>
       </a>
     ))}
@@ -52,7 +65,7 @@ const areaPick = ['hotel-zone', 'playa-del-carmen', 'south-cancun', 'costa-mujer
     <h2 class="mt-1 text-3xl font-bold text-navy">Pick your area first</h2>
     <div class="mt-6 grid gap-4 sm:grid-cols-2">
       {areaPick.map((a) => (
-        <a href={`/hotels?area=${a}`} class="card group p-5 hover:shadow-md">
+        <a href={`/hotels?area=${a}`} class="card lift reveal group p-5">
           <p class="font-bold text-navy group-hover:underline">{AREAS[a].label}</p>
           <p class="mt-1 text-sm text-ink/70">{AREAS[a].blurb}</p>
         </a>
@@ -68,7 +81,7 @@ const areaPick = ['hotel-zone', 'playa-del-carmen', 'south-cancun', 'costa-mujer
       </div>
       <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {topTours.map((t) => (
-          <a href={`/tours/${t.slug}`} class="group rounded-2xl bg-sand p-5 hover:shadow-md">
+          <a href={`/tours/${t.slug}`} class="lift reveal group rounded-2xl bg-sand p-5">
             <p class="font-bold text-navy group-hover:underline">{t.name}</p>
             <p class="mt-1 text-sm text-ink/70">{t.short}</p>
           </a>
@@ -79,7 +92,7 @@ const areaPick = ['hotel-zone', 'playa-del-carmen', 'south-cancun', 'costa-mujer
   </section>
 
   <section class="wrap mt-16">
-    <div class="grid items-center gap-8 rounded-3xl bg-navy p-8 text-white sm:p-12 lg:grid-cols-[1fr_auto]">
+    <div class="reveal grid items-center gap-8 rounded-3xl bg-navy p-8 text-white sm:p-12 lg:grid-cols-[1fr_auto]">
       <div>
         <p class="eyebrow">On YouTube</p>
         <h2 class="mt-1 text-3xl font-bold">Watch the full reviews</h2>
@@ -89,3 +102,13 @@ const areaPick = ['hotel-zone', 'playa-del-carmen', 'south-cancun', 'costa-mujer
     </div>
   </section>
 </Base>
+<script>
+  const words = [...document.querySelectorAll<HTMLElement>('.rotator > span')];
+  let i = 0;
+  if (words.length && !matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => { words[i].classList.remove('on'); i = (i + 1) % words.length; words[i].classList.add('on'); }, 2200);
+  document.querySelectorAll<HTMLElement>('.countup').forEach((el) => {
+    const to = Number(el.dataset.to), t0 = performance.now();
+    const step = (t: number) => { const k = Math.min(1, (t - t0) / 1200); el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+</script>

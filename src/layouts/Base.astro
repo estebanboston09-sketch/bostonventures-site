@@ -38,8 +38,21 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
     {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
   </head>
   <body class="flex min-h-screen flex-col">
+    <div id="progress" aria-hidden="true"></div>
     <Header />
     <main class="flex-1"><slot /></main>
     <Footer />
+    <script>
+      // Reveal elements as they scroll in, reading progress bar, header shadow.
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+      const bar = document.getElementById('progress'), hdr = document.querySelector('header');
+      const onScroll = () => {
+        const h = document.documentElement.scrollHeight - innerHeight;
+        if (bar) bar.style.width = h > 0 ? `${(scrollY / h) * 100}%` : '0';
+        hdr?.classList.toggle('scrolled', scrollY > 10);
+      };
+      addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    </script>
   </body>
 </html>

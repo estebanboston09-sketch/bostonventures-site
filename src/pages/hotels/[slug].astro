@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
-import ScoreBadges from '../../components/ScoreBadges.astro';
+import VerdictCard from '../../components/VerdictCard.astro';
+import ReviewExplorer from '../../components/ReviewExplorer.astro';
+import { splitSections } from '../../lib/sections';
 import LiteYouTube from '../../components/LiteYouTube.astro';
 import TravelEssentials from '../../components/TravelEssentials.astro';
 import Disclosure from '../../components/Disclosure.astro';
@@ -20,6 +22,7 @@ const d = hotel.data;
 const { Content } = await render(hotel);
 const r = d.review;
 const reviewed = !!r;
+const parsed = reviewed ? splitSections(hotel.body ?? '', r?.chapters) : null;
 const area = AREAS[d.area];
 const year = new Date().getFullYear();
 const monthName = (ym?: string) => (ym && ym.length >= 7 ? new Date(ym + '-15').toLocaleString('en-US', { month: 'long', year: 'numeric' }) : ym);
@@ -93,45 +96,32 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
         <p class="rounded-xl border-2 border-dashed border-gold bg-white p-4 text-sm"><b>Draft page.</b> Basic facts still need Esteban's check before launch. This page is hidden from Google until then.</p>
       )}
 
+      {reviewed && r && <VerdictCard review={r} />}
+
       {videoId && (
-        <section id="video" class="scroll-mt-24">
+        <section id="video" class="reveal scroll-mt-24">
           <div class="mb-3 flex items-center justify-between gap-3">
-            <h2 class="text-xl font-bold text-navy">Watch my full review</h2>
+            <h2 class="text-2xl font-bold text-navy">Watch my full review</h2>
             <a href={`https://www.youtube.com/watch?v=${videoId}`} target="_blank" rel="noopener" class="text-sm font-semibold text-navy underline">Open on YouTube</a>
           </div>
-          <LiteYouTube id={videoId} title={`${d.name} review`} />
+          <LiteYouTube id={videoId} title={`${d.name} review`} chapters={r?.chapters} />
         </section>
-      )}
-      {d.photos.length > 1 && (
-        <section class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {d.photos.slice(1, 7).map((p) => <img src={p.src} alt={p.alt} loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover" />)}
-        </section>
-      )}
-      {reviewed && r && r.scores.length > 0 && <ScoreBadges review={r} />}
-      {reviewed && r && r.scores.length === 0 && !r.videoId && (
-        <div class="card p-5">
-          <p class="eyebrow">My scores</p>
-          <p class="mt-1">Full scores are coming to this page soon. Watch the full review on <a class="font-semibold underline" href={SITE.youtube} target="_blank" rel="noopener">the BostonVentures channel</a>.</p>
-        </div>
       )}
 
-      {reviewed && r?.verdict && (
-        <section class="card p-6">
-          <p class="eyebrow">My verdict</p>
-          <p class="mt-2 text-lg leading-relaxed">{r.verdict}</p>
-          {(r.pros.length > 0 || r.cons.length > 0) && (
-            <div class="mt-5 grid gap-5 sm:grid-cols-2">
-              <div><p class="font-bold text-navy">What I loved</p><ul class="mt-2 space-y-1.5 text-sm">{r.pros.map((p) => <li>✓ {p}</li>)}</ul></div>
-              <div><p class="font-bold text-navy">What could be better</p><ul class="mt-2 space-y-1.5 text-sm">{r.cons.map((p) => <li>✗ {p}</li>)}</ul></div>
-            </div>
-          )}
-          {r.roomStayed && <p class="mt-4 text-sm text-ink/60">Room I stayed in: {r.roomStayed}</p>}
-          {r.comped && <p class="mt-2 text-sm text-ink/60">This stay was provided by the hotel. That never changes my scores — <a class="underline" href="/review-policy">see how reviews work</a>.</p>}
+      {parsed?.intro && <div class="prose-bv reveal text-lg" set:html={parsed.intro} />}
+      {parsed && parsed.sections.length > 0 && <ReviewExplorer sections={parsed.sections} />}
+
+      {d.photos.length > 1 && (
+        <section class="reveal grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {d.photos.slice(1, 7).map((p) => <img src={p.src} alt={p.alt} loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover transition hover:scale-[1.02]" />)}
         </section>
+      )}
+      {reviewed && r && (r.roomStayed || r.comped) && (
+        <p class="text-sm text-ink/60">{r.roomStayed && <>Room I stayed in: {r.roomStayed}. </>}{r.comped && <>This stay was provided by the hotel. That never changes my scores — <a class="underline" href="/review-policy">see how reviews work</a>.</>}</p>
       )}
 
       {!reviewed && (
-        <section class="card p-6">
+        <section class="card reveal p-6">
           <p class="eyebrow">What to know before booking</p>
           <p class="mt-2 text-sm text-ink/70">I haven't stayed here yet, so there are no scores — just checked facts.{reviewedSimilar && <> Want a real review of something similar? See <a class="font-semibold underline" href={`/hotels/${reviewedSimilar.id}`}>{reviewedSimilar.data.name}</a>.</>}</p>
           <a href={`mailto:${SITE.email}?subject=Review request: ${encodeURIComponent(d.name)}`} class="btn-ghost mt-4 text-sm">Request a review of this hotel</a>
@@ -140,12 +130,12 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
 
       {(d.highlights.length > 0 || d.goodToKnow.length > 0) && (
         <section class="grid gap-5 sm:grid-cols-2">
-          {d.highlights.length > 0 && <div class="card p-5"><p class="font-bold text-navy">Highlights</p><ul class="mt-2 space-y-2 text-sm">{d.highlights.map((x) => <li>• {x}</li>)}</ul></div>}
-          {d.goodToKnow.length > 0 && <div class="card border-l-4 border-sun p-5"><p class="font-bold text-navy">Good to know</p><ul class="mt-2 space-y-2 text-sm">{d.goodToKnow.map((x) => <li>• {x}</li>)}</ul></div>}
+          {d.highlights.length > 0 && <div class="card reveal p-5"><p class="font-bold text-navy">✨ Highlights</p><ul class="mt-3 space-y-2 text-sm">{d.highlights.map((x) => <li class="flex gap-2"><span class="text-gold">●</span><span>{x}</span></li>)}</ul></div>}
+          {d.goodToKnow.length > 0 && <div class="card reveal border-l-4 border-sun p-5" style="--d:120ms"><p class="font-bold text-navy">💡 Good to know</p><ul class="mt-3 space-y-2 text-sm">{d.goodToKnow.map((x) => <li class="flex gap-2"><span class="text-sun">●</span><span>{x}</span></li>)}</ul></div>}
         </section>
       )}
 
-      <div class="prose-bv"><Content /></div>
+      {!reviewed && <div class="prose-bv"><Content /></div>}
 
       <section>
         <h2 class="text-xl font-bold text-navy">Getting there from Cancún airport</h2>

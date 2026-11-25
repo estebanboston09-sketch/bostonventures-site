@@ -16,7 +16,7 @@ const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
     </div>
   </section>
   <section class="wrap mt-8">
-    <form id="filters" class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-6" onsubmit="return false">
+    <form id="filters" class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-7" onsubmit="return false">
       <input id="q" type="search" placeholder="Search a hotel…" class="field lg:col-span-2" aria-label="Search hotels" />
       <select id="area" class="field" aria-label="Area">
         <option value="">All areas</option>
@@ -32,7 +32,13 @@ const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
         <option value="ai">All-inclusive</option>
         <option value="ep">Not all-inclusive</option>
       </select>
-      <label class="flex items-center gap-2 rounded-xl px-2 text-sm font-semibold"><input id="reviewed" type="checkbox" class="h-4 w-4 accent-navy" /> Reviewed only</label>
+      <select id="sort" class="field" aria-label="Sort">
+        <option value="reviewed">Reviewed first</option>
+        <option value="score">Top rated</option>
+        <option value="price">Price: low to high</option>
+        <option value="name">A–Z</option>
+      </select>
+      <label class="flex cursor-pointer items-center gap-2 rounded-xl px-2 text-sm font-semibold"><input id="reviewed" type="checkbox" class="h-4 w-4 accent-navy" /> Reviewed only</label>
     </form>
     <p id="count" class="mt-4 text-sm text-ink/60"></p>
     <div id="grid" class="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -58,8 +64,15 @@ const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
       c.style.display = ok ? '' : 'none'; if (ok) n++;
     });
     $('count').textContent = `${n} hotel${n === 1 ? '' : 's'}`;
+    const grid = document.getElementById('grid')!, by = $('sort').value;
+    const key = (c: HTMLElement) => by === 'score' ? -(Number(c.dataset.score) || 0) : by === 'price' ? (Number(c.dataset.price) || 9) : by === 'name' ? 0 : -Number(c.dataset.reviewed) * 100 - (Number(c.dataset.score) || 0);
+    [...cards].sort((a, b) => key(a) - key(b) || a.dataset.name!.localeCompare(b.dataset.name!)).forEach((c, i) => {
+      grid.appendChild(c);
+      if (c.style.display !== 'none') { c.classList.add('in'); c.style.animation = 'none'; void c.offsetWidth; c.style.animation = `fadein .4s ease ${Math.min(i, 8) * 40}ms both`; }
+    });
     document.getElementById('empty')!.classList.toggle('hidden', n > 0);
   }
   document.getElementById('filters')!.addEventListener('input', apply);
+  document.getElementById('filters')!.addEventListener('change', apply);
   apply();
 </script>
