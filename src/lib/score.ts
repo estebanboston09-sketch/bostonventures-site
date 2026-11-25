@@ -1,4 +1,4 @@
-// Overall score: Esteban's own number if he gave one; otherwise the average once 4+ categories are scored.
+// Overall score: Esteban's own number if he gave one (older reviews); otherwise the average of his category scores (default from Nov 2026).
 export function overallScore(review: any): number | null {
   if (!review) return null;
   if (typeof review.overall === 'number') return review.overall;
