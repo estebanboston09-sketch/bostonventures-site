@@ -5,6 +5,8 @@ import LiteYouTube from '../../components/LiteYouTube.astro';
 import TravelEssentials from '../../components/TravelEssentials.astro';
 import Disclosure from '../../components/Disclosure.astro';
 import HotelCard from '../../components/HotelCard.astro';
+import AreaArt from '../../components/AreaArt.astro';
+import { hotelImage } from '../../lib/hotelImage';
 import { getCollection, render } from 'astro:content';
 import { AREAS, SITE, AFFILIATE } from '../../lib/site';
 
@@ -33,6 +35,8 @@ const similar = all
   .sort((a, b) => b.s - a.s).slice(0, 3).map((x) => x.h);
 const reviewedSimilar = all.find((h) => h.id !== hotel.id && h.data.review && h.data.adultsOnly === d.adultsOnly);
 
+const img = hotelImage(d);
+const videoId = r?.videoId;
 const bookUrl = AFFILIATE.hotelBooking ? AFFILIATE.hotelBooking.url(d.name) : d.officialUrl;
 
 const schema: any[] = [
@@ -53,23 +57,32 @@ const schema: any[] = [
 if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoObject', name: `${d.name} review`, thumbnailUrl: `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${r.videoId}`, uploadDate: r.visited });
 ---
 <Base title={title} description={description} schema={schema} noindex={d.needsReview}>
-  <section class="bg-navy pb-10 pt-8 text-white">
-    <div class="wrap">
-      <nav class="text-sm text-white/60"><a href="/hotels" class="hover:text-white">Hotels</a> / <a href={`/hotels?area=${d.area}`} class="hover:text-white">{area?.label}</a></nav>
-      <div class="mt-4">
+  <section class="relative overflow-hidden bg-navy pb-12 pt-8 text-white">
+    {img
+      ? <img src={videoId && !d.photos.length ? `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg` : img.src} alt="" onerror="if(!this.dataset.f){this.dataset.f=1;this.src=this.src.replace('maxresdefault','hqdefault')}" class="absolute inset-0 h-full w-full object-cover" />
+      : <AreaArt area={d.area} seed={hotel.id} class="absolute inset-0 h-full w-full" />}
+    <div class="absolute inset-0 bg-gradient-to-r from-[#063f56]/90 via-[#063f56]/65 to-[#063f56]/20"></div>
+    <div class="wrap relative">
+      <nav class="text-sm text-white/70"><a href="/hotels" class="hover:text-white">Hotels</a> / <a href={`/hotels?area=${d.area}`} class="hover:text-white">{area?.label}</a></nav>
+      <div class="mt-16 sm:mt-24">
         {reviewed ? (
           <span class="inline-flex items-center gap-2 rounded-full bg-sun px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">★ Reviewed by BostonVentures{r?.visited && r.visited.length >= 7 && <> · visited {monthName(r.visited)}</>}</span>
         ) : (
-          <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-wide">Not reviewed yet</span>
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wide backdrop-blur">Not reviewed yet</span>
         )}
       </div>
-      <h1 class="mt-3 text-3xl font-bold sm:text-5xl">{d.name}</h1>
+      <h1 class="mt-3 max-w-3xl text-3xl font-bold drop-shadow sm:text-5xl">{d.name}</h1>
       <p class="mt-2 text-teal">{area?.label}{d.brand && <> · {d.brand}</>}</p>
       <div class="mt-4 flex flex-wrap gap-2">
-        <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{d.allInclusive ? 'All-inclusive' : 'Not all-inclusive'}</span>
-        <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{d.adultsOnly ? 'Adults-only' : 'Kids welcome'}</span>
-        {d.priceLevel && <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{['', 'Budget', 'Mid-range', 'Premium', 'Luxury'][d.priceLevel]}</span>}
+        <span class="rounded-full border border-white/40 bg-white/10 px-3 py-1 text-sm backdrop-blur">{d.allInclusive ? 'All-inclusive' : 'Not all-inclusive'}</span>
+        <span class="rounded-full border border-white/40 bg-white/10 px-3 py-1 text-sm backdrop-blur">{d.adultsOnly ? 'Adults-only' : 'Kids welcome'}</span>
+        {d.priceLevel && <span class="rounded-full border border-white/40 bg-white/10 px-3 py-1 text-sm backdrop-blur">{['', 'Budget', 'Mid-range', 'Premium', 'Luxury'][d.priceLevel]}</span>}
       </div>
+      {videoId && (
+        <a href="#video" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ff0033] px-5 py-3 font-bold text-white shadow-lg hover:brightness-110">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg> Watch my video review
+        </a>
+      )}
     </div>
   </section>
 
@@ -79,7 +92,20 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
         <p class="rounded-xl border-2 border-dashed border-gold bg-white p-4 text-sm"><b>Draft page.</b> Basic facts still need Esteban's check before launch. This page is hidden from Google until then.</p>
       )}
 
-      {reviewed && r?.videoId && <LiteYouTube id={r.videoId} title={`${d.name} review`} />}
+      {videoId && (
+        <section id="video" class="scroll-mt-24">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <h2 class="text-xl font-bold text-navy">Watch my full review</h2>
+            <a href={`https://www.youtube.com/watch?v=${videoId}`} target="_blank" rel="noopener" class="text-sm font-semibold text-navy underline">Open on YouTube</a>
+          </div>
+          <LiteYouTube id={videoId} title={`${d.name} review`} />
+        </section>
+      )}
+      {d.photos.length > 1 && (
+        <section class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {d.photos.slice(1, 7).map((p) => <img src={p.src} alt={p.alt} loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover" />)}
+        </section>
+      )}
       {reviewed && r?.scores && <ScoreBadges scores={r.scores} pricePaid={r.pricePaid} />}
       {reviewed && !r?.scores && (
         <div class="card p-5">

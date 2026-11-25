@@ -22,6 +22,8 @@ const hotels = defineCollection({
     airportMinutes: z.number().optional(),
     restaurants: z.number().optional(),
     beach: z.string().optional(),
+    // Only Esteban's own photos/video frames, or photos with written permission. Files go in public/hotels/<slug>/.
+    photos: z.array(z.object({ src: z.string(), alt: z.string() })).default([]),
     highlights: z.array(z.string()).default([]),
     goodToKnow: z.array(z.string()).default([]),
     bestFor: z.array(z.enum(['families', 'couples', 'adults-only', 'party', 'budget', 'luxury', 'groups', 'honeymoon', 'theme-parks', 'quiet', 'nightlife', 'foodies'])),

@@ -1,5 +1,7 @@
 ---
 import { AREAS } from '../lib/site';
+import AreaArt from './AreaArt.astro';
+import { hotelImage } from '../lib/hotelImage';
 interface Props { hotel: any }
 const { hotel } = Astro.props;
 const d = hotel.data;
@@ -7,6 +9,8 @@ const reviewed = !!d.review;
 const scores = d.review?.scores;
 const overall = scores ? (scores.overall ?? Math.round(((scores.room + scores.food + scores.beachPool + scores.activities + scores.service) / 5) * 10) / 10) : null;
 const price = d.priceLevel ? '$'.repeat(d.priceLevel) : null;
+const img = hotelImage(d);
+const hasVideo = !!d.review?.videoId;
 ---
 <a href={`/hotels/${hotel.id}`} class="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md"
   data-hotel
@@ -17,11 +21,16 @@ const price = d.priceLevel ? '$'.repeat(d.priceLevel) : null;
   data-price={d.priceLevel ?? ''}
   data-tags={d.bestFor.join(' ')}
   data-name={d.name.toLowerCase()}>
-  <div class:list={['relative flex h-32 items-end p-4', reviewed ? 'bg-navy' : 'bg-gradient-to-br from-teal/40 to-sand-2']}>
-    <span class:list={['rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide', reviewed ? 'bg-sun text-navy' : 'bg-white/80 text-navy/70']}>
+  <div class="relative h-44 overflow-hidden bg-sand-2">
+    {img
+      ? <img src={img.src} alt={img.alt} loading="lazy" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+      : <AreaArt area={d.area} seed={hotel.id} class="absolute inset-0 h-full w-full transition duration-500 group-hover:scale-105" />}
+    <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"></div>
+    <span class:list={['absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide', reviewed ? 'bg-sun text-navy' : 'bg-white/90 text-navy/70']}>
       {reviewed ? '★ Reviewed by BostonVentures' : 'Not reviewed yet'}
     </span>
-    {overall != null && <span class="absolute right-4 top-4 grid h-12 w-12 place-items-center rounded-full border-2 border-gold font-serif text-lg font-bold text-sun">{overall}</span>}
+    {hasVideo && <span class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-[#ff0033] px-2.5 py-1 text-[11px] font-bold text-white"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>Video</span>}
+    {overall != null && <span class="absolute bottom-3 right-3 grid h-12 w-12 place-items-center rounded-full border-2 border-white bg-navy font-serif text-lg font-bold text-sun shadow">{overall}</span>}
   </div>
   <div class="flex flex-1 flex-col p-4">
     <h3 class="font-bold text-navy group-hover:underline">{d.name}</h3>

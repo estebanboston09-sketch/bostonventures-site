@@ -1,0 +1,35 @@
+---
+// Flat illustration used when a hotel has no photo yet (we never copy hotel photos).
+interface Props { area: string; seed?: string; class?: string }
+const { area, seed = '', class: cls = '' } = Astro.props;
+let h = 0; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+const skies = [['#7FD3E8', '#D9F4F7'], ['#FFC98B', '#FFE9C7'], ['#9ED8F0', '#E8F7FB'], ['#F6A9A0', '#FFE0C2']];
+const [sky1, sky2] = skies[h % skies.length];
+const sunX = 90 + (h % 220);
+const jungle = ['tulum', 'playa-del-carmen'].includes(area);
+const city = area === 'downtown';
+const id = `g${h}`;
+---
+<svg class={cls} viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color={sky1} /><stop offset="1" stop-color={sky2} /></linearGradient></defs>
+  <rect width="400" height="220" fill={`url(#${id})`} />
+  <circle cx={sunX} cy="78" r="26" fill="#FFD54A" opacity="0.95" />
+  {city ? (
+    <g fill="#0A6E94" opacity="0.85">
+      <rect x="40" y="90" width="40" height="90" /><rect x="90" y="70" width="34" height="110" /><rect x="250" y="80" width="46" height="100" /><rect x="305" y="100" width="36" height="80" />
+    </g>
+  ) : (
+    <g fill="#FFFFFF" opacity="0.9">
+      <rect x="250" y="96" width="34" height="74" rx="2" /><rect x="290" y="84" width="40" height="86" rx="2" /><rect x="336" y="104" width="28" height="66" rx="2" />
+    </g>
+  )}
+  <path d="M0 150 C60 138 120 138 200 150 S340 162 400 150 V220 H0Z" fill="#14A3C7" />
+  <path d="M0 168 C70 158 130 158 200 168 S330 178 400 168 V220 H0Z" fill="#0A86A8" />
+  {jungle
+    ? <path d="M0 220 V170 C40 150 70 160 100 172 C130 150 170 156 200 176 V220Z" fill="#22B07D" />
+    : <path d="M0 220 V188 C90 176 180 184 260 196 S360 206 400 200 V220Z" fill="#F4E3C1" />}
+  <g transform={`translate(${jungle ? 60 : 70} 0)`}>
+    <path d="M0 200 C4 160 10 130 22 104" stroke="#7A5530" stroke-width="5" fill="none" stroke-linecap="round" />
+    <path d="M22 104 C6 96 -10 100 -20 112 M22 104 C14 88 0 82 -12 82 M22 104 C30 88 46 84 58 90 M22 104 C40 100 54 108 60 120 M22 104 C24 90 22 80 16 70" stroke="#1E9C6E" stroke-width="6" fill="none" stroke-linecap="round" />
+  </g>
+</svg>
