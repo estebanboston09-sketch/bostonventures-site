@@ -23,7 +23,19 @@ const hotels = defineCollection({
     restaurants: z.number().optional(),
     beach: z.string().optional(),
     // Only Esteban's own photos/video frames, or photos with written permission. Files go in public/hotels/<slug>/.
-    photos: z.array(z.object({ src: z.string(), alt: z.string() })).default([]),
+    // credit/creditUrl/license: required for free-licensed photos (e.g. Wikimedia Commons) — shown under the photo.
+    photos: z.array(z.object({ src: z.string(), alt: z.string(), credit: z.string().optional(), creditUrl: z.string().url().optional(), license: z.string().optional() })).default([]),
+    // Short description written in our own words from the hotel's official site (never copied text).
+    about: z.string().optional(),
+    amenities: z.array(z.string()).default([]),
+    // Summary in our own words of what travelers commonly mention in public reviews. No copied reviews, no star ratings.
+    travelers: z.object({
+      summary: z.string(),
+      praise: z.array(z.string()).default([]),
+      complaints: z.array(z.string()).default([]),
+      basedOn: z.string(), // e.g. "TripAdvisor and Google reviews, read Nov 2026"
+      links: z.array(z.object({ name: z.string(), url: z.string().url() })).default([]),
+    }).optional(),
     highlights: z.array(z.string()).default([]),
     goodToKnow: z.array(z.string()).default([]),
     bestFor: z.array(z.enum(['families', 'couples', 'adults-only', 'party', 'budget', 'luxury', 'groups', 'honeymoon', 'theme-parks', 'quiet', 'nightlife', 'foodies'])),
