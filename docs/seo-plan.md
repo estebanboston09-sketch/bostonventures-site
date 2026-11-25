@@ -33,7 +33,7 @@ The nightly scheduled task writes **one guide per night**. Each guide goes to it
 ## Quality checklist (all must be true before sending to Esteban)
 - [ ] It answers the search better than the current top result, in fewer words.
 - [ ] Every number, price or rule has a source in `sources` that was actually opened.
-- [ ] Nothing is copied or closely paraphrased from another site. Never copy or summarize TripAdvisor or Google reviews.
+- [ ] Nothing is copied or closely paraphrased from another site. Guides never quote or summarize TripAdvisor or Google reviews (hotel pages have their own labelled "What other travelers say" box, see below).
 - [ ] It sounds like Esteban: first person, direct, honest, no hype words ("stunning", "paradise", "hidden gem").
 - [ ] It links to at least 2 existing pages (hotels, tours, tools or guides).
 - [ ] No photos from other websites.
@@ -78,3 +78,50 @@ When the list runs out, pick the next question tourists search that no guide ans
 
 ## After Esteban approves
 Merge `guia/<slug>` into `main` and push. The site deploys automatically and the sitemap updates itself. Then send him the live link, `https://bostonventurestravel.com/guides/<slug>`, and remind him to request indexing in Google Search Console (URL inspection → **Request indexing**).
+
+
+## Nightly hotel batch (5 hotels per night until the list is done)
+
+Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 5 hotels from the list below whose file `src/content/hotels/<slug>.md` does not exist on `main`.
+
+1. **Facts** (official hotel website first, then big booking sites only to cross-check): name, brand, area (schema enum), all-inclusive, adults-only, rooms, restaurants, minutes from CUN airport, `highlights`, `goodToKnow`, approximate `location` pin, `officialUrl`, `sources`, `factsChecked`. If two sources disagree on a number, leave the number out.
+2. **`about`:** 2–3 sentences in our own words. Never copy the hotel's marketing text.
+3. **`amenities`:** 4–7 short chips.
+4. **`travelers`:** read what public reviews say (TripAdvisor, Expedia, Oyster, Booking.com pages that actually open or appear in search). Write `summary`, 3–5 `praise` and 3–4 `complaints` **in our own words**. Never quote a review, never copy star ratings or scores, never invent a theme you didn't read. `links` = the real review page URL you found. `basedOn` = which sites + month.
+5. **Photos:** never copy photos from hotel or booking sites. Only Wikimedia Commons photos of that exact hotel where the author is clear (credit + creditUrl to the file page); otherwise leave `photos` empty (the card shows an illustration).
+6. Every new hotel has `needsReview: true`. `bestFor` only from facts (adults-only → adults-only, kids club → families, etc.).
+7. Build must pass. Commit all 5 on one branch `hoteles/<YYYY-MM-DD>` and push only that branch. In the nightly message, list the 5 hotel names and say: "Reply OK hotels to publish them."
+8. On "OK hotels": merge into main, push.
+
+### Hotel list (in order)
+| # | Hotel | Area |
+|---|---|---|
+| 1 | Le Blanc Spa Resort Cancún | hotel-zone |
+| 2 | Hyatt Zilara Cancún | hotel-zone |
+| 3 | Iberostar Selection Cancún | hotel-zone |
+| 4 | Nizuc Resort & Spa | hotel-zone |
+| 5 | Kempinski Hotel Cancún | hotel-zone |
+| 6 | Marriott Cancún All-Inclusive | hotel-zone |
+| 7 | Riu Palace Peninsula | hotel-zone |
+| 8 | Riu Palace Kukulkan | hotel-zone |
+| 9 | Riu Cancún | hotel-zone |
+| 10 | Royalton Chic Cancún | hotel-zone |
+| 11 | Royalton Suites Cancún | hotel-zone |
+| 12 | Paradisus Cancún | hotel-zone |
+| 13 | Breathless Cancún Soul | costa-mujeres |
+| 14 | Dreams Natura Resort & Spa | costa-mujeres |
+| 15 | Finest Playa Mujeres | costa-mujeres |
+| 16 | Excellence Playa Mujeres | costa-mujeres |
+| 17 | Atelier Playa Mujeres | costa-mujeres |
+| 18 | Majestic Elegance Costa Mujeres | costa-mujeres |
+| 19 | Grand Palladium Costa Mujeres | costa-mujeres |
+| 20 | TRS Coral Hotel | costa-mujeres |
+| 21 | Sun Palace | south-cancun |
+| 22 | Beach Palace | hotel-zone |
+| 23 | Grand Velas Riviera Maya | riviera-maya |
+| 24 | Secrets Maroma Beach | riviera-maya |
+| 25 | Iberostar Grand Paraíso | riviera-maya |
+| 26 | Valentin Imperial Riviera Maya | riviera-maya |
+| 27 | The Fives Beach Hotel | playa-del-carmen |
+| 28 | Hard Rock Hotel Riviera Maya | riviera-maya |
+| 29 | Bahia Principe Grand Tulum | tulum |
