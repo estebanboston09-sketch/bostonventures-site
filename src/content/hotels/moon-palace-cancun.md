@@ -14,6 +14,9 @@ travelers: {"summary": "Mostly very positive. It's one of the most-reviewed reso
 photos: [{"src": "https://commons.wikimedia.org/wiki/Special:FilePath/Moon-palace-golf-and-spa-resort-cancun.jpg?width=1280", "alt": "Moon Palace Cancún resort", "credit": "Mfala / Wikimedia Commons", "creditUrl": "https://commons.wikimedia.org/wiki/File:Moon-palace-golf-and-spa-resort-cancun.jpg"}]
 airportMinutes: 15
 goodToKnow: ["Your room is assigned to either the Nizuc or the Sunrise section before you arrive", "The beach can get seaweed (sargassum) in season"]
-sources: [{"url": "https://www.moonpalacecancun.com/", "checked": "2026-11"}, {"url": "https://www.oyster.com/cancun/hotels/moon-palace-golf-and-spa-resort/", "checked": "2026-11"}]
 factsChecked: "2026-11"
+officialUrl: "https://www.moonpalacecancun.com/"
+dining: [{"name": "Arrecifes", "type": "Breakfast buffet (Nizuc)"}, {"name": "Palapa Barracuda", "type": "Buffet by day, steakhouse at night (Sunrise)"}, {"name": "Bugambilias", "type": "Mexican (Sunrise)"}, {"name": "La Trattoria", "type": "Italian (golf clubhouse)"}, {"name": "Riviera Maya", "type": "Traditional Mayan (golf clubhouse)"}, {"name": "Momo", "type": "Teppanyaki"}]
+practical: [{"label": "Restaurants", "value": "About 17 across Nizuc and Sunrise"}, {"label": "Which section", "value": "Nizuc is calmer; ask for it when booking"}, {"label": "Moving between sections", "value": "You can use both"}, {"label": "Staying at The Grand", "value": "Access to all three (The Grand, Nizuc, Sunrise)"}]
+sources: [{"url": "https://www.moonpalacecancun.com/", "checked": "2026-11"}, {"url": "https://www.oyster.com/cancun/hotels/moon-palace-golf-and-spa-resort/", "checked": "2026-11"}, {"url": "https://www.travelpulse.com/news/hotels-and-resorts/breaking-down-the-dining-scene-at-moon-palace", "checked": "2026-11"}, {"url": "https://virginholidays.co.uk/holiday-types/all-inclusive-holidays/hotels/moon-palace-cancun", "checked": "2026-11"}]
 ---

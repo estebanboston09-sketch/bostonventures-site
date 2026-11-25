@@ -28,6 +28,10 @@ const hotels = defineCollection({
     // Short description written in our own words from the hotel's official site (never copied text).
     about: z.string().optional(),
     amenities: z.array(z.string()).default([]),
+    // Restaurants/bars from the hotel's official site.
+    dining: z.array(z.object({ name: z.string(), type: z.string() })).default([]),
+    // Check-in, minimum age, Wi-Fi, fees, dress code… { label, value } from official sources.
+    practical: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
     // Summary in our own words of what travelers commonly mention in public reviews. No copied reviews, no star ratings.
     travelers: z.object({
       summary: z.string(),
