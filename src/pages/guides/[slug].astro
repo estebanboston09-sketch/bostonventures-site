@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import TravelEssentials from '../../components/TravelEssentials.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import HotelCard from '../../components/HotelCard.astro';
+import { getCollection, render } from 'astro:content';
+import { TOURS } from '../../data/tours';
+
+export async function getStaticPaths() {
+  const guides = await getCollection('guides');
+  return guides.map((g) => ({ params: { slug: g.id }, props: { guide: g, all: guides } }));
+}
+const { guide, all } = Astro.props;
+const d = guide.data;
+const { Content, headings } = await render(guide);
+const hotels = (await getCollection('hotels')).filter((h) => d.relatedHotels.includes(h.id));
+const tours = TOURS.filter((t) => d.relatedTours.includes(t.slug));
+const more = all.filter((g) => g.id !== guide.id).sort((a, b) => Number(b.data.category === d.category) - Number(a.data.category === d.category)).slice(0, 3);
+const toc = headings.filter((h) => h.depth === 2);
+const updated = new Date(d.updated + '-15').toLocaleString('en-US', { month: 'long', year: 'numeric' });
+const schema: any[] = [
+  { '@context': 'https://schema.org', '@type': 'Article', headline: d.title, dateModified: d.updated, author: { '@type': 'Person', name: 'Esteban (BostonVentures)' } },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Guides', item: new URL('/guides', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: d.title } ] },
+];
+if (d.faqs.length) schema.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: d.faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) });
+---
+<Base title={d.seoTitle ?? d.title} description={d.description} schema={schema}>
+  <section class="relative overflow-hidden bg-navy pb-12 pt-8 text-white">
+    <div class="wrap max-w-4xl">
+      <nav class="text-sm text-white/70"><a href="/guides" class="hover:text-white">Guides</a></nav>
+      <p class="mt-6 text-5xl" aria-hidden="true">{d.emoji}</p>
+      <h1 class="mt-3 text-3xl font-bold leading-tight sm:text-5xl">{d.title}</h1>
+      <p class="mt-3 text-sm text-teal">By Esteban, a local in Cancún · Updated {updated}</p>
+    </div>
+  </section>
+  <div class="wrap mt-8 grid max-w-6xl gap-10 lg:grid-cols-[1fr_280px]">
+    <article class="min-w-0 space-y-8">
+      <div class="reveal card border-l-4 border-sun p-6">
+        <p class="eyebrow">Short answer</p>
+        <p class="mt-2 text-lg leading-relaxed">{d.shortAnswer}</p>
+      </div>
+      <div class="prose-bv reveal"><Content /></div>
+      {d.affiliates.length > 0 && <div class="reveal"><TravelEssentials /></div>}
+      {tours.length > 0 && (
+        <section class="reveal">
+          <h2 class="text-2xl font-bold text-navy">Tours for this</h2>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">{tours.map((t) => <a href={`/tours/${t.slug}`} class="card lift p-5"><p class="font-bold text-navy">{t.name}</p><p class="mt-1 text-sm text-ink/70">{t.short}</p></a>)}</div>
+        </section>
+      )}
+      {hotels.length > 0 && (
+        <section>
+          <h2 class="text-2xl font-bold text-navy">Hotels to look at</h2>
+          <div class="mt-4 grid gap-5 sm:grid-cols-2">{hotels.map((h) => <HotelCard hotel={h} />)}</div>
+        </section>
+      )}
+      {d.faqs.length > 0 && (
+        <section class="reveal">
+          <h2 class="text-2xl font-bold text-navy">Questions people ask</h2>
+          <div class="mt-4 space-y-2">{d.faqs.map((f) => <details class="card group p-4"><summary class="cursor-pointer list-none font-semibold text-navy"><span class="mr-2 inline-block transition group-open:rotate-90">▸</span>{f.q}</summary><p class="mt-2 text-sm text-ink/75">{f.a}</p></details>)}</div>
+        </section>
+      )}
+      <p class="text-xs text-ink/50">Sources: {d.sources.map((s, i) => <><a href={s.url} class="underline" target="_blank" rel="nofollow noopener">{s.title}</a>{i < d.sources.length - 1 && ' · '}</>)}. Rules and prices change — always confirm before you travel.</p>
+      {d.affiliates.length > 0 && <Disclosure />}
+    </article>
+    <aside class="space-y-5 lg:sticky lg:top-24 lg:self-start">
+      {toc.length > 2 && (
+        <nav class="card p-5 text-sm" aria-label="On this page">
+          <p class="font-bold text-navy">On this page</p>
+          <ul class="mt-3 space-y-2">{toc.map((h) => <li><a href={`#${h.slug}`} class="text-ink/70 hover:text-navy hover:underline">{h.text}</a></li>)}</ul>
+        </nav>
+      )}
+      <a href="/tools/trip-planner" class="card lift block bg-sun/30 p-5"><p class="font-bold text-navy">🗓️ Plan your days</p><p class="mt-1 text-sm text-ink/70">Free day-by-day planner, no sign-up.</p></a>
+      {more.length > 0 && <div class="card p-5"><p class="font-bold text-navy">More guides</p><ul class="mt-3 space-y-2 text-sm">{more.map((g) => <li><a class="hover:underline" href={`/guides/${g.id}`}>{g.data.emoji} {g.data.title}</a></li>)}</ul></div>}
+    </aside>
+  </div>
+</Base>

@@ -52,4 +52,25 @@ const hotels = defineCollection({
   }),
 });
 
-export const collections = { hotels };
+// One Markdown file per guide in src/content/guides/. Written by the nightly SEO run (see docs/seo-plan.md),
+// published only after Esteban approves the branch.
+const guides = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/guides' }),
+  schema: z.object({
+    title: z.string(),                 // H1, leads with the search phrase
+    seoTitle: z.string().optional(),   // <title> if different from title
+    description: z.string().max(170), // meta description
+    targetSearch: z.string(),          // the Google search this page answers
+    category: z.enum(['arrival', 'money', 'safety', 'areas', 'seasons', 'day-trips', 'food', 'hotels', 'planning']),
+    emoji: z.string().default('🌴'),
+    shortAnswer: z.string(),           // 2–3 sentence answer box at the top
+    updated: z.string(),               // "2026-11"
+    faqs: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+    relatedHotels: z.array(z.string()).default([]), // hotel slugs
+    relatedTours: z.array(z.string()).default([]),  // tour slugs
+    affiliates: z.array(z.enum(['transfers', 'esim'])).default([]),
+    sources: z.array(z.object({ title: z.string(), url: z.string().url() })).min(1),
+  }),
+});
+
+export const collections = { hotels, guides };
