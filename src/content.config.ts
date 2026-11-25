@@ -24,7 +24,7 @@ const hotels = defineCollection({
     beach: z.string().optional(),
     // Only Esteban's own photos/video frames, or photos with written permission. Files go in public/hotels/<slug>/.
     // credit/creditUrl/license: required for free-licensed photos (e.g. Wikimedia Commons) — shown under the photo.
-    photos: z.array(z.object({ src: z.string(), alt: z.string(), credit: z.string().optional(), creditUrl: z.string().url().optional(), license: z.string().optional() })).default([]),
+    photos: z.array(z.object({ src: z.string(), alt: z.string(), credit: z.string().optional(), creditUrl: z.string().url().optional(), license: z.string().optional(), area: z.boolean().optional() /* true = photo of the area, not this hotel */ })).default([]),
     // Short description written in our own words from the hotel's official site (never copied text).
     about: z.string().optional(),
     amenities: z.array(z.string()).default([]),

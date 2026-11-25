@@ -22,10 +22,10 @@ const img = hotelImage(d);
   data-tags={d.bestFor.join(' ')}
   data-name={d.name.toLowerCase()}>
   <div class="relative h-44 overflow-hidden bg-sand-2">
-    {img
-      ? <img src={img.src} alt={img.alt} loading="lazy" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-      : <AreaArt area={d.area} seed={hotel.id} class="absolute inset-0 h-full w-full transition duration-500 group-hover:scale-105" />}
+    <AreaArt area={d.area} seed={hotel.id} class="absolute inset-0 h-full w-full transition duration-500 group-hover:scale-105" />
+    {img && <img src={img.src} alt={img.alt} loading="lazy" onerror="this.remove()" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
     <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"></div>
+    {img?.area && <span class="absolute right-3 top-3 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold text-white/90">Area photo</span>}
     <span class:list={['absolute bottom-3 left-3 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide', reviewed ? 'bg-sun text-navy' : 'bg-white/90 text-navy/70']}>
       {reviewed ? '★ Reviewed by BostonVentures' : 'Not reviewed yet'}
     </span>

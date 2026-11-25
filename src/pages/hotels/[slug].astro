@@ -66,9 +66,9 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
     {img
       ? (videoId && !d.photos.length
           ? <img src={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`} alt="" data-yt-hero class="absolute inset-0 h-full w-full object-cover" />
-          : <img src={img.src} alt="" class="absolute inset-0 h-full w-full object-cover" />)
+          : <img src={img.src} alt="" onerror="this.remove()" class="absolute inset-0 h-full w-full object-cover" />)
       : <AreaArt area={d.area} seed={hotel.id} class="absolute inset-0 h-full w-full" />}
-    {img && d.photos[0]?.credit && <a href={d.photos[0].creditUrl} target="_blank" rel="noopener nofollow" class="absolute bottom-2 right-3 z-10 text-[10px] text-white/70 hover:text-white">Photo: {d.photos[0].credit}{d.photos[0].license && <> · {d.photos[0].license}</>}</a>}
+    {img && d.photos[0]?.credit && <a href={d.photos[0].creditUrl} target="_blank" rel="noopener nofollow" class="absolute bottom-2 right-3 z-10 text-[10px] text-white/70 hover:text-white">{d.photos[0].area ? 'Area photo' : 'Photo'}: {d.photos[0].credit}{d.photos[0].license && <> · {d.photos[0].license}</>}</a>}
     <div class="absolute inset-0 bg-gradient-to-r from-[#063f56]/90 via-[#063f56]/65 to-[#063f56]/20"></div>
     <div class="wrap relative">
       <nav class="text-sm text-white/70"><a href="/hotels" class="hover:text-white">Hotels</a> / <a href={`/hotels?area=${d.area}`} class="hover:text-white">{area?.label}</a></nav>
