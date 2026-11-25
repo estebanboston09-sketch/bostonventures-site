@@ -6,7 +6,6 @@ allInclusive: true
 adultsOnly: false
 priceLevel: 3
 bestFor: ["families", "groups", "party"]
-needsReview: true
 highlights: ["Music-themed all-inclusive at the south end of the Hotel Zone", "Has a kids club (Roxity Kids Club)"]
 location: {"lat": 21.088, "lng": -86.771}
 about: "A music-themed family all-inclusive at Km 14.5 in the Hotel Zone, next to the golf course and close to La Isla mall. It has 5 restaurants, two swim-up bars, a kids and teens club, the Rock Spa and live entertainment. You can borrow a guitar or a turntable for your room. Rooms were refurbished in 2024."

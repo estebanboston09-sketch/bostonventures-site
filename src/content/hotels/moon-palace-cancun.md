@@ -6,7 +6,6 @@ allInclusive: true
 adultsOnly: false
 priceLevel: 3
 bestFor: ["families", "groups"]
-needsReview: true
 highlights: ["Huge all-inclusive between the airport and Puerto Morelos", "Popular with families; far from Hotel Zone nightlife"]
 location: {"lat": 20.999, "lng": -86.842}
 about: "A huge family all-inclusive on the coast just south of Cancún, about 15 minutes from the airport. It's split into two sections, Nizuc and Sunrise, each with its own pools and restaurants, and sits next to its sister resort The Grand. Golf, a water park and a big kids club mean many families never leave."

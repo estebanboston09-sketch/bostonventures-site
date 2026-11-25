@@ -6,7 +6,6 @@ allInclusive: true
 adultsOnly: true
 priceLevel: 2
 bestFor: ["adults-only", "couples", "nightlife"]
-needsReview: true
 highlights: ["Adults-only all-inclusive near Punta Cancún", "Walking distance to the party strip"]
 location: {"lat": 21.1395, "lng": -86.747}
 about: "An adults-only, 24-hour all-inclusive in a white palace-style building near Punta Cancún (Km 8.5). It has more than 350 rooms, three pools (one infinity, one with a swim-up bar), the Renova Spa, themed restaurants and RIU Party nights. Your wristband also works at the nearby Riu hotels."

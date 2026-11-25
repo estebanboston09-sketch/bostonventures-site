@@ -6,7 +6,6 @@ allInclusive: true
 adultsOnly: true
 priceLevel: 3
 bestFor: ["adults-only", "couples", "honeymoon", "foodies"]
-needsReview: true
 highlights: ["Adults-only, wine-themed all-inclusive", "High-rise with ocean views"]
 location: {"lat": 21.0915, "lng": -86.769}
 about: "An adults-only, wine-themed high-rise at Km 14.5 in the Hotel Zone. It has 497 rooms with terraces facing the sea or the lagoon, 8 à la carte restaurants, 7 bars, infinity pools and a dramatic wine wall. Preferred Club rooms add extra perks."

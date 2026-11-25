@@ -6,7 +6,6 @@ allInclusive: true
 adultsOnly: false
 priceLevel: 3
 bestFor: ["families", "couples"]
-needsReview: true
 highlights: ["All-inclusive at Punta Cancún, the tip of the Hotel Zone", "Walking distance to the party strip"]
 location: {"lat": 21.1386, "lng": -86.74}
 about: "A family all-inclusive at Punta Cancún, the tip of the Hotel Zone, with sea on three sides. It has 547 suites, 8 restaurants and 9 bars, three infinity pools, a kids club and a teens club, and private piers for snorkeling. Coco Bongo and the party strip are a short walk away."

@@ -6,7 +6,6 @@ allInclusive: true
 adultsOnly: false
 priceLevel: 4
 bestFor: ["families", "luxury", "theme-parks"]
-needsReview: true
 highlights: ["Family resort next to Xcaret park", "Stay includes access to the Xcaret parks (All-Fun Inclusive)"]
 location: {"lat": 20.586, "lng": -87.118}
 about: "A large eco-themed resort right next to Xcaret park, south of Playa del Carmen and about an hour from Cancún airport. Its 'All-Fun Inclusive' plan includes unlimited entry and transport to the Grupo Xcaret parks and tours (Xcaret, Xel-Há, Xplor and more), plus a free airport shuttle. Rivers and lagoons run through the grounds."
