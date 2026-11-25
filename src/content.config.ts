@@ -42,7 +42,7 @@ const hotels = defineCollection({
             activities: score,
             activitiesParty: score.optional(),
             service: score,
-            overall: score.optional(),
+            overall: z.number().min(0).max(10).optional(), // set by hand; otherwise the average of the five
           })
           .optional(),
         verdict: z.string().optional(),
