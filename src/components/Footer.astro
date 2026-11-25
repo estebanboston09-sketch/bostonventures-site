@@ -1,11 +1,12 @@
 ---
 import { SITE } from '../lib/site';
+import Logo from './Logo.astro';
 const year = new Date().getFullYear();
 ---
 <footer class="mt-20 bg-navy text-white/80">
   <div class="wrap grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
     <div>
-      <p class="text-lg font-bold text-white">Boston<span class="text-sun">Ventures</span></p>
+      <p class="flex items-center gap-2 text-lg font-bold text-white"><Logo size={34} onDark id="logo-f" />Boston<span class="-ml-2 text-sun">Ventures</span></p>
       <p class="mt-2 text-sm">{SITE.tagline}</p>
       <a href={SITE.youtubeSubscribe} target="_blank" rel="noopener" class="mt-4 inline-block text-sm font-semibold text-sun hover:underline">Watch on YouTube →</a>
     </div>

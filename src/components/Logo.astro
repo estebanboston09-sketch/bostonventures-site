@@ -1,0 +1,20 @@
+---
+// "Flight" logo: sun over the Caribbean with a plane on a dashed flight path.
+interface Props { size?: number; onDark?: boolean; id?: string }
+const { size = 36, onDark = false, id = 'lg' } = Astro.props;
+const trail = onDark ? '#FFFFFF' : '#0A6E94';
+const plane = onDark ? '#FFD54A' : '#22B07D';
+---
+<svg width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+  <defs><clipPath id={id}><circle cx="52" cy="60" r="34" /></clipPath></defs>
+  <circle cx="52" cy="60" r="34" fill="#0A6E94" stroke={onDark ? '#FFFFFF' : 'none'} stroke-width="3" />
+  <g clip-path={`url(#${id})`}>
+    <circle cx="44" cy="52" r="10" fill="#FFD54A" />
+    <path d="M14 66 C28 57 39 57 52 66 S76 75 90 66 V100 H14Z" fill="#14A3C7" />
+    <path d="M14 78 C28 69 39 69 52 78 S76 87 90 78 V100 H14Z" fill="#22B07D" />
+  </g>
+  <path d="M8 44 C18 16 52 6 80 18" fill="none" stroke={trail} stroke-width="3.5" stroke-dasharray="5 6" stroke-linecap="round" />
+  <g transform="translate(86 21) rotate(28)">
+    <path d="M-9 0 H9 M1 0 L-3 -8 M1 0 L-3 8 M-7 0 L-10 -4 M-7 0 L-10 4" stroke={plane} stroke-width="4" stroke-linecap="round" fill="none" />
+  </g>
+</svg>
