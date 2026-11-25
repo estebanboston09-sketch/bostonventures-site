@@ -20,10 +20,6 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <script is:inline>
-      // One address only: send visitors from the temporary workers.dev address and www to the main domain.
-      (function () { var h = location.hostname; if (h.endsWith('workers.dev') || h === 'www.bostonventurestravel.com') location.replace('https://bostonventurestravel.com' + location.pathname + location.search + location.hash); })();
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
