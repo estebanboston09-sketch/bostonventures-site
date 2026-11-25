@@ -13,6 +13,10 @@ amenities: ["Xcaret parks & tours included", "Free airport shuttle", "Rivers & l
 travelers: {"summary": "Very positive overall. Guests rave about the parks being included, the jungle-and-river design and the staff. The main frustrations are lines and sales pressure.", "praise": ["Unlimited park access is a huge value for active families", "Beautiful grounds and rooms", "Helpful, friendly staff", "Clean rooms"], "complaints": ["Long lines at check-in and check-out", "High-pressure vacation-club sales pitch, according to several reviews", "Very expensive per night", "Some areas are only for certain guest categories"], "basedOn": "TripAdvisor, Expedia, Oyster and other public reviews, read Nov 2026", "links": [{"name": "Booking.com reviews", "url": "https://www.booking.com/reviews/mx/hotel/xcaret-all-tours-amp-parks-included.html"}]}
 airportMinutes: 60
 goodToKnow: ["Expect an invitation to a vacation-club sales presentation. It's optional, and you can say no"]
-sources: [{"url": "https://www.hotelxcaret.com/", "checked": "2026-11"}, {"url": "https://www.oyster.com/playa-del-carmen/hotels/hotel-xcaret-mexico/", "checked": "2026-11"}]
 factsChecked: "2026-11"
+rooms: 900
+officialUrl: "https://www.hotelxcaret.com/en/"
+dining: [{"name": "Ha'", "type": "Michelin-starred tasting menu"}, {"name": "Casa Fuego signature restaurant", "type": "Adults-only Casa"}]
+practical: [{"label": "Restaurants", "value": "Up to 20 at Hotel Xcaret México"}, {"label": "Included", "value": "Unlimited Grupo Xcaret parks, 200+ experiences, park & airport transfers"}, {"label": "Ferries included", "value": "Xcaret Xailing: Cancún–Isla Mujeres, Playa–Cozumel"}, {"label": "Adults-only areas", "value": "Casa Fuego (2 private pools, rooftop lap lane)"}, {"label": "Which 'Casa' you get", "value": "Confirmed on arrival (except adults-only Casas)"}, {"label": "Minimum age", "value": "None; all ages welcome"}]
+sources: [{"url": "https://www.hotelxcaret.com/", "checked": "2026-11"}, {"url": "https://www.oyster.com/playa-del-carmen/hotels/hotel-xcaret-mexico/", "checked": "2026-11"}, {"url": "https://www.hotelxcaret.com/en/", "checked": "2026-11"}]
 ---
