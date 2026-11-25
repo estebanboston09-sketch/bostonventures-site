@@ -29,7 +29,7 @@ const hotels = (await getCollection('hotels')).map((h) => ({
     <div id="results" class="hidden">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="text-2xl font-bold text-navy">Your best matches</h2>
-        <button id="restart" class="btn-ghost text-sm" type="button">Start over</button>
+        <button id="restart" class="btn-ghost text-sm" type="button" data-track="hotel_match_restart">Start over</button>
       </div>
       <p id="summary" class="mt-2 text-sm text-ink/60"></p>
       <ol id="list" class="mt-5 space-y-4"></ol>

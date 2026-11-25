@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE } from '../lib/site';
+import { SITE, ANALYTICS } from '../lib/site';
 
 interface Props {
   title: string;
@@ -14,7 +14,21 @@ interface Props {
 const { title, description, image, schema, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const fullTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
-const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+const siteUrl = Astro.site!.href;
+// Site-wide identity for Google and AI search: who runs the site and where else they publish.
+const siteGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'Organization', '@id': `${siteUrl}#org`, name: SITE.name, url: siteUrl, logo: new URL('/favicon.svg', siteUrl).href,
+      description: 'Free English travel guide to Cancún and the Riviera Maya by a local hotel reviewer: honest hotel reviews with scores, tour advice and trip tools.',
+      sameAs: [SITE.youtube], founder: { '@id': `${siteUrl}#esteban` }, areaServed: ['Cancún', 'Riviera Maya', 'Quintana Roo, Mexico'] },
+    { '@type': 'Person', '@id': `${siteUrl}#esteban`, name: 'Esteban', jobTitle: 'Hotel reviewer and local guide', homeLocation: { '@type': 'Place', name: 'Cancún, Mexico' },
+      worksFor: { '@id': `${siteUrl}#org` }, sameAs: [SITE.youtube], url: new URL('/about', siteUrl).href },
+    { '@type': 'WebSite', '@id': `${siteUrl}#website`, name: SITE.name, url: siteUrl, publisher: { '@id': `${siteUrl}#org` }, inLanguage: 'en' },
+  ],
+};
+const schemas = [siteGraph, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
+const phToken = ANALYTICS.posthogToken;
 ---
 <!doctype html>
 <html lang="en">
@@ -40,6 +54,7 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+    {phToken && <meta name="ph-token" content={phToken} data-host={ANALYTICS.posthogHost} />}
   </head>
   <body class="flex min-h-screen flex-col">
     <div id="progress" aria-hidden="true"></div>
@@ -57,6 +72,30 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
         hdr?.classList.toggle('scrolled', scrollY > 10);
       };
       addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    </script>
+      <script>
+      // PostHog: pageviews, clicks, heatmaps and session replays (turn replays/heatmaps on in PostHog settings),
+      // plus named events for the things that matter: affiliate clicks, video plays, tool use.
+      const m = document.querySelector<HTMLMetaElement>('meta[name="ph-token"]');
+      if (m && !/localhost|127\.0\.0\.1|workers\.dev/.test(location.hostname)) {
+        const { default: posthog } = await import('posthog-js'); // only downloaded when analytics is on
+        posthog.init(m.content, { api_host: m.dataset.host, defaults: '2026-01-30', person_profiles: 'identified_only', respect_dnt: true });
+        (window as any).posthog = posthog; // lets tool pages send their own events
+        document.addEventListener('click', (e) => {
+          const el = e.target as HTMLElement;
+          const a = el.closest<HTMLAnchorElement>('a[href]');
+          if (a && a.host && a.host !== location.host) {
+            const sponsored = (a.rel || '').includes('sponsored');
+            posthog.capture(sponsored ? 'affiliate_click' : 'outbound_click', {
+              url: a.href, partner: a.host.replace(/^www\./, ''), label: (a.textContent || '').trim().slice(0, 80), page: location.pathname,
+            });
+          }
+          const v = el.closest<HTMLElement>('[data-play-at]');
+          if (v) posthog.capture('video_play', { at_second: Number(v.dataset.playAt), page: location.pathname });
+          const t = el.closest<HTMLElement>('[data-track]');
+          if (t) posthog.capture(t.dataset.track!, { label: (t.textContent || '').trim().slice(0, 80), page: location.pathname });
+        }, { capture: true });
+      }
     </script>
   </body>
 </html>

@@ -17,7 +17,10 @@ const faq = [
 ];
 ---
 <Base title={`${t.name} from Cancún: Honest Local Guide`} description={`${t.short} Who it's for, who should skip it, and local tips for the ${t.name.toLowerCase()}.`}
-  schema={[{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+  schema={[{ '@context': 'https://schema.org', '@type': 'TouristAttraction', name: t.name, description: t.short, url: new URL(`/tours/${t.slug}`, Astro.site).href,
+      ...(t.where && { geo: { '@type': 'GeoCoordinates', latitude: t.where[0], longitude: t.where[1] } }), touristType: t.goodFor,
+      ...(t.reviewed?.videoId && { subjectOf: { '@type': 'VideoObject', name: `${t.name}: my video`, thumbnailUrl: `https://i.ytimg.com/vi/${t.reviewed.videoId}/hqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${t.reviewed.videoId}`, uploadDate: t.reviewed.videoDate } }) },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Tours', item: new URL('/tours', Astro.site).href }, { '@type': 'ListItem', position: 2, name: t.name }] }]}>
   <section class="bg-navy pb-10 pt-8 text-white"><div class="wrap">
     <nav class="text-sm text-white/60"><a href="/tours" class="hover:text-white">Tours</a></nav>

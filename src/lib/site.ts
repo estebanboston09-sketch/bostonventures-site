@@ -7,6 +7,13 @@ export const SITE = {
   email: 'hello@bostonventurestravel.com', // placeholder until the domain is bought
 };
 
+// PostHog analytics. The project token (starts with phc_) is public and safe to put here.
+// Leave it empty and no tracking code loads.
+export const ANALYTICS = {
+  posthogToken: '',
+  posthogHost: 'https://us.i.posthog.com',
+};
+
 export const AFFILIATE = {
   transfers: {
     name: 'USA Transfers',

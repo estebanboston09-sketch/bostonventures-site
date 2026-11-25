@@ -32,7 +32,7 @@ import { AFFILIATE } from '../../lib/site';
         </div>
       </fieldset>
       <div class="flex flex-wrap gap-3 sm:col-span-2">
-        <button id="go" type="button" class="btn-sun">Build my plan</button>
+        <button id="go" type="button" class="btn-sun" data-track="trip_plan_built">Build my plan</button>
         <p id="err" class="self-center text-sm font-semibold text-[#b42318]"></p>
       </div>
     </form>
@@ -44,7 +44,7 @@ import { AFFILIATE } from '../../lib/site';
           <h2 id="plan-title" class="text-2xl font-bold text-navy"></h2>
         </div>
         <div class="no-print flex gap-2">
-          <button id="share" type="button" class="btn-ghost text-sm">Copy link</button>
+          <button id="share" type="button" data-track="trip_plan_shared" class="btn-ghost text-sm">Copy link</button>
           <button id="print" type="button" class="btn-ghost text-sm">Print / PDF</button>
         </div>
       </div>

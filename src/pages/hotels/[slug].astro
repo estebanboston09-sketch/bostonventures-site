@@ -50,7 +50,7 @@ const schema: any[] = [
     ...(d.address && { address: { '@type': 'PostalAddress', streetAddress: d.address, addressLocality: 'Cancún', addressRegion: 'Quintana Roo', addressCountry: 'MX' } }),
     ...(d.officialUrl && { url: d.officialUrl }),
     ...(overallScore(r) != null && {
-      review: { '@type': 'Review', author: { '@type': 'Person', name: 'Esteban (BostonVentures)' },
+      review: { '@type': 'Review', author: { '@type': 'Person', '@id': new URL('/#esteban', Astro.site).href, name: 'Esteban', url: new URL('/about', Astro.site).href }, publisher: { '@id': new URL('/#org', Astro.site).href },
         reviewRating: { '@type': 'Rating', ratingValue: overallScore(r), bestRating: 10, worstRating: 0 } },
     }),
   },
