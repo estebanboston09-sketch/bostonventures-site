@@ -3,19 +3,25 @@
 
 /* Brand tokens — defined once, used everywhere (see build brief). */
 @theme {
-  --color-navy: #0D1B2A;
-  --color-navy-2: #16283b;
-  --color-gold: #C9A84C;
-  --color-teal: #7ABFCC;
+  /* Caribbean palette. Token names kept so the rest of the code didn't change:
+     "navy" is now the ocean blue, "gold" the sea green, "teal" the light aqua. */
+  --color-navy: #0A6E94;
+  --color-navy-2: #085C7C;
+  --color-gold: #22B07D;
+  --color-teal: #C8F1F0;
   --color-sun: #FFD54A;
-  --color-sand: #F6F1E7;
-  --color-sand-2: #EDE5D4;
-  --color-ink: #10212E;
+  --color-sand: #F3F8F7;
+  --color-sand-2: #E1EFEE;
+  --color-ink: #0F2A33;
   --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-serif: Georgia, "Times New Roman", serif;
 }
 
 html { scroll-behavior: smooth; }
+/* Ocean gradient on every blue block (header, heroes, score panels, footer). */
+.bg-navy { background-image: linear-gradient(135deg, #0A6E94 0%, #0B86A8 55%, #14A39B 100%); }
+header.bg-navy, footer.bg-navy { background-image: none; }
+.bg-navy .eyebrow { color: #C8F1F0; }
 body { @apply bg-sand text-ink font-sans antialiased; }
 
 @utility wrap { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
