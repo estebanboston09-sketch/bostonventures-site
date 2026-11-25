@@ -101,3 +101,8 @@ header.scrolled .bar-inner { height: 3.5rem; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal { opacity: 1; transform: none; }
 }
+.prose-bv table { @apply my-5 w-full max-w-md overflow-hidden rounded-xl text-left text-sm ring-1 ring-navy/10; border-collapse: separate; border-spacing: 0; }
+.prose-bv th { @apply bg-navy px-4 py-2.5 font-semibold text-white; }
+.prose-bv td { @apply border-t border-navy/10 bg-white px-4 py-2.5; }
+.prose-bv tr:nth-child(even) td { @apply bg-sand; }
+.prose-bv h3 { @apply mt-8; }
