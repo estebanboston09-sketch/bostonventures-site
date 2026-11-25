@@ -14,6 +14,9 @@ travelers: {"summary": "Positive but uneven. People love the energy, the beach a
 restaurants: 5
 airportMinutes: 20
 goodToKnow: ["When we checked (Nov 2026), TripAdvisor listed it as temporarily closed until Dec 1, 2026. Confirm it's open for your dates", "The resort credit is not free money: a service fee applies when you use it"]
-sources: [{"url": "https://hotel.hardrock.com/cancun/", "checked": "2026-11"}, {"url": "https://www.oyster.com/cancun/hotels/hard-rock-hotel-cancun/", "checked": "2026-11"}]
 factsChecked: "2026-11"
+officialUrl: "https://hotel.hardrock.com/cancun/"
+dining: [{"name": "Ciao", "type": "Buffet by day, Italian à la carte at night"}, {"name": "Zen", "type": "Japanese / teppanyaki"}, {"name": "Ipanema", "type": "Brazilian steakhouse & Latin"}, {"name": "Toro", "type": "Grill house"}, {"name": "Frida", "type": "Mexican"}, {"name": "Pizzeto", "type": "Brick-oven pizza, grab & go"}]
+practical: [{"label": "Restaurants", "value": "9, most included"}, {"label": "Reservations", "value": "Required for dinner; breakfast and lunch first-come"}, {"label": "Dinner dress code", "value": "Bermuda shorts or pants, collared shirt, no flip-flops or wet clothes"}, {"label": "Teens", "value": "The Cavern teen club (pool table, games)"}, {"label": "Upgrade", "value": "Rock Royalty club level"}]
+sources: [{"url": "https://hotel.hardrock.com/cancun/", "checked": "2026-11"}, {"url": "https://www.oyster.com/cancun/hotels/hard-rock-hotel-cancun/", "checked": "2026-11"}, {"url": "https://hotel.hardrock.com/cancun/eat-and-drink.aspx", "checked": "2026-11"}, {"url": "https://hotel.hardrock.com/all-inclusive/news/hard-rock-cancun-all-inclusive-whats-actually-included-and-what-costs-extra/", "checked": "2026-11"}]
 ---

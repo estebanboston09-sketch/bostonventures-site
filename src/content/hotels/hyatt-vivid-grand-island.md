@@ -12,10 +12,12 @@ address: "Blvd. Kukulcán Km 16.5, Zona Hotelera"
 bestFor: ["adults-only", "couples", "quiet"]
 highlights: ["Newer adults-only, all-suite resort", "Long rooftop pool (Vantage Club)", "10 restaurants and 6 bars"]
 goodToKnow: ["Not directly on the beach: guests use a beach club on Playa Delfines, about 10 minutes by free shuttle"]
-sources: [{"url": "https://hyattinclusivecollection.com/de/resorts-hotels/hyatt-vivid/mexico/grand-island", "checked": "2026-11"}, {"url": "https://vacations.aircanada.com/en/accommodation-details/CUNHVG/Hyatt%20Vivid%20Grand%20Island", "checked": "2026-11"}]
 location: {"lat": 21.0735, "lng": -86.7805}
 about: "A newer (2024) adults-only, all-suite resort in the Grand Island complex at Km 16.5, on the lagoon side of the Hotel Zone. It has a long rooftop pool, lots of casual dining venues, and a beach club on Playa Delfines reached by a free shuttle."
 amenities: ["Adults only", "Rooftop pool", "Beach club by shuttle", "Spa", "Next to golf course"]
 travelers: {"summary": "Positive overall. Guests like the modern design, the rooftop pool and the price, but the beach is not on site.", "praise": ["Modern, very clean rooms", "Rooftop pool and views", "Friendly staff", "Good price for a newer Hyatt"], "complaints": ["Not on the beach. You need the shuttle", "Strong waves and seaweed at the beach club at times", "Some construction nearby in its early days"], "basedOn": "TripAdvisor, Expedia, Oyster and other public reviews, read Nov 2026", "links": [{"name": "TripAdvisor", "url": "https://www.tripadvisor.com/Hotel_Review-d26997115"}]}
 factsChecked: "2026-11"
+officialUrl: "https://www.hyatt.com/en-US/hotel/mexico/hyatt-vivid-grand-island/hyvgi"
+practical: [{"label": "Minimum age", "value": "18"}, {"label": "Check-in / out", "value": "3 pm / 11 am–noon"}, {"label": "Beach", "value": "Not on the beach: Ennea Beach Club on Playa Delfines, ~10 min by free shuttle, 9 am–6 pm"}, {"label": "Beach club shared with", "value": "Dreams Grand Island guests"}, {"label": "Bars", "value": "6, plus 2 swim-up bars"}, {"label": "Dogs", "value": "One dog up to 22 lb, select rooms"}, {"label": "Upgrade", "value": "Vantage Club (top floors, concierge)"}]
+sources: [{"url": "https://hyattinclusivecollection.com/de/resorts-hotels/hyatt-vivid/mexico/grand-island", "checked": "2026-11"}, {"url": "https://vacations.aircanada.com/en/accommodation-details/CUNHVG/Hyatt%20Vivid%20Grand%20Island", "checked": "2026-11"}, {"url": "https://vacations.aircanada.com/en/accommodation-details/CUNHVG/hyatt-vivid-grand-island", "checked": "2026-11"}, {"url": "https://hotels.com/ho3236977152/hyatt-vivid-grand-island-adults-only-all-inclusive-cancun-mexico", "checked": "2026-11"}]
 ---
