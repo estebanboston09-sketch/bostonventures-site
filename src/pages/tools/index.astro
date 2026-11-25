@@ -4,6 +4,9 @@ const tools = [
   { href: '/tools/trip-planner', icon: '🗓️', name: 'Trip planner', text: 'Your dates and style in, a day-by-day plan out — with tours, rest days and a checklist.' },
   { href: '/tools/hotel-match', icon: '🏨', name: 'Hotel matcher', text: '6 questions to find the hotel that fits your group, budget and vibe.' },
   { href: '/tools/tour-finder', icon: '🐋', name: 'Tour finder', text: 'Pick what you love and when you go — see the tours worth your time, and what to skip.' },
+  { href: '/hotels/compare', icon: '⚖️', name: 'Compare hotels', text: 'Put 2 or 3 hotels side by side: scores, prices, who they suit.' },
+  { href: '/tools/fair-prices', icon: '💱', name: 'Fair price checker', text: 'Is that taxi fare fair? How much to tip? Dollars to pesos with today\'s rate.' },
+  { href: '/map', icon: '🗺️', name: 'Map', text: 'Every hotel and tour on one map.' },
   { href: '/guides/cancun-airport', icon: '✈️', name: 'Airport arrival guide', text: 'Step by step from the plane to your hotel, without getting scammed.' },
 ];
 ---
@@ -13,7 +16,7 @@ const tools = [
     <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Plan your trip like a local</h1>
     <p class="mt-2 max-w-2xl text-white/75">No sign-ups, no emails. Built by someone who lives in Cancún.</p>
   </div></section>
-  <div class="wrap mt-8 grid gap-5 sm:grid-cols-2">
+  <div class="wrap mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
     {tools.map((t) => (
       <a href={t.href} class="card lift reveal group p-6">
         <span class="text-3xl" aria-hidden="true">{t.icon}</span>

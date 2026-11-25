@@ -28,6 +28,7 @@ const hotels = defineCollection({
     goodToKnow: z.array(z.string()).default([]),
     bestFor: z.array(z.enum(['families', 'couples', 'adults-only', 'party', 'budget', 'luxury', 'groups', 'honeymoon', 'theme-parks', 'quiet', 'nightlife', 'foodies'])),
     officialUrl: z.string().url().optional(),
+    location: z.object({ lat: z.number(), lng: z.number() }).optional(), // approximate map pin
     sources: z.array(z.object({ url: z.string().url(), checked: z.string() })).default([]),
     factsChecked: z.string().optional(), // "2026-11" — month the facts were last checked
     // true = Esteban still needs to confirm these basic facts before launch

@@ -1,0 +1,67 @@
+---
+// "Today in Cancún": live weather + sea (Open-Meteo, free, no key), dollar/peso rate (open.er-api.com, free),
+// and a typical-season sargassum note. Everything loads in the visitor's browser; if a source is down, that tile hides.
+const month = new Date().getMonth() + 1;
+const sarg =
+  [6, 7].includes(month) ? { level: 'Peak season', tone: 'bg-[#ff6b4a]/15 text-[#a83a1c]', note: 'June and July are usually the worst months for seaweed on Caribbean beaches.' }
+  : [4, 5, 8].includes(month) ? { level: 'In season', tone: 'bg-sun/30 text-[#7a5a00]', note: 'Seaweed often arrives this month. Some beaches are clear, others aren\'t.' }
+  : [9, 10].includes(month) ? { level: 'Easing off', tone: 'bg-teal/40 text-navy', note: 'Seaweed usually drops off after the summer peak.' }
+  : { level: 'Usually low', tone: 'bg-[#22B07D]/15 text-[#13734f]', note: 'Winter is normally the cleanest time for beaches.' };
+---
+<section id="today" class="reveal card overflow-hidden">
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-navy/5 px-5 py-4 sm:px-6">
+    <div>
+      <p class="eyebrow">Live</p>
+      <h2 class="text-xl font-bold text-navy">Today in Cancún</h2>
+    </div>
+    <p id="today-time" class="text-sm text-ink/50"></p>
+  </div>
+  <div class="grid gap-px bg-navy/5 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="tile bg-white p-5" data-tile="weather">
+      <p class="text-xs font-bold uppercase tracking-wider text-ink/50">Weather</p>
+      <p class="mt-2 flex items-center gap-2"><span id="w-icon" class="text-3xl">⛅</span><span id="w-temp" class="font-serif text-3xl font-bold text-navy">—</span></p>
+      <p id="w-desc" class="mt-1 text-sm text-ink/70">Loading…</p>
+    </div>
+    <div class="tile bg-white p-5" data-tile="sea">
+      <p class="text-xs font-bold uppercase tracking-wider text-ink/50">The sea</p>
+      <p class="mt-2 flex items-center gap-2"><span class="text-3xl">🌊</span><span id="s-temp" class="font-serif text-3xl font-bold text-navy">—</span></p>
+      <p id="s-desc" class="mt-1 text-sm text-ink/70">Loading…</p>
+    </div>
+    <div class="tile bg-white p-5">
+      <p class="text-xs font-bold uppercase tracking-wider text-ink/50">Sargassum (seaweed)</p>
+      <p class="mt-2"><span class:list={['inline-block rounded-full px-3 py-1 text-sm font-bold', sarg.tone]}>{sarg.level}</span></p>
+      <p class="mt-2 text-sm text-ink/70">{sarg.note} For today's beach-by-beach status, check the official <b>Semáforo del Sargazo</b> from Quintana Roo's monitoring network.</p>
+    </div>
+    <div class="tile bg-white p-5" data-tile="fx">
+      <p class="text-xs font-bold uppercase tracking-wider text-ink/50">Dollar → peso</p>
+      <p class="mt-2 flex items-center gap-2"><span class="text-3xl">💵</span><span id="fx-usd" class="font-serif text-3xl font-bold text-navy">—</span></p>
+      <p id="fx-desc" class="mt-1 text-sm text-ink/70">Loading…</p>
+      <a href="/tools/fair-prices" class="mt-2 inline-block text-sm font-semibold text-navy underline">Convert & check prices →</a>
+    </div>
+  </div>
+</section>
+<script>
+  const $ = (id: string) => document.getElementById(id)!;
+  const hide = (t: string) => document.querySelector<HTMLElement>(`[data-tile="${t}"]`)?.classList.add('opacity-40');
+  $('today-time').textContent = new Date().toLocaleString('en-US', { timeZone: 'America/Cancun', weekday: 'long', hour: 'numeric', minute: '2-digit' }) + ' in Cancún';
+  const W: Record<number, [string, string]> = { 0: ['☀️', 'Clear sky'], 1: ['🌤️', 'Mostly sunny'], 2: ['⛅', 'Partly cloudy'], 3: ['☁️', 'Cloudy'], 45: ['🌫️', 'Foggy'], 48: ['🌫️', 'Foggy'], 51: ['🌦️', 'Light drizzle'], 53: ['🌦️', 'Drizzle'], 55: ['🌧️', 'Heavy drizzle'], 61: ['🌦️', 'Light rain'], 63: ['🌧️', 'Rain'], 65: ['🌧️', 'Heavy rain'], 80: ['🌦️', 'Passing showers'], 81: ['🌧️', 'Showers'], 82: ['⛈️', 'Heavy showers'], 95: ['⛈️', 'Thunderstorms'], 96: ['⛈️', 'Storms'], 99: ['⛈️', 'Storms'] };
+  const c2f = (c: number) => Math.round(c * 9 / 5 + 32);
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=21.13&longitude=-86.76&current=temperature_2m,weather_code,wind_speed_10m,uv_index&daily=temperature_2m_max,precipitation_probability_max&timezone=America%2FCancun&forecast_days=1')
+    .then((r) => r.json()).then((d) => {
+      const c = d.current, [ic, txt] = W[c.weather_code] ?? ['⛅', 'Mixed'];
+      $('w-icon').textContent = ic;
+      $('w-temp').textContent = `${c2f(c.temperature_2m)}°F`;
+      $('w-desc').textContent = `${txt} · ${Math.round(c.temperature_2m)}°C · high ${c2f(d.daily.temperature_2m_max[0])}°F · ${d.daily.precipitation_probability_max[0]}% chance of rain · UV ${Math.round(c.uv_index)}`;
+    }).catch(() => { $('w-desc').textContent = 'Weather unavailable right now.'; hide('weather'); });
+  fetch('https://marine-api.open-meteo.com/v1/marine?latitude=21.10&longitude=-86.73&current=wave_height,sea_surface_temperature&timezone=America%2FCancun')
+    .then((r) => r.json()).then((d) => {
+      const c = d.current, h = c.wave_height, ft = h * 3.28;
+      $('s-temp').textContent = `${c2f(c.sea_surface_temperature)}°F`;
+      $('s-desc').textContent = `Water ${Math.round(c.sea_surface_temperature)}°C · waves ~${ft.toFixed(1)} ft · ${h < 0.6 ? 'calm — great for swimming' : h < 1.2 ? 'some waves — watch the flags' : 'rough — respect the red flags'}`;
+    }).catch(() => { $('s-desc').textContent = 'Sea data unavailable right now.'; hide('sea'); });
+  fetch('https://open.er-api.com/v6/latest/USD').then((r) => r.json()).then((d) => {
+    const mxn = d.rates.MXN, cad = mxn / d.rates.CAD;
+    $('fx-usd').textContent = `$1 = ${mxn.toFixed(2)}`;
+    $('fx-desc').textContent = `pesos · CA$1 = ${cad.toFixed(2)} pesos. Expect a worse rate at airport exchange booths.`;
+  }).catch(() => { $('fx-desc').textContent = 'Exchange rate unavailable right now.'; hide('fx'); });
+</script>

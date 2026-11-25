@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { AREAS } from '../../lib/site';
+import { overallScore } from '../../lib/score';
+const hotels = (await getCollection('hotels'))
+  .map((h) => ({
+    id: h.id, name: h.data.name, area: AREAS[h.data.area]?.label ?? '', ai: h.data.allInclusive, adults: h.data.adultsOnly,
+    price: h.data.priceLevel ?? 0, priceText: h.data.review?.pricePaid ?? (h.data.priceRangeUSD ? `$${h.data.priceRangeUSD.low}–${h.data.priceRangeUSD.high}/night` : ''),
+    overall: overallScore(h.data.review), scores: h.data.review?.scores ?? [], verdict: h.data.review?.verdict ?? '',
+    reviewed: !!h.data.review, bestFor: h.data.bestFor, airport: h.data.airportMinutes ?? null,
+    img: h.data.review?.videoId ? `https://i.ytimg.com/vi/${h.data.review.videoId}/hqdefault.jpg` : null,
+  }))
+  .sort((a, b) => Number(b.reviewed) - Number(a.reviewed) || (b.overall ?? 0) - (a.overall ?? 0));
+---
+<Base title="Compare Cancún Hotels Side by Side" description="Pick 2 or 3 Cancún and Riviera Maya hotels and compare honest scores, prices, area and who each one is best for — side by side.">
+  <section class="bg-navy py-10 text-white">
+    <div class="wrap">
+      <p class="eyebrow">Free tool</p>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Compare hotels side by side</h1>
+      <p class="mt-2 max-w-2xl text-white/75">Pick up to 3. Reviewed hotels show my real scores from the stay.</p>
+    </div>
+  </section>
+  <div class="wrap mt-8">
+    <div class="card p-5">
+      <p class="text-sm font-bold text-navy">Choose hotels <span id="count" class="font-normal text-ink/50">(0 of 3)</span></p>
+      <div id="picker" class="mt-3 flex flex-wrap gap-2">
+        {hotels.map((h) => <button type="button" class="chip-btn" data-id={h.id} aria-pressed="false">{h.reviewed ? '★ ' : ''}{h.name}</button>)}
+      </div>
+    </div>
+    <p id="empty" class="mt-10 text-center text-ink/60">Pick at least 2 hotels to compare them.</p>
+    <div id="out" class="mt-8 hidden overflow-x-auto pb-4"></div>
+  </div>
+  <script id="hotel-data" type="application/json" set:html={JSON.stringify(hotels)} />
+</Base>
+<style is:global>
+  #picker [aria-pressed="true"] { background: var(--color-navy); color: #fff; border-color: var(--color-navy); }
+  .cmp { display: grid; gap: 0; min-width: 640px; }
+  .cmp > div { padding: .8rem 1rem; border-bottom: 1px solid rgb(10 110 148 / .08); background: #fff; }
+  .cmp .lab { background: var(--color-sand); font-weight: 600; color: var(--color-navy); font-size: .85rem; }
+  .cmp .win { background: rgb(255 213 74 / .22); }
+</style>
+<script>
+  type H = { id: string; name: string; area: string; ai: boolean; adults: boolean; price: number; priceText: string; overall: number | null; scores: { label: string; value: number }[]; verdict: string; reviewed: boolean; bestFor: string[]; airport: number | null; img: string | null };
+  const ALL: H[] = JSON.parse(document.getElementById('hotel-data')!.textContent!);
+  const picked: string[] = [];
+  const picker = document.getElementById('picker')!, out = document.getElementById('out')!;
+  const q = new URLSearchParams(location.search).get('h');
+  if (q) q.split(',').slice(0, 3).forEach((id) => ALL.some((h) => h.id === id) && picked.push(id));
+
+  // Map different score labels onto shared categories so they line up across hotels.
+  const CATS: [string, RegExp][] = [['Room', /room/i], ['Food & drinks', /food/i], ['Beach & pool', /beach|pool/i], ['Activities & vibe', /activit|atmos|vibe/i], ['Service', /service/i]];
+  const cat = (h: H, re: RegExp) => { const v = h.scores.filter((s) => re.test(s.label)).map((s) => s.value); return v.length ? Math.max(...v) : null; };
+  const fmt = (n: number | null) => (n == null ? '<span class="text-ink/40">—</span>' : `<b class="font-serif text-lg text-navy">${Number.isInteger(n) ? n : n.toFixed(1)}</b>`);
+  const bar = (n: number | null) => (n == null ? '' : `<div class="mt-1 h-1.5 rounded-full bg-sand-2"><div class="h-full rounded-full bg-gradient-to-r from-[#14A3C7] to-gold" style="width:${n * 10}%"></div></div>`);
+
+  function draw() {
+    picker.querySelectorAll<HTMLElement>('[data-id]').forEach((b) => b.setAttribute('aria-pressed', String(picked.includes(b.dataset.id!))));
+    document.getElementById('count')!.textContent = `(${picked.length} of 3)`;
+    history.replaceState(null, '', picked.length ? `?h=${picked.join(',')}` : location.pathname);
+    const hs = picked.map((id) => ALL.find((h) => h.id === id)!);
+    document.getElementById('empty')!.classList.toggle('hidden', hs.length >= 2);
+    out.classList.toggle('hidden', hs.length < 2);
+    if (hs.length < 2) return;
+    const cols = `grid-template-columns: 150px repeat(${hs.length}, minmax(180px, 1fr))`;
+    const best = (vals: (number | null)[]) => { const m = Math.max(...vals.filter((v): v is number => v != null)); return vals.map((v) => v != null && v === m && vals.filter((x) => x === m).length < vals.length); };
+    const row = (label: string, cells: string[], wins: boolean[] = []) => `<div class="lab">${label}</div>${cells.map((c, i) => `<div class="${wins[i] ? 'win' : ''}">${c}</div>`).join('')}`;
+    const overall = hs.map((h) => h.overall);
+    let html = `<div class="cmp card overflow-hidden" style="${cols}">`;
+    html += `<div class="lab"></div>${hs.map((h) => `<div class="!bg-navy text-white">${h.img ? `<img src="${h.img}" alt="" class="mb-2 aspect-video w-full rounded-lg object-cover">` : ''}<a class="font-bold hover:underline" href="/hotels/${h.id}">${h.name}</a><p class="text-xs text-teal">${h.area}</p></div>`).join('')}`;
+    html += row('Overall', overall.map((v) => `${fmt(v)}${v == null ? '<p class="text-xs text-ink/50">Not scored</p>' : ''}${bar(v)}`), best(overall));
+    CATS.forEach(([lab, re]) => { const v = hs.map((h) => cat(h, re)); html += row(lab, v.map((x) => fmt(x) + bar(x)), best(v)); });
+    html += row('Price', hs.map((h) => (h.priceText || (h.price ? '$'.repeat(h.price) : '—'))));
+    html += row('All-inclusive', hs.map((h) => (h.ai ? '✓ Yes' : '✗ No')));
+    html += row('Who', hs.map((h) => (h.adults ? 'Adults only' : 'All ages')));
+    html += row('From airport', hs.map((h) => (h.airport ? `~${h.airport} min` : '—')));
+    html += row('Best for', hs.map((h) => h.bestFor.map((t) => `<span class="chip mr-1 mb-1 capitalize">${t.replace('-', ' ')}</span>`).join('')));
+    html += row('My verdict', hs.map((h) => (h.verdict ? `<p class="text-sm">"${h.verdict}"</p>` : '<span class="text-sm text-ink/50">Not reviewed yet</span>')));
+    html += row('', hs.map((h) => `<a href="/hotels/${h.id}" class="btn-sun w-full text-sm">See hotel →</a>`));
+    out.innerHTML = html + '</div><p class="mt-3 text-xs text-ink/50">Highlighted = the best score in that row. Categories are matched across reviews, so one may cover two of my video categories.</p>';
+  }
+  picker.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-id]'); if (!b) return;
+    const id = b.dataset.id!, i = picked.indexOf(id);
+    if (i >= 0) picked.splice(i, 1); else if (picked.length < 3) picked.push(id); else { picked.shift(); picked.push(id); }
+    draw();
+  });
+  draw();
+</script>

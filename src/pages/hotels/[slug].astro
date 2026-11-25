@@ -163,6 +163,7 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
         </dl>
         {bookUrl && <a href={bookUrl} target="_blank" rel={AFFILIATE.hotelBooking ? 'sponsored nofollow noopener' : 'noopener'} class="btn-sun mt-5 w-full">Check prices →</a>}
         <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" class="btn-ghost mt-2 w-full text-sm">Book airport transfer</a>
+        <a href={`/hotels/compare?h=${[hotel.id, ...similar.slice(0, 1).map((x) => x.id)].join(',')}`} class="btn-ghost mt-2 w-full text-sm">⚖️ Compare with similar</a>
       </div>
       <div class="card p-5">
         <p class="font-bold text-navy">Best for</p>

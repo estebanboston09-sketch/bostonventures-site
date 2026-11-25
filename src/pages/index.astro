@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import TodayBox from '../components/TodayBox.astro';
 import HotelCard from '../components/HotelCard.astro';
 import { getCollection } from 'astro:content';
 import { TOURS } from '../data/tours';
@@ -42,7 +43,7 @@ const areaPick = ['hotel-zone', 'playa-del-carmen', 'south-cancun', 'costa-mujer
       ['/tools/trip-planner', '🗓️', 'Trip planner', 'Day-by-day plan in a minute'],
       ['/tools/hotel-match', '🏨', 'Hotel matcher', '6 questions, your best hotels'],
       ['/tools/tour-finder', '🐋', 'Tour finder', 'What to do — and what to skip'],
-      ['/guides/cancun-airport', '✈️', 'Airport guide', 'Plane to pool, no scams'],
+      ['/map', '🗺️', 'Map', 'Every hotel and tour on one map'],
     ].map(([href, icon, name, sub]) => (
       <a href={href} class="card lift reveal group flex items-center gap-4 p-5">
         <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-sand-2 text-2xl transition group-hover:scale-110 group-hover:-rotate-6" aria-hidden="true">{icon}</span>
@@ -50,6 +51,8 @@ const areaPick = ['hotel-zone', 'playa-del-carmen', 'south-cancun', 'costa-mujer
       </a>
     ))}
   </section>
+
+  <section class="wrap mt-10"><TodayBox /></section>
 
   <section class="wrap mt-16">
     <div class="flex items-end justify-between gap-4">

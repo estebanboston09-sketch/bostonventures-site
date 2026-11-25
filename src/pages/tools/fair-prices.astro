@@ -1,0 +1,136 @@
+---
+import Base from '../../layouts/Base.astro';
+// Price ranges below come from the sources listed at the bottom of the page (checked Nov 2026).
+const CHECKS = [
+  { id: 'airport-taxi', label: 'Airport taxi → Hotel Zone', unit: 'MXN', low: 900, high: 1200, tip: 'Airport taxis are the priciest way in. A pre-booked transfer or the 140-peso ADO bus is usually cheaper.' },
+  { id: 'shuttle', label: 'Shared shuttle → Hotel Zone (per person)', unit: 'USD', low: 15, high: 22, tip: 'You stop at other hotels first, so allow 30–45 minutes.' },
+  { id: 'ado', label: 'ADO bus airport → Hotel Zone', unit: 'MXN', low: 140, high: 140, tip: 'Fixed fare. Buy at the ADO counter or on ado.com.mx.' },
+  { id: 'uber-airport', label: 'Uber Hotel Zone → airport', unit: 'MXN', low: 400, high: 600, tip: 'Typical UberX fare is around 500 pesos; it changes with demand.' },
+  { id: 'housekeeping', label: 'Housekeeping tip (per night)', unit: 'MXN', low: 20, high: 50, tip: 'Leave it daily — staff rotate, so one big tip at the end may not reach everyone.' },
+  { id: 'bellhop', label: 'Bellhop tip', unit: 'MXN', low: 25, high: 50, tip: 'Lean higher if you have several bags.' },
+  { id: 'bartender', label: 'Bartender tip (per round)', unit: 'MXN', low: 40, high: 50, tip: 'About $2 a round. Pesos are better for staff than dollars.' },
+];
+---
+<Base title="Cancún Fair Price Checker: Taxis, Tips & Pesos" description="Is that price fair? Check taxi and shuttle fares, how much to tip in Cancún, and convert dollars to pesos with today's rate — from a local.">
+  <section class="bg-navy py-10 text-white">
+    <div class="wrap max-w-4xl">
+      <p class="eyebrow">Free tool</p>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Fair price checker</h1>
+      <p class="mt-2 text-white/75">Don't get ripped off. Check a price, work out a tip and convert to pesos with today's rate.</p>
+    </div>
+  </section>
+  <div class="wrap mt-8 max-w-4xl space-y-8">
+
+    <section class="card reveal p-6">
+      <h2 class="text-xl font-bold text-navy">💱 Dollars ↔ pesos</h2>
+      <p id="rate-line" class="mt-1 text-sm text-ink/60">Loading today's rate…</p>
+      <div class="mt-4 grid items-end gap-3 sm:grid-cols-[1fr_auto_1fr]">
+        <label class="block"><span class="text-sm font-semibold">You pay</span>
+          <div class="mt-1 flex gap-2"><input id="amt" type="number" min="0" step="any" value="100" class="field" /><select id="from" class="field w-28"><option>USD</option><option>CAD</option><option>MXN</option></select></div>
+        </label>
+        <button id="swap" type="button" class="btn-ghost mb-0.5 justify-self-center" aria-label="Swap currencies">⇄</button>
+        <div class="rounded-xl bg-sand p-3"><span class="text-sm font-semibold">That's</span><p class="font-serif text-2xl font-bold text-navy"><span id="res">—</span> <span id="to-lab" class="text-base">MXN</span></p></div>
+      </div>
+      <div class="mt-3 flex flex-wrap gap-2" id="quick">
+        {[20, 50, 100, 200, 500, 1000].map((n) => <button type="button" class="chip-btn" data-mxn={n}>{n} pesos</button>)}
+      </div>
+      <p class="mt-3 text-sm text-ink/60">💡 When a card machine asks "pay in USD or MXN?", choose <b>MXN</b> — paying in dollars usually means a worse rate.</p>
+    </section>
+
+    <section class="card reveal p-6">
+      <h2 class="text-xl font-bold text-navy">🧾 Is this price fair?</h2>
+      <p class="mt-1 text-sm text-ink/60">Pick what you're paying for and type the price you were quoted.</p>
+      <div class="mt-4 grid gap-3 sm:grid-cols-[1fr_180px]">
+        <select id="item" class="field">{CHECKS.map((c) => <option value={c.id}>{c.label}</option>)}</select>
+        <div class="flex gap-2"><input id="quote" type="number" min="0" step="any" placeholder="Price" class="field" /><select id="qcur" class="field w-24"><option>MXN</option><option>USD</option></select></div>
+      </div>
+      <div id="verdict" class="mt-4 hidden rounded-2xl p-5"></div>
+    </section>
+
+    <section class="card reveal p-6">
+      <h2 class="text-xl font-bold text-navy">🍽️ Tip calculator</h2>
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        <label class="block"><span class="text-sm font-semibold">Bill</span><div class="mt-1 flex gap-2"><input id="bill" type="number" min="0" step="any" value="1200" class="field" /><select id="bcur" class="field w-24"><option>MXN</option><option>USD</option></select></div></label>
+        <div><span class="text-sm font-semibold">Service</span>
+          <div class="mt-1 grid grid-cols-3 gap-2" id="svc">
+            <button type="button" class="opt px-2 py-2 text-center text-sm" data-p="10" aria-pressed="false">OK · 10%</button>
+            <button type="button" class="opt px-2 py-2 text-center text-sm" data-p="15" aria-pressed="true">Good · 15%</button>
+            <button type="button" class="opt px-2 py-2 text-center text-sm" data-p="20" aria-pressed="false">Great · 20%</button>
+          </div>
+        </div>
+      </div>
+      <label class="mt-4 flex items-center gap-2 text-sm font-semibold"><input id="included" type="checkbox" class="h-4 w-4 accent-navy" /> The bill already says "servicio" or "propina"</label>
+      <div id="tip-out" class="mt-4 rounded-2xl bg-sand p-5"></div>
+    </section>
+
+    <section class="reveal">
+      <h2 class="text-xl font-bold text-navy">Quick tipping guide</h2>
+      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        {[
+          ['🍽️ Restaurants', '10–15% for good service. Check the bill first — a tip can\'t legally be forced on you.'],
+          ['🛏️ Housekeeping', '20–50 pesos a night, left daily.'],
+          ['🧳 Bellhops', '25–50 pesos, more for lots of bags.'],
+          ['🍹 Bartenders', 'About 40–50 pesos (~$2) a round.'],
+          ['🏖️ All-inclusive staff', 'Not required — many resorts include it — but appreciated. Ask if your resort has a no-tipping policy.'],
+          ['💵 Pesos or dollars?', 'Pesos. Staff lose money changing dollars.'],
+        ].map(([t, d]) => <div class="card p-4"><p class="font-bold text-navy">{t}</p><p class="mt-1 text-sm text-ink/70">{d}</p></div>)}
+      </div>
+    </section>
+
+    <p class="text-xs text-ink/50">Ranges checked November 2026 from: Mexico News Daily (ADO bus), How is the Sargassum and The Better Vacation (shuttles and airport taxis), Welcome Pickups (Uber fares), AFAR, The Cancún Sun and Travel Binger (tipping, PROFECO warning). Exchange rate from open.er-api.com. Prices change — use these as a guide, not a guarantee.</p>
+  </div>
+  <script id="checks" type="application/json" set:html={JSON.stringify(CHECKS)} />
+</Base>
+<script>
+  type C = { id: string; label: string; unit: 'MXN' | 'USD'; low: number; high: number; tip: string };
+  const CHECKS: C[] = JSON.parse(document.getElementById('checks')!.textContent!);
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  let rates: Record<string, number> = { USD: 1, MXN: 18, CAD: 1.38 }; // fallback until live rate loads
+  let live = false;
+  const toMXN = (v: number, cur: string) => (v / rates[cur]) * rates.MXN;
+  const fromMXN = (v: number, cur: string) => (v / rates.MXN) * rates[cur];
+  const money = (n: number, cur: string) => (cur === 'MXN' ? `${Math.round(n).toLocaleString()} pesos` : `${cur === 'CAD' ? 'CA$' : '$'}${n.toFixed(2)}`);
+
+  function convert() {
+    const a = Number($<HTMLInputElement>('amt').value) || 0, f = $<HTMLSelectElement>('from').value;
+    const to = f === 'MXN' ? 'USD' : 'MXN';
+    $('to-lab').textContent = to;
+    const v = f === 'MXN' ? fromMXN(a, 'USD') : toMXN(a, f);
+    $('res').textContent = to === 'MXN' ? Math.round(v).toLocaleString() : v.toFixed(2);
+  }
+  fetch('https://open.er-api.com/v6/latest/USD').then((r) => r.json()).then((d) => {
+    rates = { USD: 1, MXN: d.rates.MXN, CAD: d.rates.CAD }; live = true;
+    $('rate-line').textContent = `Today: $1 USD = ${d.rates.MXN.toFixed(2)} pesos · CA$1 = ${(d.rates.MXN / d.rates.CAD).toFixed(2)} pesos`;
+    convert(); check(); tip();
+  }).catch(() => { $('rate-line').textContent = 'Live rate unavailable — using an approximate rate.'; });
+  ['amt', 'from'].forEach((id) => $(id).addEventListener('input', convert));
+  $('swap').addEventListener('click', () => { const s = $<HTMLSelectElement>('from'); s.value = s.value === 'MXN' ? 'USD' : 'MXN'; convert(); });
+  $('quick').addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-mxn]'); if (!b) return; $<HTMLInputElement>('amt').value = b.dataset.mxn!; $<HTMLSelectElement>('from').value = 'MXN'; convert(); });
+
+  function check() {
+    const c = CHECKS.find((x) => x.id === $<HTMLSelectElement>('item').value)!;
+    const raw = Number($<HTMLInputElement>('quote').value), cur = $<HTMLSelectElement>('qcur').value;
+    const box = $('verdict');
+    if (!raw) { box.classList.add('hidden'); return; }
+    const inUnit = cur === c.unit ? raw : c.unit === 'MXN' ? toMXN(raw, 'USD') : fromMXN(raw, 'USD');
+    const r = inUnit / c.high;
+    const [tone, head] = inUnit < c.low * 0.8 ? ['bg-teal/30', '🤔 Suspiciously cheap'] : r <= 1.05 ? ['bg-[#22B07D]/15', '✅ Fair price'] : r <= 1.4 ? ['bg-sun/30', '⚠️ A bit high'] : ['bg-[#ff6b4a]/15', '🚩 Too high'];
+    const range = c.low === c.high ? `${money(c.low, c.unit)}` : `${money(c.low, c.unit)}–${money(c.high, c.unit)}`;
+    box.className = `mt-4 rounded-2xl p-5 fade-in ${tone}`;
+    box.innerHTML = `<p class="text-lg font-bold text-navy">${head}</p><p class="mt-1 text-sm">You were quoted <b>${money(raw, cur)}</b>${cur !== c.unit ? ` (≈ ${money(inUnit, c.unit)})` : ''}. The usual range is <b>${range}</b>.</p><p class="mt-2 text-sm text-ink/70">💡 ${c.tip}</p>`;
+  }
+  ['item', 'quote', 'qcur'].forEach((id) => $(id).addEventListener('input', check));
+
+  let pct = 15;
+  function tip() {
+    const b = Number($<HTMLInputElement>('bill').value) || 0, cur = $<HTMLSelectElement>('bcur').value, inc = $<HTMLInputElement>('included').checked;
+    const t = (b * pct) / 100;
+    const other = cur === 'MXN' ? money(fromMXN(t, 'USD'), 'USD') : money(toMXN(t, 'USD'), 'MXN');
+    $('tip-out').innerHTML = inc
+      ? `<p class="font-bold text-navy">The tip is already on the bill.</p><p class="mt-1 text-sm">You don't need to add more unless the service was special. Under Mexican law a tip can't be forced on you — if you didn't agree to it, you can ask for it to be removed.</p>`
+      : `<p class="text-sm">Leave a tip of</p><p class="font-serif text-3xl font-bold text-navy">${money(t, cur)}</p><p class="text-sm text-ink/60">≈ ${other} · total ${money(b + t, cur)}${live ? '' : ' (approximate rate)'}</p>`;
+  }
+  $('svc').addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-p]'); if (!b) return; pct = Number(b.dataset.p); $('svc').querySelectorAll('[data-p]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); tip(); });
+  ['bill', 'bcur', 'included'].forEach((id) => $(id).addEventListener('input', tip));
+  convert(); tip();
+</script>

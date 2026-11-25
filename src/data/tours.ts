@@ -19,6 +19,7 @@ export interface Tour {
   localTip: string;
   goodFor: string;
   skipIf: string;
+  where?: [number, number]; // approximate map pin
   reviewed?: { videoId?: string; chapters?: { label: string; start: number }[]; videoDate?: string; verdict?: string; notes?: string[]; prices?: { text: string; checked: string } };
 }
 
@@ -36,7 +37,7 @@ export const INTEREST_LABELS: Record<Interest, string> = {
 
 export const TOURS: Tour[] = [
   {
-    slug: 'whale-shark-tour-cancun', name: 'Swim with whale sharks',
+    slug: 'whale-shark-tour-cancun', where: [21.2587, -86.748], name: 'Swim with whale sharks',
     short: 'Boat out to open water and snorkel next to the biggest fish on the planet.',
     interests: ['sea-life', 'nature', 'adrenaline'], kids: 'ok', energy: 3, length: 'full',
     travel: 'Boats leave from Cancún or Isla Mujeres; the sharks are 1–2+ hours offshore',
@@ -46,7 +47,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You get badly seasick or are not comfortable in deep open water.',
   },
   {
-    slug: 'chichen-itza-day-trip', name: 'Chichén Itzá day trip',
+    slug: 'chichen-itza-day-trip', where: [20.6843, -88.5678], name: 'Chichén Itzá day trip',
     short: 'The famous pyramid of El Castillo, usually combined with a cenote swim and lunch in Valladolid.',
     interests: ['ruins', 'cenotes', 'food-culture'], kids: 'ok', energy: 2, length: 'full',
     travel: 'About 2.5–3 hours each way',
@@ -55,7 +56,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You hate long bus days — it is a lot of time on the road.',
   },
   {
-    slug: 'isla-mujeres-day-trip', name: 'Isla Mujeres day trip',
+    slug: 'isla-mujeres-day-trip', where: [21.232, -86.731], name: 'Isla Mujeres day trip',
     short: 'Ferry or catamaran to a laid-back island with calm, shallow beaches and golf carts.',
     interests: ['beach', 'sea-life', 'food-culture'], kids: 'great', energy: 1, length: 'full',
     travel: 'Short ferry ride from Puerto Juárez or the Hotel Zone',
@@ -64,7 +65,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You want wild, empty beaches — Playa Norte gets busy.',
   },
   {
-    slug: 'catamaran-isla-mujeres', name: 'Catamaran party to Isla Mujeres',
+    slug: 'catamaran-isla-mujeres', where: [21.145, -86.762], name: 'Catamaran party to Isla Mujeres',
     short: 'Open bar, music and a snorkel stop on the way to the island.',
     interests: ['party', 'beach', 'sea-life'], kids: 'no', energy: 2, length: 'full',
     travel: 'Leaves from the Hotel Zone marinas',
@@ -73,7 +74,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You want a quiet day or are travelling with kids.',
   },
   {
-    slug: 'xcaret-park', name: 'Xcaret park',
+    slug: 'xcaret-park', where: [20.58, -87.1197], name: 'Xcaret park',
     short: 'Huge eco-park with underground rivers, animals, beaches and a big Mexican night show.',
     interests: ['theme-parks', 'nature', 'food-culture', 'sea-life'], kids: 'great', energy: 2, length: 'full',
     travel: 'About 1 hour 15 minutes south',
@@ -82,7 +83,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You dislike crowds and organised attractions.',
   },
   {
-    slug: 'xel-ha-park', name: 'Xel-Há park',
+    slug: 'xel-ha-park', where: [20.3186, -87.3583], name: 'Xel-Há park',
     short: 'Eco-park in a natural inlet: float down a river, cliff jumps, a rope walk, a zipline into the water and a huge waterslide tower.',
     interests: ['theme-parks', 'sea-life', 'beach', 'nature'], kids: 'great', energy: 1, length: 'full',
     travel: 'About 1 hour 20 minutes from Cancún; about 45 minutes from Playa del Carmen',
@@ -103,7 +104,7 @@ export const TOURS: Tour[] = [
     },
   },
   {
-    slug: 'xplor-park', name: 'Xplor park',
+    slug: 'xplor-park', where: [20.5905, -87.13], name: 'Xplor park',
     short: 'Ziplines, amphibious jeeps, underground river swims and cave rafting.',
     interests: ['adrenaline', 'theme-parks', 'cenotes'], kids: 'ok', energy: 3, length: 'full',
     travel: 'About 1 hour 15 minutes south',
@@ -112,7 +113,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You are afraid of heights or enclosed caves.',
   },
   {
-    slug: 'cenote-tour', name: 'Cenote swimming tour',
+    slug: 'cenote-tour', where: [20.835, -87.05], name: 'Cenote swimming tour',
     short: 'Swim in crystal-clear natural sinkholes in the jungle — open, cave and semi-open cenotes.',
     interests: ['cenotes', 'nature', 'adrenaline'], kids: 'ok', energy: 2, length: 'half',
     travel: 'Ruta de los Cenotes near Puerto Morelos is about 40 minutes away',
@@ -121,7 +122,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You are uncomfortable in deep or dark water.',
   },
   {
-    slug: 'tulum-ruins-and-beach', name: 'Tulum ruins & beach',
+    slug: 'tulum-ruins-and-beach', where: [20.2148, -87.429], name: 'Tulum ruins & beach',
     short: 'Mayan ruins on a cliff over the Caribbean, often paired with a cenote and Tulum town.',
     interests: ['ruins', 'beach', 'cenotes', 'food-culture'], kids: 'ok', energy: 2, length: 'full',
     travel: 'About 2 hours south',
@@ -130,7 +131,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You only have one day for ruins and want the biggest site (pick Chichén Itzá).',
   },
   {
-    slug: 'cozumel-snorkel', name: 'Cozumel reef snorkel',
+    slug: 'cozumel-snorkel', where: [20.5083, -86.9458], name: 'Cozumel reef snorkel',
     short: 'Some of the best reef snorkeling in Mexico, reached by ferry from Playa del Carmen.',
     interests: ['sea-life', 'beach', 'nature'], kids: 'ok', energy: 2, length: 'full',
     travel: 'About 1 hour to Playa del Carmen, then a ferry',
@@ -139,7 +140,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You get seasick — the Cozumel ferry can be choppy.',
   },
   {
-    slug: 'holbox-day-trip', name: 'Holbox island',
+    slug: 'holbox-day-trip', where: [21.5229, -87.3794], name: 'Holbox island',
     short: 'Car-free island with sandbars, flamingos and a slow, barefoot vibe.',
     interests: ['beach', 'nature', 'food-culture'], kids: 'ok', energy: 1, length: 'full',
     travel: 'About 2 hours to Chiquilá, then a ferry',
@@ -148,7 +149,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You only have one or two free days.',
   },
   {
-    slug: 'valladolid-and-cenotes', name: 'Valladolid & cenotes',
+    slug: 'valladolid-and-cenotes', where: [20.6896, -88.2016], name: 'Valladolid & cenotes',
     short: 'Colourful colonial town with great Yucatecan food and cenotes nearby.',
     interests: ['food-culture', 'cenotes', 'ruins'], kids: 'ok', energy: 1, length: 'full',
     travel: 'About 2 hours west',
@@ -157,7 +158,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You came only for the beach.',
   },
   {
-    slug: 'jungle-tour-speedboat', name: 'Jungle tour speedboat',
+    slug: 'jungle-tour-speedboat', where: [21.1, -86.77], name: 'Jungle tour speedboat',
     short: 'Drive your own speedboat through the mangroves of the lagoon, then snorkel the reef.',
     interests: ['adrenaline', 'sea-life', 'nature'], kids: 'ok', energy: 2, length: 'half',
     travel: 'Leaves from the Hotel Zone lagoon side',
@@ -166,7 +167,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You want a calm, slow nature trip.',
   },
   {
-    slug: 'musa-underwater-museum', name: 'MUSA underwater museum',
+    slug: 'musa-underwater-museum', where: [21.031, -86.78], name: 'MUSA underwater museum',
     short: 'Snorkel or dive over hundreds of underwater sculptures that became an artificial reef.',
     interests: ['sea-life', 'nature'], kids: 'ok', energy: 2, length: 'half',
     travel: 'Boats leave from the Hotel Zone or Isla Mujeres',
@@ -175,7 +176,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You expect a museum on land — it is all underwater.',
   },
   {
-    slug: 'crococun-zoo', name: 'Crococun Zoo',
+    slug: 'crococun-zoo', where: [20.866, -86.894], name: 'Crococun Zoo',
     short: 'Small guided zoo where you feed parrots and deer, hold a snake and a baby crocodile, and walk among the crocodiles.',
     interests: ['nature', 'adrenaline'], kids: 'great', energy: 1, length: 'half',
     travel: 'Just outside Cancún on the way to Puerto Morelos',
@@ -196,7 +197,7 @@ export const TOURS: Tour[] = [
     },
   },
   {
-    slug: 'mercado-23-cancun', name: 'Mercado 23 local market',
+    slug: 'mercado-23-cancun', where: [21.168, -86.8277], name: 'Mercado 23 local market',
     short: "Walk Cancún's local market: crafts and luchador masks, cochinita and chicharrón, exotic fruit, chilies, Mexican candy and fresh tortillas.",
     interests: ['food-culture'], kids: 'ok', energy: 1, length: 'half',
     travel: 'Downtown Cancún, about 20–30 minutes from the Hotel Zone',
@@ -216,7 +217,7 @@ export const TOURS: Tour[] = [
     },
   },
   {
-    slug: 'cancun-taco-tour', name: 'Downtown taco & food night',
+    slug: 'cancun-taco-tour', where: [21.161, -86.827], name: 'Downtown taco & food night',
     short: 'Eat where locals eat in downtown Cancún: tacos al pastor, marquesitas, mezcal.',
     interests: ['food-culture', 'party'], kids: 'great', energy: 1, length: 'half',
     travel: 'About 20–30 minutes from the Hotel Zone',
@@ -225,7 +226,7 @@ export const TOURS: Tour[] = [
     skipIf: 'You never want to leave the resort.',
   },
   {
-    slug: 'coco-bongo-night', name: 'Night out in the party zone',
+    slug: 'coco-bongo-night', where: [21.1338, -86.7465], name: 'Night out in the party zone',
     short: 'Coco Bongo and the clubs at Punta Cancún — shows, acrobats and big-club nights.',
     interests: ['party'], kids: 'no', energy: 2, length: 'half',
     travel: 'In the Hotel Zone, around Km 9 (Punta Cancún)',

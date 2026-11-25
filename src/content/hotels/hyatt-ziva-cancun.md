@@ -8,4 +8,5 @@ priceLevel: 3
 bestFor: ["families", "couples"]
 needsReview: true
 highlights: ["All-inclusive at Punta Cancún, the tip of the Hotel Zone", "Walking distance to the party strip"]
+location: {"lat": 21.1386, "lng": -86.74}
 ---

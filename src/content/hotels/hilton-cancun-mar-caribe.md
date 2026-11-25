@@ -15,6 +15,7 @@ goodToKnow: ["Ask for a room away from the restaurant entrances — the sliding 
 factsChecked: "2026-11"
 needsReview: false
 review: {"videoId": "Ea6bduqLv1k", "videoDate": "2026-07", "scores": [{"label": "Room", "value": 9.5}, {"label": "Food & Drinks", "value": 9}, {"label": "Beach & Pool", "value": 9}, {"label": "Activities (families)", "value": 10}, {"label": "Activities (party)", "value": 8}, {"label": "Service", "value": 9}], "overall": 9.3, "verdict": "A polished, well-run all-inclusive for families and couples, and the best value of my two reviews so far. Just ask for a room away from the restaurant doors.", "pros": ["Very clean, recently remodeled rooms", "La Luce at sunset is a must", "Great kids club, teen room and kids water playground", "Friendly, helpful staff everywhere"], "cons": ["Rooms near the restaurant entrances hear the sliding doors all day", "Buffet is just fine — the grill station is the best part", "Rooms are not huge (plenty for two)"], "chapters": [{"label": "Room", "start": 70}, {"label": "Food & Drinks", "start": 254}, {"label": "Beach & Pool", "start": 380}, {"label": "Activities", "start": 494}, {"label": "Service", "start": 598}, {"label": "Final scores", "start": 663}]}
+location: {"lat": 21.07, "lng": -86.777}
 ---
 
 ## Room — 9.5

@@ -8,4 +8,5 @@ priceLevel: 2
 bestFor: ["adults-only", "couples", "nightlife"]
 needsReview: true
 highlights: ["Adults-only all-inclusive near Punta Cancún", "Walking distance to the party strip"]
+location: {"lat": 21.1395, "lng": -86.747}
 ---

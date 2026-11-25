@@ -14,4 +14,5 @@ highlights: ["Newer adults-only, all-suite resort", "Long rooftop pool (Vantage 
 goodToKnow: ["Not directly on the beach: guests use a beach club on Playa Delfines, about 10 minutes by free shuttle"]
 factsChecked: "2026-11"
 sources: [{"url": "https://hyattinclusivecollection.com/de/resorts-hotels/hyatt-vivid/mexico/grand-island", "checked": "2026-11"}, {"url": "https://vacations.aircanada.com/en/accommodation-details/CUNHVG/Hyatt%20Vivid%20Grand%20Island", "checked": "2026-11"}]
+location: {"lat": 21.0735, "lng": -86.7805}
 ---

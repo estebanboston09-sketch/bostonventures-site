@@ -10,6 +10,7 @@ highlights: ["Huge beach with plenty of seating", "One of the biggest pools in t
 goodToKnow: ["About 1 hour to 1 hour 20 minutes from Cancún airport", "Book the à la carte restaurants ahead", "Premium Level gave 40% off the spa: a couple's massage dropped from $300 to $180"]
 needsReview: false
 review: {"videoId": "2Eg-GNEJc3k", "videoDate": "2024-03", "visited": "2024-03", "verdict": "Definitely recommended, especially for the price — everything was really good.", "pros": ["Huge beach and a giant infinity pool", "Clean, spacious room with a balcony jacuzzi", "Big buffet, above average (7.5–8/10)", "À la carte French restaurant with great food and service", "24-hour room service"], "cons": ["Buffet and pools get crowded", "Mini bar is basic", "Desserts at the French restaurant were the weak point"], "chapters": [{"label": "Hotel info", "start": 23}, {"label": "Room", "start": 137}, {"label": "Food", "start": 323}, {"label": "Pool", "start": 422}, {"label": "Restaurants", "start": 508}, {"label": "Spa", "start": 675}]}
+location: {"lat": 20.487, "lng": -87.242}
 ---
 
 A big resort complex south of Playa del Carmen. Staying in one Barceló lets you walk to and eat at any of the 14 restaurants across all of them. We stayed in March 2024 with Premium Level.

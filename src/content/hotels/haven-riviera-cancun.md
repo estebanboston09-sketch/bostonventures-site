@@ -9,6 +9,7 @@ highlights: ["Swim-out rooms right onto the pool", "24/7 room service included, 
 goodToKnow: ["A relaxing resort, not a party hotel — the Hotel Zone is close if you want to go out", "A 60-minute massage was about $170 per person"]
 needsReview: false
 review: {"videoId": "BRxGqCAGDk8", "videoDate": "2025-08", "scores": [{"label": "Room", "value": 9.5}, {"label": "Service", "value": 10}, {"label": "Beach & Pool", "value": 9}, {"label": "Food & Drinks", "value": 9.5}, {"label": "Activities & Vibe", "value": 9.5}], "verdict": "100% yes. It's priced a bit above average, but you feel it in the room, the service and especially the food. Perfect for couples who want an elevated experience without paying a fortune, and being close to the airport makes your last day easy.", "pros": ["Spotless, spacious swim-out room", "Service was 10/10 — the Serenity butler answers WhatsApp all day", "Genuinely good food and drinks that are not watered down", "Some of the best ice cream I have ever had", "Three pools: lively, calm and Serenity-only"], "cons": ["Could use more beach activities", "Not the place if you want to party at the hotel"], "chapters": [{"label": "Room", "start": 27}, {"label": "Service", "start": 219}, {"label": "Food", "start": 364}, {"label": "Activities", "start": 458}, {"label": "Final scores", "start": 644}]}
+location: {"lat": 20.99, "lng": -86.833}
 ---
 
 An adults-only resort just outside the Hotel Zone. I stayed with the Serenity package in a swim-out room.

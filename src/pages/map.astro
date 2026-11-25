@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import 'leaflet/dist/leaflet.css';
+import { getCollection } from 'astro:content';
+import { TOURS } from '../data/tours';
+import { AREAS } from '../lib/site';
+import { overallScore } from '../lib/score';
+const hotels = (await getCollection('hotels')).filter((h) => h.data.location).map((h) => ({
+  kind: h.data.review ? 'reviewed' : 'hotel', name: h.data.name, url: `/hotels/${h.id}`, lat: h.data.location!.lat, lng: h.data.location!.lng,
+  sub: `${AREAS[h.data.area]?.label ?? ''} · ${h.data.allInclusive ? 'All-inclusive' : 'Room only'} · ${h.data.adultsOnly ? 'Adults only' : 'All ages'}`,
+  score: overallScore(h.data.review),
+}));
+const tours = TOURS.filter((t) => t.where).map((t) => ({ kind: 'tour', name: t.name, url: `/tours/${t.slug}`, lat: t.where![0], lng: t.where![1], sub: t.short, score: null }));
+const points = [...hotels, ...tours];
+---
+<Base title="Map of Cancún & Riviera Maya Hotels and Tours" description="Every hotel and tour on one interactive map — Hotel Zone, Costa Mujeres, Puerto Morelos, Playa del Carmen, Tulum and day trips — with honest local reviews.">
+  <section class="bg-navy py-8 text-white">
+    <div class="wrap">
+      <p class="eyebrow">Map</p>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Everything on one map</h1>
+      <p class="mt-2 max-w-2xl text-white/75">See where each hotel sits and how far the day trips really are. Tap a pin for details.</p>
+    </div>
+  </section>
+  <div class="wrap mt-6">
+    <div class="flex flex-wrap gap-2" id="filters">
+      <button type="button" class="chip-btn" data-k="reviewed" aria-pressed="true"><span class="h-3 w-3 rounded-full bg-sun ring-2 ring-navy"></span> Reviewed hotels</button>
+      <button type="button" class="chip-btn" data-k="hotel" aria-pressed="true"><span class="h-3 w-3 rounded-full bg-[#14A3C7]"></span> Other hotels</button>
+      <button type="button" class="chip-btn" data-k="tour" aria-pressed="true"><span class="h-3 w-3 rounded-full bg-[#22B07D]"></span> Tours & day trips</button>
+    </div>
+    <div id="map" class="mt-4 h-[70vh] min-h-[420px] overflow-hidden rounded-2xl shadow-sm ring-1 ring-navy/10"></div>
+    <p class="mt-3 text-xs text-ink/50">Pins show approximate locations. Use "Directions" for the exact spot. Map data © OpenStreetMap contributors, © CARTO.</p>
+  </div>
+  <script id="pts" type="application/json" set:html={JSON.stringify(points)} />
+</Base>
+<style is:global>
+  #filters [aria-pressed="false"] { opacity: .45; }
+  .bv-pin { width: 18px; height: 18px; border-radius: 9999px; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); transition: transform .15s; }
+  .bv-pin:hover { transform: scale(1.25); }
+  .bv-pin.reviewed { background: #FFD54A; border-color: #0A6E94; width: 22px; height: 22px; }
+  .bv-pin.hotel { background: #14A3C7; }
+  .bv-pin.tour { background: #22B07D; }
+  .leaflet-popup-content { margin: 12px 14px; font-family: var(--font-sans); }
+</style>
+<script>
+  import L from 'leaflet';
+  type P = { kind: string; name: string; url: string; lat: number; lng: number; sub: string; score: number | null };
+  const pts: P[] = JSON.parse(document.getElementById('pts')!.textContent!);
+  const map = L.map('map', { scrollWheelZoom: false }).setView([21.0, -86.95], 9);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>', maxZoom: 19,
+  }).addTo(map);
+  const layers: Record<string, L.LayerGroup> = { reviewed: L.layerGroup().addTo(map), hotel: L.layerGroup().addTo(map), tour: L.layerGroup().addTo(map) };
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  pts.forEach((p) => {
+    const icon = L.divIcon({ className: '', html: `<div class="bv-pin ${p.kind}"></div>`, iconSize: [22, 22], iconAnchor: [11, 11] });
+    const dir = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' Quintana Roo')}`;
+    L.marker([p.lat, p.lng], { icon, title: p.name }).bindPopup(
+      `<p style="font-weight:700;color:#0A6E94;font-size:15px;margin:0">${p.kind === 'reviewed' ? '★ ' : ''}${esc(p.name)}${p.score != null ? ` <span style="background:#0A6E94;color:#FFD54A;border-radius:99px;padding:1px 7px;font-size:12px">${p.score}</span>` : ''}</p>
+       <p style="margin:4px 0 8px;font-size:12px;color:#456">${esc(p.sub)}</p>
+       <a href="${p.url}" style="font-weight:700;color:#0A6E94">Open page →</a> &nbsp; <a href="${dir}" target="_blank" rel="noopener" style="color:#456">Directions</a>`
+    ).addTo(layers[p.kind]);
+  });
+  document.getElementById('filters')!.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-k]'); if (!b) return;
+    const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(on));
+    on ? layers[b.dataset.k!].addTo(map) : layers[b.dataset.k!].remove();
+  });
+  map.on('click', () => map.scrollWheelZoom.enable());
+</script>
