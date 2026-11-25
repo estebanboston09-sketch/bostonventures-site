@@ -2,12 +2,12 @@
 import { AREAS } from '../lib/site';
 import AreaArt from './AreaArt.astro';
 import { hotelImage } from '../lib/hotelImage';
+import { overallScore } from '../lib/score';
 interface Props { hotel: any }
 const { hotel } = Astro.props;
 const d = hotel.data;
 const reviewed = !!d.review;
-const scores = d.review?.scores;
-const overall = scores ? (scores.overall ?? Math.round(((scores.room + scores.food + scores.beachPool + scores.activities + scores.service) / 5) * 10) / 10) : null;
+const overall = overallScore(d.review);
 const price = d.priceLevel ? '$'.repeat(d.priceLevel) : null;
 const img = hotelImage(d);
 const hasVideo = !!d.review?.videoId;

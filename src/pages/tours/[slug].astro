@@ -21,13 +21,31 @@ const faq = [
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Tours', item: new URL('/tours', Astro.site).href }, { '@type': 'ListItem', position: 2, name: t.name }] }]}>
   <section class="bg-navy pb-10 pt-8 text-white"><div class="wrap">
     <nav class="text-sm text-white/60"><a href="/tours" class="hover:text-white">Tours</a></nav>
+    {t.reviewed?.videoId && <span class="mt-4 inline-flex items-center gap-2 rounded-full bg-sun px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">★ I did this tour</span>}
     <h1 class="mt-3 text-3xl font-bold sm:text-5xl">{t.name}</h1>
     <p class="mt-3 max-w-2xl text-lg text-white/80">{t.short}</p>
-    <div class="mt-4 flex flex-wrap gap-2">{t.interests.map((i) => <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{INTEREST_LABELS[i]}</span>)}</div>
+    <div class="mt-4 flex flex-wrap gap-2">{t.interests.map((i) => <span class="rounded-full border border-white/40 px-3 py-1 text-sm">{INTEREST_LABELS[i]}</span>)}</div>
+    {t.reviewed?.videoId && <a href="#video" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ff0033] px-5 py-3 font-bold text-white shadow-lg hover:brightness-110"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg> Watch my video</a>}
   </div></section>
   <div class="wrap mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
     <article class="space-y-6">
-      {t.reviewed?.videoId && <LiteYouTube id={t.reviewed.videoId} title={t.name} />}
+      {t.reviewed?.videoId && (
+        <section id="video" class="scroll-mt-24">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <h2 class="text-xl font-bold text-navy">Watch my video</h2>
+            <a href={`https://www.youtube.com/watch?v=${t.reviewed.videoId}`} target="_blank" rel="noopener" class="text-sm font-semibold text-navy underline">Open on YouTube</a>
+          </div>
+          <LiteYouTube id={t.reviewed.videoId} title={t.name} />
+        </section>
+      )}
+      {t.reviewed?.verdict && (
+        <section class="card p-6">
+          <p class="eyebrow">My verdict</p>
+          <p class="mt-2 text-lg leading-relaxed">{t.reviewed.verdict}</p>
+          {t.reviewed.notes && <ul class="mt-4 space-y-2 text-sm">{t.reviewed.notes.map((n) => <li class="flex gap-2"><span class="text-gold">●</span><span>{n}</span></li>)}</ul>}
+          {t.reviewed.prices && <p class="mt-4 rounded-lg bg-sand px-3 py-2 text-sm"><b>Prices when I went:</b> {t.reviewed.prices.text}. Check current prices before you go.</p>}
+        </section>
+      )}
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="card p-5"><p class="font-bold text-navy">✓ Good for</p><p class="mt-1 text-sm">{t.goodFor}</p></div>
         <div class="card p-5"><p class="font-bold text-navy">✗ Skip it if</p><p class="mt-1 text-sm">{t.skipIf}</p></div>

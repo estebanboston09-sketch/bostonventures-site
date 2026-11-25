@@ -6,13 +6,13 @@ address: "Xcaret complex, Playa del Carmen"
 allInclusive: true
 adultsOnly: true
 priceLevel: 4
-airportMinutes: 50
+airportMinutes: 45
 bestFor: ["adults-only", "couples", "luxury", "honeymoon", "theme-parks", "foodies"]
 highlights: ["Most Xcaret parks are included in your stay", "Around 50 pools plus a saltwater river you can paddle", "Casa de los Artistas guests can eat at every restaurant in the resort", "Speakeasy and cantina at night"]
 goodToKnow: ["ATVs cost extra (about $70 USD per person)", "The beach is small and rocky", "Only Casa de los Artistas rooms get resort-wide restaurant access; other houses are limited to about 4"]
 factsChecked: "2026-11"
 needsReview: false
-review: {"visited": "", "scores": {"room": 8.5, "food": 8.5, "beachPool": 9, "activities": 10, "service": 8, "overall": 8.8}, "pricePaid": "~$1,300 USD/night (Casa de los Artistas)", "verdict": "Worth it if you'll use the parks and want everything planned for you. But the food and room aren't twice as good as a $700–800/night resort, so unless you'd visit two parks a day, a cheaper resort plus individual park tickets can be better value. If you do book, get Casa de los Artistas.", "pros": ["Best activities of any hotel in the region", "Most Xcaret parks included", "Huge choice of pools and a saltwater river", "Staff go out of their way to help"], "cons": ["Room not as luxurious as $1,300 a night should feel", "Butlers were a letdown and never mentioned the resort-wide restaurant access", "Small, rocky beach", "Pre-made desserts look better than they taste"]}
+review: {"videoId": "uRQuCLIjS2E", "videoDate": "2026-10", "scores": [{"label": "Room", "value": 8.5}, {"label": "Food & Drinks", "value": 8.5}, {"label": "Beach & Pool", "value": 9}, {"label": "Activities", "value": 10}, {"label": "Service", "value": 8}], "overall": 8.8, "verdict": "Worth it if you'll use the parks and want everything planned for you. But the food and room aren't twice as good as a $700–800/night resort, so unless you'd visit two parks a day, a cheaper resort plus individual park tickets can be better value. If you do book, get Casa de los Artistas.", "pros": ["Best activities of any hotel in the region", "Most Xcaret parks included", "Huge choice of pools and a saltwater river", "Staff go out of their way to help"], "cons": ["Room not as luxurious as $1,300 a night should feel", "Butlers were a letdown and never mentioned the resort-wide restaurant access", "Small, rocky beach", "Pre-made desserts look better than they taste"], "pricePaid": "~$1,300 USD/night (Casa de los Artistas)"}
 ---
 
 ## Room — 8.5

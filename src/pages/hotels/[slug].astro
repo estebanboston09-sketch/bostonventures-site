@@ -7,6 +7,7 @@ import Disclosure from '../../components/Disclosure.astro';
 import HotelCard from '../../components/HotelCard.astro';
 import AreaArt from '../../components/AreaArt.astro';
 import { hotelImage } from '../../lib/hotelImage';
+import { overallScore } from '../../lib/score';
 import { getCollection, render } from 'astro:content';
 import { AREAS, SITE, AFFILIATE } from '../../lib/site';
 
@@ -25,7 +26,7 @@ const monthName = (ym?: string) => (ym && ym.length >= 7 ? new Date(ym + '-15').
 
 const title = reviewed ? `${d.name} Review (${year}): Honest Local Take` : `${d.name}: What to Know Before Booking`;
 const description = reviewed
-  ? `My honest review of ${d.name} after a real stay — scores for room, food, beach, activities and service, plus who should book it and who should skip it.`
+  ? `My honest video review of ${d.name} after a real stay: the room, food, beach and pool, activities and service, plus who should book it and who should skip it.`
   : `${d.name} in ${area?.label ?? 'the Riviera Maya'}: ${d.allInclusive ? 'all-inclusive' : 'room-only'}, ${d.adultsOnly ? 'adults-only' : 'family-friendly'}. Checked facts, getting there from the airport and local tips.`;
 
 // Similar hotels: same adults-only setting, shared tags, prefer reviewed.
@@ -44,9 +45,9 @@ const schema: any[] = [
     '@context': 'https://schema.org', '@type': 'Hotel', name: d.name,
     ...(d.address && { address: { '@type': 'PostalAddress', streetAddress: d.address, addressLocality: 'Cancún', addressRegion: 'Quintana Roo', addressCountry: 'MX' } }),
     ...(d.officialUrl && { url: d.officialUrl }),
-    ...(reviewed && r?.scores && {
+    ...(overallScore(r) != null && {
       review: { '@type': 'Review', author: { '@type': 'Person', name: 'Esteban (BostonVentures)' },
-        reviewRating: { '@type': 'Rating', ratingValue: r.scores.overall ?? Math.round(((r.scores.room + r.scores.food + r.scores.beachPool + r.scores.activities + r.scores.service) / 5) * 10) / 10, bestRating: 10, worstRating: 0 } },
+        reviewRating: { '@type': 'Rating', ratingValue: overallScore(r), bestRating: 10, worstRating: 0 } },
     }),
   },
   { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
@@ -54,7 +55,7 @@ const schema: any[] = [
     { '@type': 'ListItem', position: 2, name: d.name },
   ] },
 ];
-if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoObject', name: `${d.name} review`, thumbnailUrl: `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${r.videoId}`, uploadDate: r.visited });
+if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoObject', name: `${d.name} review`, thumbnailUrl: `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${r.videoId}`, uploadDate: r.videoDate ?? r.visited });
 ---
 <Base title={title} description={description} schema={schema} noindex={d.needsReview}>
   <section class="relative overflow-hidden bg-navy pb-12 pt-8 text-white">
@@ -66,7 +67,7 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
       <nav class="text-sm text-white/70"><a href="/hotels" class="hover:text-white">Hotels</a> / <a href={`/hotels?area=${d.area}`} class="hover:text-white">{area?.label}</a></nav>
       <div class="mt-16 sm:mt-24">
         {reviewed ? (
-          <span class="inline-flex items-center gap-2 rounded-full bg-sun px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">★ Reviewed by BostonVentures{r?.visited && r.visited.length >= 7 && <> · visited {monthName(r.visited)}</>}</span>
+          <span class="inline-flex items-center gap-2 rounded-full bg-sun px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">★ Reviewed by BostonVentures{r?.videoDate ? <> · video {monthName(r.videoDate)}</> : r?.visited && r.visited.length >= 7 && <> · visited {monthName(r.visited)}</>}</span>
         ) : (
           <span class="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wide backdrop-blur">Not reviewed yet</span>
         )}
@@ -106,8 +107,8 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
           {d.photos.slice(1, 7).map((p) => <img src={p.src} alt={p.alt} loading="lazy" class="aspect-[4/3] w-full rounded-xl object-cover" />)}
         </section>
       )}
-      {reviewed && r?.scores && <ScoreBadges scores={r.scores} pricePaid={r.pricePaid} />}
-      {reviewed && !r?.scores && (
+      {reviewed && r && r.scores.length > 0 && <ScoreBadges review={r} />}
+      {reviewed && r && r.scores.length === 0 && !r.videoId && (
         <div class="card p-5">
           <p class="eyebrow">My scores</p>
           <p class="mt-1">Full scores are coming to this page soon. Watch the full review on <a class="font-semibold underline" href={SITE.youtube} target="_blank" rel="noopener">the BostonVentures channel</a>.</p>

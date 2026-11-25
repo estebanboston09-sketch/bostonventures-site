@@ -19,7 +19,7 @@ export interface Tour {
   localTip: string;
   goodFor: string;
   skipIf: string;
-  reviewed?: { videoId?: string };
+  reviewed?: { videoId?: string; videoDate?: string; verdict?: string; notes?: string[]; prices?: { text: string; checked: string } };
 }
 
 export const INTEREST_LABELS: Record<Interest, string> = {
@@ -44,7 +44,6 @@ export const TOURS: Tour[] = [
     localTip: 'Season runs roughly June to September, with July and August the most reliable. Take seasickness pills before you board — the open sea can be rough.',
     goodFor: 'Confident swimmers who want a once-in-a-lifetime animal encounter.',
     skipIf: 'You get badly seasick or are not comfortable in deep open water.',
-    reviewed: {},
   },
   {
     slug: 'chichen-itza-day-trip', name: 'Chichén Itzá day trip',
@@ -84,12 +83,23 @@ export const TOURS: Tour[] = [
   },
   {
     slug: 'xel-ha-park', name: 'Xel-Há park',
-    short: 'All-inclusive snorkeling park in a natural inlet, with tubing, ziplines and food included.',
-    interests: ['theme-parks', 'sea-life', 'beach'], kids: 'great', energy: 1, length: 'full',
-    travel: 'About 1 hour 30 minutes south',
-    localTip: 'Arrive at opening. The snorkel areas are clearest and calmest in the morning.',
-    goodFor: 'Families with kids who are new to snorkeling.',
-    skipIf: 'You want to snorkel a real reef with lots of coral.',
+    short: 'Eco-park in a natural inlet: float down a river, cliff jumps, a rope walk, a zipline into the water and a huge waterslide tower.',
+    interests: ['theme-parks', 'sea-life', 'beach', 'nature'], kids: 'great', energy: 1, length: 'full',
+    travel: 'About 1 hour 20 minutes from Cancún; about 45 minutes from Playa del Carmen',
+    localTip: 'Get the all-inclusive ticket — it only costs about $40 more for adults ($20 for kids) and includes three restaurants and a good open bar. Arrive at opening if you want to do everything.',
+    goodFor: 'Travellers who are not staying at an all-inclusive and want a relaxed day in nature with food and drinks included.',
+    skipIf: "You're already at a big all-inclusive resort, or you want real reef snorkeling or lots of adventure (pick Xplor instead).",
+    reviewed: {
+      videoId: 'WliNeiRTrXg', videoDate: '2026-04',
+      verdict: "Worth it if you're not staying at an all-inclusive and want a relaxing day in nature. If your resort already has pools, a beach and unlimited food and drinks, it feels like more of the same.",
+      notes: [
+        'Two tickets with the same activities: Light (soft drinks only) and All-Inclusive (breakfast, lunch, three restaurants and an open bar with well-known brands).',
+        'The best activities: the two cliff jumps, the rope walk, the zipline into the water and the scenic tower waterslide — one of the most fun things I have ever done.',
+        'Snorkeling is mostly sand and a few fish. For real snorkeling, do a reef tour in Puerto Morelos.',
+        'Even with crowds in February, the park is so big it never felt packed, and restaurant lines move fast.',
+        'We arrived at 11 and finished everything around 6 p.m. Get there at opening if you also want paid extras.',
+      ],
+    },
   },
   {
     slug: 'xplor-park', name: 'Xplor park',
@@ -162,6 +172,45 @@ export const TOURS: Tour[] = [
     localTip: 'Visibility is best on calm days; if it is windy, ask to reschedule.',
     goodFor: 'Something different from a normal reef snorkel.',
     skipIf: 'You expect a museum on land — it is all underwater.',
+  },
+  {
+    slug: 'crococun-zoo', name: 'Crococun Zoo',
+    short: 'Small guided zoo where you feed parrots and deer, hold a snake and a baby crocodile, and walk among the crocodiles.',
+    interests: ['nature', 'adrenaline'], kids: 'great', energy: 1, length: 'half',
+    travel: 'Just outside Cancún on the way to Puerto Morelos',
+    localTip: 'Buy the animal food bag at the entrance (about $5) — you use it from the very first stop.',
+    goodFor: 'Families and anyone who wants an up-close animal experience in a short morning or afternoon.',
+    skipIf: 'You expect a big, polished park like the Xcaret ones.',
+    reviewed: {
+      videoId: '7byIwY88o6c', videoDate: '2025-09',
+      verdict: 'Absolutely worth it for the price. It is not as upscale as the Xcaret parks, but it is much cheaper, and walking among the crocodiles is something you will remember.',
+      notes: [
+        'The guided tour takes about 1 hour 10 minutes, in English or Spanish.',
+        'You feed parrots and turtles, hold a snake and a baby crocodile, pet Mexican hairless dogs and feed deer — the baby deer come right up to you.',
+        'Monkeys roam free, so they are not always there.',
+        'Food and drinks are not included, but prices inside are reasonable.',
+      ],
+      prices: { text: 'Adults 839 MXN (~$45), kids 665 MXN (~$35), ages 0–5 free, seniors 60+ 513 MXN (~$27)', checked: '2025-09' },
+    },
+  },
+  {
+    slug: 'mercado-23-cancun', name: 'Mercado 23 local market',
+    short: "Walk Cancún's local market: crafts and luchador masks, cochinita and chicharrón, exotic fruit, chilies, Mexican candy and fresh tortillas.",
+    interests: ['food-culture'], kids: 'ok', energy: 1, length: 'half',
+    travel: 'Downtown Cancún, about 20–30 minutes from the Hotel Zone',
+    localTip: 'Come for the variety, not the bargains: locals told us everyday groceries are often cheaper at the supermarket, but the market has things you will never find there.',
+    goodFor: 'Foodies and curious travellers who want to see how locals shop and eat.',
+    skipIf: "You don't like heat and crowds — there's no air conditioning.",
+    reviewed: {
+      videoId: '6QrZUG7GmAU', videoDate: '2023-11',
+      verdict: 'A fun, real slice of local life with food and fruit you will not find in a supermarket. Go for the experience, not for the cheapest prices.',
+      notes: [
+        'Try the pork snacks: cochinita-style pork with crispy skin was a 9/10 for me; a kilo of pork belly was about 350 pesos.',
+        'Cool off with a creamy frozen bolis (coconut was great) and try horchata or tamarind water.',
+        'Fruit is around 25 pesos a kilo, with exotic fruits you rarely see elsewhere.',
+        'Whole stalls of dried chilies, Mexican candy like Pulparindo and Mazapán, and a tortilla shop making them fresh in the back.',
+      ],
+    },
   },
   {
     slug: 'cancun-taco-tour', name: 'Downtown taco & food night',

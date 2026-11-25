@@ -31,5 +31,6 @@ export const AREAS: Record<string, { label: string; blurb: string }> = {
   'puerto-morelos': { label: 'Puerto Morelos', blurb: 'Small fishing town between Cancún and Playa, with a reef right offshore.' },
   'playa-del-carmen': { label: 'Playa del Carmen', blurb: 'Walkable beach town about 50 minutes south, with Quinta Avenida and ferries to Cozumel.' },
   'tulum': { label: 'Tulum', blurb: 'Boho beach hotels, ruins on a cliff and cenotes, about 2 hours from Cancún airport.' },
+  'riviera-maya': { label: 'Riviera Maya', blurb: 'Big resort strip between Playa del Carmen and Tulum, about an hour or more from Cancún airport.' },
   'isla-mujeres': { label: 'Isla Mujeres', blurb: 'Small, relaxed island a short ferry ride from Cancún, with calm beaches.' },
 };

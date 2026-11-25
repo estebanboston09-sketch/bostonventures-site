@@ -11,7 +11,7 @@ const hotels = defineCollection({
   schema: z.object({
     name: z.string(),
     brand: z.string().optional(),
-    area: z.enum(['hotel-zone', 'downtown', 'costa-mujeres', 'south-cancun', 'puerto-morelos', 'playa-del-carmen', 'tulum', 'isla-mujeres', 'other']),
+    area: z.enum(['hotel-zone', 'downtown', 'costa-mujeres', 'south-cancun', 'puerto-morelos', 'playa-del-carmen', 'tulum', 'isla-mujeres', 'riviera-maya', 'other']),
     address: z.string().optional(),
     allInclusive: z.boolean(),
     adultsOnly: z.boolean(),
@@ -35,18 +35,11 @@ const hotels = defineCollection({
     review: z
       .object({
         videoId: z.string().optional(),
-        visited: z.string(), // "2026-09"
-        scores: z
-          .object({
-            room: score,
-            food: score,
-            beachPool: score,
-            activities: score,
-            activitiesParty: score.optional(),
-            service: score,
-            overall: z.number().min(0).max(10).optional(), // set by hand; otherwise the average of the five
-          })
-          .optional(),
+        videoDate: z.string().optional(), // "2026-07" — when the video was published
+        visited: z.string().optional(), // "2026-07"
+        // Categories differ between videos, so scores are a list. Only scores Esteban actually gave.
+        scores: z.array(z.object({ label: z.string(), value: score })).default([]),
+        overall: z.number().min(0).max(10).optional(), // set by hand; otherwise the average when 4+ categories are scored
         verdict: z.string().optional(),
         pros: z.array(z.string()).default([]),
         cons: z.array(z.string()).default([]),
