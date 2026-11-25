@@ -1,0 +1,22 @@
+---
+import Base from '../../layouts/Base.astro';
+import { TOURS, INTEREST_LABELS } from '../../data/tours';
+---
+<Base title="Best Tours & Day Trips from Cancún: Honest Local Guide" description="Whale sharks, Chichén Itzá, Isla Mujeres, cenotes, Xcaret and more — what each Cancún tour is really like, who it's for and who should skip it.">
+  <section class="bg-navy py-12 text-white"><div class="wrap">
+    <p class="eyebrow">Tours & day trips</p>
+    <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Tours from Cancún, honestly</h1>
+    <p class="mt-2 max-w-2xl text-white/75">Who each tour is for, who should skip it, and the tip that makes it better.</p>
+    <a href="/tools/tour-finder" class="btn-sun mt-6">Find the tours that fit you →</a>
+  </div></section>
+  <div class="wrap mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {TOURS.map((t) => (
+      <a href={`/tours/${t.slug}`} class="card group flex flex-col p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+        <div class="flex flex-wrap gap-1.5">{t.interests.slice(0, 2).map((i) => <span class="chip">{INTEREST_LABELS[i]}</span>)}</div>
+        <h2 class="mt-3 text-lg font-bold text-navy group-hover:underline">{t.name}</h2>
+        <p class="mt-1 flex-1 text-sm text-ink/70">{t.short}</p>
+        <p class="mt-3 text-xs text-ink/50">{t.length === 'half' ? 'Half day' : 'Full day'}{t.months && ' · Seasonal'}{t.kids === 'no' && ' · Adults'}</p>
+      </a>
+    ))}
+  </div>
+</Base>

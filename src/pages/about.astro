@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+---
+<Base title="About BostonVentures" description="Who's behind BostonVentures: Esteban, a local in Cancún reviewing hotels and tours honestly, and how the reviews work.">
+  <div class="wrap max-w-3xl py-12 prose-bv">
+    <p class="eyebrow">About</p>
+    <h1 class="text-4xl font-bold text-navy">Hi, I'm Esteban.</h1>
+    <p>I live in Cancún, and I make BostonVentures: honest hotel reviews and travel guides for people visiting Cancún and the Riviera Maya.</p>
+    <p>Most travel sites are written by people who have never been here, or they rewrite other people's reviews. I do the opposite. I stay at the hotel, pay attention to the things that matter (the room, the food, the beach, the service), film everything, and score it honestly — including what I paid.</p>
+    <h2>How this site works</h2>
+    <ul>
+      <li><strong>Reviewed hotels</strong> have my video, my scores and my verdict.</li>
+      <li><strong>Hotels I haven't reviewed yet</strong> have checked facts and local tips only. No scores, ever, until I've stayed there.</li>
+      <li><strong>Free tools</strong> — the trip planner, hotel matcher and tour finder — are free with no sign-up.</li>
+    </ul>
+    <p>The site is free because some links are affiliate links: if you book through them, I may earn a small commission at no extra cost to you. It never changes a score. <a href="/affiliate-disclosure">Read the full disclosure</a> and <a href="/review-policy">how reviews work</a>.</p>
+    <p><a href={SITE.youtube} target="_blank" rel="noopener">Watch the channel on YouTube</a> · Contact: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+  </div>
+</Base>

@@ -1,0 +1,172 @@
+---
+import Base from '../../layouts/Base.astro';
+import ScoreBadges from '../../components/ScoreBadges.astro';
+import LiteYouTube from '../../components/LiteYouTube.astro';
+import TravelEssentials from '../../components/TravelEssentials.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import HotelCard from '../../components/HotelCard.astro';
+import { getCollection, render } from 'astro:content';
+import { AREAS, SITE, AFFILIATE } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const hotels = await getCollection('hotels');
+  return hotels.map((h) => ({ params: { slug: h.id }, props: { hotel: h, all: hotels } }));
+}
+const { hotel, all } = Astro.props;
+const d = hotel.data;
+const { Content } = await render(hotel);
+const r = d.review;
+const reviewed = !!r;
+const area = AREAS[d.area];
+const year = new Date().getFullYear();
+const monthName = (ym?: string) => (ym && ym.length >= 7 ? new Date(ym + '-15').toLocaleString('en-US', { month: 'long', year: 'numeric' }) : ym);
+
+const title = reviewed ? `${d.name} Review (${year}): Honest Local Take` : `${d.name}: What to Know Before Booking`;
+const description = reviewed
+  ? `My honest review of ${d.name} after a real stay — scores for room, food, beach, activities and service, plus who should book it and who should skip it.`
+  : `${d.name} in ${area?.label ?? 'the Riviera Maya'}: ${d.allInclusive ? 'all-inclusive' : 'room-only'}, ${d.adultsOnly ? 'adults-only' : 'family-friendly'}. Checked facts, getting there from the airport and local tips.`;
+
+// Similar hotels: same adults-only setting, shared tags, prefer reviewed.
+const similar = all
+  .filter((h) => h.id !== hotel.id && h.data.adultsOnly === d.adultsOnly)
+  .map((h) => ({ h, s: h.data.bestFor.filter((t) => d.bestFor.includes(t)).length + (h.data.area === d.area ? 1 : 0) + (h.data.review ? 0.5 : 0) }))
+  .sort((a, b) => b.s - a.s).slice(0, 3).map((x) => x.h);
+const reviewedSimilar = all.find((h) => h.id !== hotel.id && h.data.review && h.data.adultsOnly === d.adultsOnly);
+
+const bookUrl = AFFILIATE.hotelBooking ? AFFILIATE.hotelBooking.url(d.name) : d.officialUrl;
+
+const schema: any[] = [
+  {
+    '@context': 'https://schema.org', '@type': 'Hotel', name: d.name,
+    ...(d.address && { address: { '@type': 'PostalAddress', streetAddress: d.address, addressLocality: 'Cancún', addressRegion: 'Quintana Roo', addressCountry: 'MX' } }),
+    ...(d.officialUrl && { url: d.officialUrl }),
+    ...(reviewed && r?.scores && {
+      review: { '@type': 'Review', author: { '@type': 'Person', name: 'Esteban (BostonVentures)' },
+        reviewRating: { '@type': 'Rating', ratingValue: r.scores.overall ?? Math.round(((r.scores.room + r.scores.food + r.scores.beachPool + r.scores.activities + r.scores.service) / 5) * 10) / 10, bestRating: 10, worstRating: 0 } },
+    }),
+  },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hotels', item: new URL('/hotels', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: d.name },
+  ] },
+];
+if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoObject', name: `${d.name} review`, thumbnailUrl: `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${r.videoId}`, uploadDate: r.visited });
+---
+<Base title={title} description={description} schema={schema} noindex={d.needsReview}>
+  <section class="bg-navy pb-10 pt-8 text-white">
+    <div class="wrap">
+      <nav class="text-sm text-white/60"><a href="/hotels" class="hover:text-white">Hotels</a> / <a href={`/hotels?area=${d.area}`} class="hover:text-white">{area?.label}</a></nav>
+      <div class="mt-4">
+        {reviewed ? (
+          <span class="inline-flex items-center gap-2 rounded-full bg-sun px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">★ Reviewed by BostonVentures{r?.visited && r.visited.length >= 7 && <> · visited {monthName(r.visited)}</>}</span>
+        ) : (
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-wide">Not reviewed yet</span>
+        )}
+      </div>
+      <h1 class="mt-3 text-3xl font-bold sm:text-5xl">{d.name}</h1>
+      <p class="mt-2 text-teal">{area?.label}{d.brand && <> · {d.brand}</>}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{d.allInclusive ? 'All-inclusive' : 'Not all-inclusive'}</span>
+        <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{d.adultsOnly ? 'Adults-only' : 'Kids welcome'}</span>
+        {d.priceLevel && <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{['', 'Budget', 'Mid-range', 'Premium', 'Luxury'][d.priceLevel]}</span>}
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
+    <article class="min-w-0 space-y-8">
+      {d.needsReview && (
+        <p class="rounded-xl border-2 border-dashed border-gold bg-white p-4 text-sm"><b>Draft page.</b> Basic facts still need Esteban's check before launch. This page is hidden from Google until then.</p>
+      )}
+
+      {reviewed && r?.videoId && <LiteYouTube id={r.videoId} title={`${d.name} review`} />}
+      {reviewed && r?.scores && <ScoreBadges scores={r.scores} pricePaid={r.pricePaid} />}
+      {reviewed && !r?.scores && (
+        <div class="card p-5">
+          <p class="eyebrow">My scores</p>
+          <p class="mt-1">Full scores are coming to this page soon. Watch the full review on <a class="font-semibold underline" href={SITE.youtube} target="_blank" rel="noopener">the BostonVentures channel</a>.</p>
+        </div>
+      )}
+
+      {reviewed && r?.verdict && (
+        <section class="card p-6">
+          <p class="eyebrow">My verdict</p>
+          <p class="mt-2 text-lg leading-relaxed">{r.verdict}</p>
+          {(r.pros.length > 0 || r.cons.length > 0) && (
+            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+              <div><p class="font-bold text-navy">What I loved</p><ul class="mt-2 space-y-1.5 text-sm">{r.pros.map((p) => <li>✓ {p}</li>)}</ul></div>
+              <div><p class="font-bold text-navy">What could be better</p><ul class="mt-2 space-y-1.5 text-sm">{r.cons.map((p) => <li>✗ {p}</li>)}</ul></div>
+            </div>
+          )}
+          {r.roomStayed && <p class="mt-4 text-sm text-ink/60">Room I stayed in: {r.roomStayed}</p>}
+          {r.comped && <p class="mt-2 text-sm text-ink/60">This stay was provided by the hotel. That never changes my scores — <a class="underline" href="/review-policy">see how reviews work</a>.</p>}
+        </section>
+      )}
+
+      {!reviewed && (
+        <section class="card p-6">
+          <p class="eyebrow">What to know before booking</p>
+          <p class="mt-2 text-sm text-ink/70">I haven't stayed here yet, so there are no scores — just checked facts.{reviewedSimilar && <> Want a real review of something similar? See <a class="font-semibold underline" href={`/hotels/${reviewedSimilar.id}`}>{reviewedSimilar.data.name}</a>.</>}</p>
+          <a href={`mailto:${SITE.email}?subject=Review request: ${encodeURIComponent(d.name)}`} class="btn-ghost mt-4 text-sm">Request a review of this hotel</a>
+        </section>
+      )}
+
+      {(d.highlights.length > 0 || d.goodToKnow.length > 0) && (
+        <section class="grid gap-5 sm:grid-cols-2">
+          {d.highlights.length > 0 && <div class="card p-5"><p class="font-bold text-navy">Highlights</p><ul class="mt-2 space-y-2 text-sm">{d.highlights.map((x) => <li>• {x}</li>)}</ul></div>}
+          {d.goodToKnow.length > 0 && <div class="card border-l-4 border-sun p-5"><p class="font-bold text-navy">Good to know</p><ul class="mt-2 space-y-2 text-sm">{d.goodToKnow.map((x) => <li>• {x}</li>)}</ul></div>}
+        </section>
+      )}
+
+      <div class="prose-bv"><Content /></div>
+
+      <section>
+        <h2 class="text-xl font-bold text-navy">Getting there from Cancún airport</h2>
+        <p class="mt-2 text-sm text-ink/70">{d.airportMinutes ? `About ${d.airportMinutes} minutes by car from Cancún airport (CUN).` : `See our airport guide for the best way to get to ${area?.label ?? 'your hotel'}.`} <a class="font-semibold underline" href="/guides/cancun-airport">Read the airport arrival guide</a>.</p>
+        <div class="mt-4"><TravelEssentials /></div>
+      </section>
+
+      {d.sources.length > 0 && (
+        <p class="text-xs text-ink/50">Facts last checked: {monthName(d.factsChecked) ?? 'recently'}. Sources: {d.sources.map((s, i) => <><a href={s.url} class="underline" rel="nofollow noopener" target="_blank">{new URL(s.url).hostname.replace('www.', '')}</a>{i < d.sources.length - 1 && ', '}</>)}. Always confirm details with the hotel before booking.</p>
+      )}
+    </article>
+
+    <aside class="space-y-5 lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-5">
+        <p class="font-bold text-navy">Quick facts</p>
+        <dl class="mt-3 space-y-2 text-sm">
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Area</dt><dd class="text-right font-semibold">{area?.label}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Meal plan</dt><dd class="text-right font-semibold">{d.allInclusive ? 'All-inclusive' : 'Room only / optional'}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Who</dt><dd class="text-right font-semibold">{d.adultsOnly ? 'Adults only' : 'All ages'}</dd></div>
+          {d.rooms && <div class="flex justify-between gap-3"><dt class="text-ink/60">Rooms</dt><dd class="text-right font-semibold">~{d.rooms.toLocaleString()}</dd></div>}
+          {d.restaurants && <div class="flex justify-between gap-3"><dt class="text-ink/60">Restaurants</dt><dd class="text-right font-semibold">{d.restaurants}</dd></div>}
+          {d.airportMinutes && <div class="flex justify-between gap-3"><dt class="text-ink/60">From airport</dt><dd class="text-right font-semibold">~{d.airportMinutes} min</dd></div>}
+          {d.address && <div class="flex justify-between gap-3"><dt class="text-ink/60">Address</dt><dd class="text-right font-semibold">{d.address}</dd></div>}
+          {d.priceRangeUSD && <div class="flex justify-between gap-3"><dt class="text-ink/60">Typical price</dt><dd class="text-right font-semibold">${d.priceRangeUSD.low}–${d.priceRangeUSD.high}/night</dd></div>}
+        </dl>
+        {bookUrl && <a href={bookUrl} target="_blank" rel={AFFILIATE.hotelBooking ? 'sponsored nofollow noopener' : 'noopener'} class="btn-sun mt-5 w-full">Check prices →</a>}
+        <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" class="btn-ghost mt-2 w-full text-sm">Book airport transfer</a>
+      </div>
+      <div class="card p-5">
+        <p class="font-bold text-navy">Best for</p>
+        <div class="mt-3 flex flex-wrap gap-1.5">{d.bestFor.map((t) => <span class="chip capitalize">{t.replace('-', ' ')}</span>)}</div>
+      </div>
+      <Disclosure />
+    </aside>
+  </div>
+
+  {similar.length > 0 && (
+    <section class="wrap mt-14">
+      <h2 class="text-2xl font-bold text-navy">Similar hotels</h2>
+      <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{similar.map((h) => <HotelCard hotel={h} />)}</div>
+    </section>
+  )}
+  {reviewed && (
+    <section class="wrap mt-12">
+      <div class="flex flex-col items-start gap-4 rounded-2xl bg-navy p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-lg font-semibold">Want more honest hotel reviews from Cancún?</p>
+        <a href={SITE.youtubeSubscribe} target="_blank" rel="noopener" class="btn-sun">Subscribe on YouTube</a>
+      </div>
+    </section>
+  )}
+</Base>

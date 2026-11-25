@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bostonventures-site.pages.dev/sitemap-index.xml

@@ -1,0 +1,59 @@
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+
+const score = z.number().min(0).max(10).multipleOf(0.5);
+
+// One Markdown file per hotel in src/content/hotels/.
+// A missing required field stops the build, so a half-filled hotel can't go live by accident.
+const hotels = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/hotels' }),
+  schema: z.object({
+    name: z.string(),
+    brand: z.string().optional(),
+    area: z.enum(['hotel-zone', 'downtown', 'costa-mujeres', 'south-cancun', 'puerto-morelos', 'playa-del-carmen', 'tulum', 'isla-mujeres', 'other']),
+    address: z.string().optional(),
+    allInclusive: z.boolean(),
+    adultsOnly: z.boolean(),
+    rooms: z.number().optional(),
+    // 1 = budget, 2 = mid-range, 3 = premium, 4 = luxury. A rough level, not a price.
+    priceLevel: z.number().int().min(1).max(4).optional(),
+    priceRangeUSD: z.object({ low: z.number(), high: z.number() }).optional(),
+    airportMinutes: z.number().optional(),
+    restaurants: z.number().optional(),
+    beach: z.string().optional(),
+    highlights: z.array(z.string()).default([]),
+    goodToKnow: z.array(z.string()).default([]),
+    bestFor: z.array(z.enum(['families', 'couples', 'adults-only', 'party', 'budget', 'luxury', 'groups', 'honeymoon', 'theme-parks', 'quiet', 'nightlife', 'foodies'])),
+    officialUrl: z.string().url().optional(),
+    sources: z.array(z.object({ url: z.string().url(), checked: z.string() })).default([]),
+    factsChecked: z.string().optional(), // "2026-11" — month the facts were last checked
+    // true = Esteban still needs to confirm these basic facts before launch
+    needsReview: z.boolean().default(false),
+    review: z
+      .object({
+        videoId: z.string().optional(),
+        visited: z.string(), // "2026-09"
+        scores: z
+          .object({
+            room: score,
+            food: score,
+            beachPool: score,
+            activities: score,
+            activitiesParty: score.optional(),
+            service: score,
+            overall: score.optional(),
+          })
+          .optional(),
+        verdict: z.string().optional(),
+        pros: z.array(z.string()).default([]),
+        cons: z.array(z.string()).default([]),
+        roomStayed: z.string().optional(),
+        pricePaid: z.string().optional(),
+        comped: z.boolean().default(false),
+      })
+      .optional(),
+  }),
+});
+
+export const collections = { hotels };

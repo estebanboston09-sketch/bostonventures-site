@@ -1,0 +1,65 @@
+---
+import Base from '../../layouts/Base.astro';
+import HotelCard from '../../components/HotelCard.astro';
+import { getCollection } from 'astro:content';
+import { AREAS } from '../../lib/site';
+const hotels = (await getCollection('hotels')).sort((a, b) => (Number(!!b.data.review) - Number(!!a.data.review)) || a.data.name.localeCompare(b.data.name));
+const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
+---
+<Base title="Cancún & Riviera Maya Hotels: Honest Local Guide" description="Every hotel in Cancún and the Riviera Maya with honest, local information — filter by area, all-inclusive, adults-only and family. Reviewed hotels include real scores and video.">
+  <section class="bg-navy py-12 text-white">
+    <div class="wrap">
+      <p class="eyebrow">Hotels</p>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Cancún & Riviera Maya hotels</h1>
+      <p class="mt-3 max-w-2xl text-white/75">Reviewed hotels show my real scores and video. The rest show checked facts only — I never make up scores for places I haven't stayed.</p>
+      <a href="/tools/hotel-match" class="btn-sun mt-6">Not sure? Find your hotel in 1 minute →</a>
+    </div>
+  </section>
+  <section class="wrap mt-8">
+    <form id="filters" class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-6" onsubmit="return false">
+      <input id="q" type="search" placeholder="Search a hotel…" class="field lg:col-span-2" aria-label="Search hotels" />
+      <select id="area" class="field" aria-label="Area">
+        <option value="">All areas</option>
+        {areasUsed.map((a) => <option value={a}>{AREAS[a]?.label ?? a}</option>)}
+      </select>
+      <select id="who" class="field" aria-label="Who">
+        <option value="">Adults & families</option>
+        <option value="adults">Adults-only</option>
+        <option value="kids">Kids welcome</option>
+      </select>
+      <select id="plan" class="field" aria-label="Meal plan">
+        <option value="">Any meal plan</option>
+        <option value="ai">All-inclusive</option>
+        <option value="ep">Not all-inclusive</option>
+      </select>
+      <label class="flex items-center gap-2 rounded-xl px-2 text-sm font-semibold"><input id="reviewed" type="checkbox" class="h-4 w-4 accent-navy" /> Reviewed only</label>
+    </form>
+    <p id="count" class="mt-4 text-sm text-ink/60"></p>
+    <div id="grid" class="mt-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {hotels.map((h) => <HotelCard hotel={h} />)}
+    </div>
+    <p id="empty" class="hidden py-16 text-center text-ink/60">No hotels match. Try removing a filter.</p>
+  </section>
+</Base>
+<script>
+  const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-hotel]')];
+  const params = new URLSearchParams(location.search);
+  if (params.get('reviewed')) $('reviewed').checked = true;
+  if (params.get('area')) $('area').value = params.get('area')!;
+  function apply() {
+    const q = $('q').value.trim().toLowerCase(), area = $('area').value, who = $('who').value, plan = $('plan').value, rev = $('reviewed').checked;
+    let n = 0;
+    cards.forEach((c) => {
+      const d = c.dataset;
+      const ok = (!q || d.name!.includes(q)) && (!area || d.area === area) &&
+        (!who || (who === 'adults' ? d.adults === '1' : d.adults === '0')) &&
+        (!plan || (plan === 'ai' ? d.ai === '1' : d.ai === '0')) && (!rev || d.reviewed === '1');
+      c.style.display = ok ? '' : 'none'; if (ok) n++;
+    });
+    $('count').textContent = `${n} hotel${n === 1 ? '' : 's'}`;
+    document.getElementById('empty')!.classList.toggle('hidden', n > 0);
+  }
+  document.getElementById('filters')!.addEventListener('input', apply);
+  apply();
+</script>

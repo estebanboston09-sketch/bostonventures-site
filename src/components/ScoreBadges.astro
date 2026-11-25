@@ -1,0 +1,36 @@
+---
+interface Props {
+  scores: { room: number; food: number; beachPool: number; activities: number; activitiesParty?: number; service: number; overall?: number };
+  pricePaid?: string;
+}
+const { scores, pricePaid } = Astro.props;
+const five = [scores.room, scores.food, scores.beachPool, scores.activities, scores.service];
+const overall = scores.overall ?? Math.round((five.reduce((a, b) => a + b, 0) / 5) * 10) / 10;
+const items = [
+  { label: 'Room', v: scores.room },
+  { label: 'Food & Drinks', v: scores.food },
+  { label: 'Beach & Pool', v: scores.beachPool },
+  { label: scores.activitiesParty != null ? 'Activities (families)' : 'Activities', v: scores.activities },
+  ...(scores.activitiesParty != null ? [{ label: 'Activities (party)', v: scores.activitiesParty }] : []),
+  { label: 'Service', v: scores.service },
+];
+const fmt = (n: number) => (Number.isInteger(n) ? n.toFixed(0) : n.toFixed(1));
+---
+<div class="rounded-2xl bg-navy p-5 text-white">
+  <div class="flex items-center gap-4 border-b border-gold/40 pb-4">
+    <div class="grid h-20 w-20 place-items-center rounded-full border-2 border-gold font-serif text-3xl font-bold text-sun">{fmt(overall)}</div>
+    <div>
+      <p class="eyebrow">Overall score</p>
+      <p class="text-sm text-teal">out of 10, after a real stay</p>
+      {pricePaid && <p class="mt-1 text-sm">Price paid: <b class="text-white">{pricePaid}</b></p>}
+    </div>
+  </div>
+  <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+    {items.map((i) => (
+      <li class="rounded-xl border border-gold/40 p-3 text-center">
+        <p class="font-serif text-2xl font-bold">{fmt(i.v)}</p>
+        <p class="mt-0.5 text-xs font-semibold uppercase tracking-wide text-teal">{i.label}</p>
+      </li>
+    ))}
+  </ul>
+</div>

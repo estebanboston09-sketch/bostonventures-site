@@ -1,0 +1,60 @@
+---
+import Base from '../../layouts/Base.astro';
+import TravelEssentials from '../../components/TravelEssentials.astro';
+import Disclosure from '../../components/Disclosure.astro';
+import LiteYouTube from '../../components/LiteYouTube.astro';
+import { TOURS, INTEREST_LABELS } from '../../data/tours';
+import { AFFILIATE } from '../../lib/site';
+import { MONTHS } from '../../lib/tourMatch';
+export function getStaticPaths() { return TOURS.map((t) => ({ params: { slug: t.slug }, props: { t } })); }
+const { t } = Astro.props;
+const related = TOURS.filter((x) => x.slug !== t.slug && x.interests.some((i) => t.interests.includes(i))).slice(0, 3);
+const season = t.months ? `${MONTHS[t.months[0] - 1]} to ${MONTHS[t.months[t.months.length - 1] - 1]}` : 'All year';
+const faq = [
+  { q: `How long is the ${t.name.toLowerCase()} trip?`, a: `${t.length === 'half' ? 'About half a day' : 'A full day'}. ${t.travel}.` },
+  { q: 'Is it good for kids?', a: t.kids === 'great' ? 'Yes — this is one of the easiest outings with kids.' : t.kids === 'ok' ? 'Usually yes for kids who are comfortable with the activity. Check age limits when you book.' : 'Not really — this one is meant for adults.' },
+  { q: 'When is the best time to go?', a: t.months ? `It's seasonal: roughly ${season}.` : 'It runs all year. Go early in the day to beat the heat and the crowds.' },
+];
+---
+<Base title={`${t.name} from Cancún: Honest Local Guide`} description={`${t.short} Who it's for, who should skip it, and local tips for the ${t.name.toLowerCase()}.`}
+  schema={[{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Tours', item: new URL('/tours', Astro.site).href }, { '@type': 'ListItem', position: 2, name: t.name }] }]}>
+  <section class="bg-navy pb-10 pt-8 text-white"><div class="wrap">
+    <nav class="text-sm text-white/60"><a href="/tours" class="hover:text-white">Tours</a></nav>
+    <h1 class="mt-3 text-3xl font-bold sm:text-5xl">{t.name}</h1>
+    <p class="mt-3 max-w-2xl text-lg text-white/80">{t.short}</p>
+    <div class="mt-4 flex flex-wrap gap-2">{t.interests.map((i) => <span class="rounded-full border border-gold/50 px-3 py-1 text-sm">{INTEREST_LABELS[i]}</span>)}</div>
+  </div></section>
+  <div class="wrap mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
+    <article class="space-y-6">
+      {t.reviewed?.videoId && <LiteYouTube id={t.reviewed.videoId} title={t.name} />}
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="card p-5"><p class="font-bold text-navy">✓ Good for</p><p class="mt-1 text-sm">{t.goodFor}</p></div>
+        <div class="card p-5"><p class="font-bold text-navy">✗ Skip it if</p><p class="mt-1 text-sm">{t.skipIf}</p></div>
+      </div>
+      <div class="card border-l-4 border-sun p-5"><p class="eyebrow">Local tip</p><p class="mt-1">{t.localTip}</p></div>
+      <section>
+        <h2 class="text-xl font-bold text-navy">Questions people ask</h2>
+        <div class="mt-3 space-y-2">{faq.map((f) => <details class="card p-4"><summary class="cursor-pointer font-semibold text-navy">{f.q}</summary><p class="mt-2 text-sm text-ink/70">{f.a}</p></details>)}</div>
+      </section>
+      <TravelEssentials />
+    </article>
+    <aside class="space-y-5 lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-5">
+        <dl class="space-y-2 text-sm">
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Length</dt><dd class="font-semibold">{t.length === 'half' ? 'Half day' : 'Full day'}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Season</dt><dd class="font-semibold">{season}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Kids</dt><dd class="font-semibold">{{ great: 'Great', ok: 'OK', no: 'Adults' }[t.kids]}</dd></div>
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Effort</dt><dd class="font-semibold">{['', 'Easy', 'Moderate', 'Active'][t.energy]}</dd></div>
+        </dl>
+        <p class="mt-3 text-xs text-ink/50">{t.travel}</p>
+        {AFFILIATE.tours
+          ? <a href={AFFILIATE.tours.url(t.name)} target="_blank" rel="sponsored nofollow noopener" class="btn-sun mt-4 w-full">See prices & book →</a>
+          : <p class="mt-4 rounded-lg bg-sand p-3 text-xs text-ink/60">Booking links coming soon.</p>}
+      </div>
+      <Disclosure />
+    </aside>
+  </div>
+  {related.length > 0 && <section class="wrap mt-14"><h2 class="text-2xl font-bold text-navy">You might also like</h2>
+    <div class="mt-5 grid gap-5 sm:grid-cols-3">{related.map((r) => <a href={`/tours/${r.slug}`} class="card p-5 hover:shadow-md"><p class="font-bold text-navy">{r.name}</p><p class="mt-1 text-sm text-ink/70">{r.short}</p></a>)}</div></section>}
+</Base>
