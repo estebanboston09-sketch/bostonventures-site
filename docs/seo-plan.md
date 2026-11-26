@@ -91,9 +91,20 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 3. **`amenities`:** 4–7 short chips. **`dining`:** restaurants/bars with cuisine (official site). **`practical`:** check-in/out, minimum age, pools, dress code, fees, shuttle, pets, anything a traveler must know. **`officialUrl`:** the hotel's site (powers the "official photos" button). Match the detail of the existing pages, e.g. jw-marriott-cancun.md.
 4. **`travelers`:** read what public reviews say (TripAdvisor, Expedia, Oyster, Booking.com pages that actually open or appear in search). Write `summary`, 3–5 `praise` and 3–4 `complaints` **in our own words**. Never quote a review, never copy star ratings or scores, never invent a theme you didn't read. `links` = the real review page URL you found. `basedOn` = which sites + month.
 5. **Photos (every hotel needs one):** never copy photos from hotel, Google or booking sites. Search free-licensed sources in this order: Pexels and Unsplash (search the hotel name), then Wikimedia Commons. Use a photo of that exact hotel with `credit` + `creditUrl`. If none exists, use a free Pexels/Unsplash **aerial photo where hotel buildings are clearly visible** (e.g. Cancún Hotel Zone resorts from a drone) with `area: true`. Never use a photo of only sand, sea, seaweed or palm trees: Esteban wants every card to show hotels so the card says "Area photo". Pexels URL format: `https://images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg?auto=compress&cs=tinysrgb&w=1280`; Unsplash: `https://unsplash.com/photos/<id>/download?w=1280`.
-6. Every new hotel has `needsReview: true`. `bestFor` only from facts (adults-only → adults-only, kids club → families, etc.).
-7. Build must pass. Commit them all on one branch `hoteles/<YYYY-MM-DD>` and push only that branch. In the nightly message, list the new hotel names and say: "Reply OK hotels to publish them."
-8. On "OK hotels": merge into main, push.
+6. **`extras`** (see `src/content.config.ts`), from the official site first and big booking sites to cross-check, one short fact per line, never guessed:
+   - `rooms`: room types, sizes, swim-up rooms, family or connecting rooms.
+   - `kids`: kids' club ages, teen club, babysitting, water park.
+   - `diningRules`: reservations, dress codes, which restaurants cost extra.
+   - `extraCosts`: resort fees, cabanas, premium drinks, shuttle, spa.
+   - `awards`: Forbes, AAA, MICHELIN, Travelers' Choice, with the year.
+   - `dayPass`: whether outsiders can buy one, and the price with the month checked.
+   - `accessibility`: accessible rooms, elevators, stairs to the beach.
+   - `warnings`: timeshare pitches, renovations, shared beach, no service animals.
+   Leave out anything you can't confirm, and add each page you used to `sources`. Beach type, seaweed, distances, transfer price and the FAQ are worked out automatically from `location` and `area`, so every hotel needs an accurate `location` pin.
+7. **Backfill:** each night, also add `extras` to the next 5 hotels already on the site that don't have them yet, reviewed hotels included (never touch Esteban's `review` scores or text). Put them on the same `hoteles/<YYYY-MM-DD>` branch.
+8. Every new hotel has `needsReview: true`. `bestFor` only from facts (adults-only → adults-only, kids club → families, etc.).
+9. Build must pass. Commit them all on one branch `hoteles/<YYYY-MM-DD>` and push only that branch. In the nightly message, list the new hotel names and say: "Reply OK hotels to publish them."
+10. On "OK hotels": merge into main, push.
 
 ### Hotel list (in order)
 | # | Hotel | Area | Status |

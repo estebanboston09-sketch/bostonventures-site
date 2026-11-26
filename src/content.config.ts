@@ -40,6 +40,17 @@ const hotels = defineCollection({
       basedOn: z.string(), // e.g. "TripAdvisor and Google reviews, read Nov 2026"
       links: z.array(z.object({ name: z.string(), url: z.string().url() })).default([]),
     }).optional(),
+    // Extra checked details (official site first, big booking sites to cross-check). Each list item is one short fact.
+    extras: z.object({
+      rooms: z.array(z.string()).default([]),          // room types, sizes, swim-up, family/connecting rooms
+      kids: z.array(z.string()).default([]),           // kids' club ages, teen club, babysitting, water park
+      diningRules: z.array(z.string()).default([]),    // reservations, dress code, which restaurants cost extra
+      extraCosts: z.array(z.string()).default([]),     // resort fees, cabanas, premium drinks, shuttle, spa
+      awards: z.array(z.string()).default([]),         // Forbes, AAA, Michelin, Travelers' Choice (with year)
+      dayPass: z.string().optional(),                  // whether outsiders can buy a day pass, and the price
+      accessibility: z.array(z.string()).default([]),  // accessible rooms, elevators, stairs to the beach
+      warnings: z.array(z.string()).default([]),       // timeshare pitches, renovations, shared beach…
+    }).optional(),
     highlights: z.array(z.string()).default([]),
     goodToKnow: z.array(z.string()).default([]),
     bestFor: z.array(z.enum(['families', 'couples', 'adults-only', 'party', 'budget', 'luxury', 'groups', 'honeymoon', 'theme-parks', 'quiet', 'nightlife', 'foodies'])),

@@ -13,6 +13,7 @@ import { hotelImage } from '../../lib/hotelImage';
 import { overallScore } from '../../lib/score';
 import { getCollection, render } from 'astro:content';
 import { AREAS, SITE, AFFILIATE } from '../../lib/site';
+import { beachType, seaweedNear, distances, transferEstimate } from '../../lib/hotelExtras';
 
 export async function getStaticPaths() {
   const hotels = await getCollection('hotels');
@@ -40,6 +41,31 @@ const similar = all
   .sort((a, b) => b.s - a.s).slice(0, 3).map((x) => x.h);
 const reviewedSimilar = all.find((h) => h.id !== hotel.id && h.data.review && h.data.adultsOnly === d.adultsOnly);
 
+// Automatic extras (see src/lib/hotelExtras.ts)
+const beach = beachType(d.area, d.location);
+const weed = seaweedNear(d.location);
+const near = distances(d.area, d.location);
+const transfer = transferEstimate(d.area, d.airportMinutes);
+const ex = d.extras;
+const exSections = ex ? ([
+  ['🛏️ Rooms', ex.rooms], ['🧒 Kids & families', ex.kids], ['🍽️ Restaurant rules', ex.diningRules], ['💸 Costs to know about', ex.extraCosts],
+  ['🏆 Awards', ex.awards], ['♿ Accessibility', ex.accessibility], ['⚠️ Heads-up', ex.warnings],
+] as [string, string[]][]).filter(([, v]) => v.length > 0) : [];
+// Reviewed hotels most like this one, so readers can see a real review of a similar stay.
+const reviewedLike = all
+  .filter((h) => h.id !== hotel.id && h.data.review && overallScore(h.data.review) != null)
+  .map((h) => ({ h, s: (h.data.adultsOnly === d.adultsOnly ? 3 : 0) + (h.data.allInclusive === d.allInclusive ? 2 : 0) + (h.data.area === d.area ? 1.5 : 0) + h.data.bestFor.filter((t) => d.bestFor.includes(t)).length * 0.5 }))
+  .sort((a, b) => b.s - a.s).slice(0, 2).map((x) => x.h);
+// Questions travelers search, answered from this page's own facts.
+const faq: [string, string][] = [
+  [`Is ${d.name} all-inclusive?`, d.allInclusive ? `Yes. ${d.name} is all-inclusive: meals and drinks at its restaurants and bars are included${ex?.extraCosts.length ? ', but some extras cost more (see "Costs to know about" on this page)' : ''}.` : `No. ${d.name} is not all-inclusive by default, so meals and drinks are paid separately${d.practical.some((p) => /all-inclusive/i.test(p.value)) ? ' unless you book an all-inclusive rate' : ''}.`],
+  [`Is ${d.name} adults only?`, d.adultsOnly ? `Yes, it's adults only. Guests must be 18 or older.` : `No, kids are welcome.${ex?.kids.length ? ' ' + ex.kids[0] + '.' : ''}`],
+];
+if (d.airportMinutes) faq.push([`How far is ${d.name} from Cancún airport?`, `About ${d.airportMinutes} minutes by car from Cancún International Airport (CUN), depending on traffic.${transfer ? ` A private transfer costs ${transfer}.` : ''}`]);
+if (beach) faq.push([`What is the beach like at ${d.name}?`, `${beach.label}. ${beach.note}${d.beach ? ' ' + d.beach : ''}`]);
+if (weed) faq.push([`Is there seaweed near ${d.name}?`, `On the official seaweed report of ${new Date(weed.date + 'T12:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}, the nearest monitored beach, ${weed.beach}, was at "${weed.level}". Levels change daily; check the seaweed map.`]);
+if (r && overallScore(r) != null) faq.push([`Is ${d.name} worth it?`, `I stayed there and gave it ${overallScore(r)}/10. ${r.verdict ?? ''}`.trim()]);
+
 const img = hotelImage(d);
 const videoId = r?.videoId;
 const bookUrl = AFFILIATE.hotelBooking ? AFFILIATE.hotelBooking.url(d.name) : d.officialUrl;
@@ -60,6 +86,7 @@ const schema: any[] = [
   ] },
 ];
 if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoObject', name: `${d.name} review`, thumbnailUrl: `https://i.ytimg.com/vi/${r.videoId}/hqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${r.videoId}`, uploadDate: r.videoDate ?? r.visited });
+schema.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 ---
 <Base title={title} description={description} schema={schema} noindex={d.needsReview}>
   <section class="relative overflow-hidden bg-navy pb-12 pt-8 text-white">
@@ -151,6 +178,18 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
         </section>
       )}
 
+      {(beach || weed || near.length > 0) && (
+        <section class="card reveal p-6">
+          <p class="eyebrow">Beach & location</p>
+          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            {beach && <div class="rounded-xl bg-sand p-4"><p class="text-xs text-ink/60">The sea here</p><p class="mt-1 font-bold text-navy">🌊 {beach.label}</p><p class="mt-1 text-sm text-ink/70">{beach.note}</p></div>}
+            {weed && <div class="rounded-xl bg-sand p-4"><p class="text-xs text-ink/60">Seaweed at the nearest monitored beach</p><p class="mt-1 font-bold text-navy"><span class="mr-1 inline-block h-3 w-3 rounded-full align-middle" style={`background:${weed.color}`}></span>{weed.level} · {weed.beach}</p><p class="mt-1 text-sm text-ink/70">{weed.advice} Official report of {new Date(weed.date + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}. <a href="/tools/seaweed-map" class="font-semibold underline">See the map</a></p></div>}
+          </div>
+          {near.length > 0 && <dl class="mt-4 divide-y divide-sand-2 text-sm">{near.map((n) => <div class="flex justify-between gap-4 py-2"><dt class="text-ink/60">{n.name}</dt><dd class="text-right font-medium">{n.text}</dd></div>)}</dl>}
+          {near.length > 0 && <p class="mt-2 text-xs text-ink/45">Distances are approximate, measured from the hotel's map pin.</p>}
+        </section>
+      )}
+
       {(d.dining.length > 0 || d.practical.length > 0) && (
         <section class="card reveal p-6">
           {d.dining.length > 0 && <>
@@ -176,14 +215,41 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
         </section>
       )}
 
+      {(exSections.length > 0 || ex?.dayPass) && (
+        <section class="card reveal p-6">
+          <p class="eyebrow">More details</p>
+          <div class="mt-3 grid gap-5 sm:grid-cols-2">
+            {exSections.map(([t, items]) => <div><p class="font-bold text-navy">{t}</p><ul class="mt-2 space-y-1.5 text-sm">{items.map((x) => <li class="flex gap-2"><span class="text-teal">●</span><span>{x}</span></li>)}</ul></div>)}
+            {ex?.dayPass && <div><p class="font-bold text-navy">🎟️ Day pass</p><p class="mt-2 text-sm">{ex.dayPass}</p></div>}
+          </div>
+        </section>
+      )}
+
       {d.travelers && <TravelersSay t={d.travelers} name={d.name} />}
+
+      {!reviewed && reviewedLike.length > 0 && (
+        <section class="reveal">
+          <h2 class="text-xl font-bold text-navy">Similar hotels I've actually stayed at</h2>
+          <p class="mt-1 text-sm text-ink/60">I haven't reviewed {d.name} yet, but these are the closest matches I've tested myself.</p>
+          <div class="mt-4 grid gap-5 sm:grid-cols-2">{reviewedLike.map((h) => <HotelCard hotel={h} />)}</div>
+        </section>
+      )}
 
       {!reviewed && <div class="prose-bv"><Content /></div>}
 
       <section>
         <h2 class="text-xl font-bold text-navy">Getting there from Cancún airport</h2>
         <p class="mt-2 text-sm text-ink/70">{d.airportMinutes ? `About ${d.airportMinutes} minutes by car from Cancún airport (CUN).` : `See our airport guide for the best way to get to ${area?.label ?? 'your hotel'}.`} <a class="font-semibold underline" href="/guides/cancun-airport">Read the airport arrival guide</a>.</p>
-        <div class="mt-4"><TravelEssentials /></div>
+        <div class="mt-4 flex flex-col gap-3 rounded-2xl border-2 border-gold/40 bg-gold/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div><p class="font-bold text-navy">🚐 Private transfer to {d.name}</p><p class="text-sm text-ink/70">{transfer ? <>Fair price: {transfer} (<a href="/tools/fair-prices" class="underline">see how I checked</a>). </> : null}Fixed price, just your group, booked before you land.</p></div>
+          <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" class="btn-sun shrink-0">Check {AFFILIATE.transfers.name} price →</a>
+        </div>
+        <div class="mt-4"><TravelEssentials noTransfer /></div>
+      </section>
+
+      <section class="card reveal p-6">
+        <h2 class="text-xl font-bold text-navy">Questions about {d.name}</h2>
+        <div class="mt-3 space-y-3">{faq.map(([q, a]) => <details class="rounded-xl bg-sand p-4"><summary class="cursor-pointer font-semibold">{q}</summary><p class="mt-2 text-sm text-ink/75">{a}</p></details>)}</div>
       </section>
 
       {d.sources.length > 0 && (

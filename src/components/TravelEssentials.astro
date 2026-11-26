@@ -1,15 +1,15 @@
 ---
 import { AFFILIATE } from '../lib/site';
-interface Props { compact?: boolean }
-const { compact = false } = Astro.props;
+interface Props { compact?: boolean; noTransfer?: boolean }
+const { compact = false, noTransfer = false } = Astro.props;
 ---
-<div class:list={['grid gap-4', !compact && 'sm:grid-cols-2']}>
-  <div class="card p-5">
+<div class:list={['grid gap-4', !compact && !noTransfer && 'sm:grid-cols-2']}>
+  {!noTransfer && <div class="card p-5">
     <p class="eyebrow">Getting there</p>
     <h3 class="mt-1 font-bold text-navy">Book your airport transfer before you land</h3>
     <p class="mt-1 text-sm text-ink/70">A pre-booked driver waits outside with your name, so you skip the taxi and timeshare crowd in the arrivals hall.</p>
     <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" class="btn-sun mt-4 text-sm">Get a transfer price →</a>
-  </div>
+  </div>}
   <div class="card p-5">
     <p class="eyebrow">Stay connected</p>
     <h3 class="mt-1 font-bold text-navy">Have data the moment you land</h3>
