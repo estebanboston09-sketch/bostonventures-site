@@ -164,7 +164,7 @@ export const PRIVATE_TOURS: PrivateTour[] = [
     notIncluded: ['A guide in Tulum', 'Food and drinks', 'Tips', 'Tram from the parking lot to the entrance (56 pesos per person; you can walk)', 'Playa del Carmen stop (extra)'],
     addOns: ['Zipline canopy, 90 min ($36 per person)', 'Gran Cenote ($30 per person)', 'Isla Blanca: $50 per van'],
     bring: ['Comfortable shoes, hat, sunglasses', 'Biodegradable sunscreen and repellent', 'Cash'],
-    notes: ['The booking page says Tulum currently closes at 3 pm because of construction; plan around it.', VAN],
+    notes: ['Tulum currently closes at 3 pm because of construction (per the tour operator, Nov 2026); plan around it.', VAN],
     photos: img('Tulum1.jpg', 'Tulum2.jpg', 'Tulum3.jpg', 'Tulum4.jpg', 'Tulum5.jpg'),
   },
   {
@@ -458,6 +458,27 @@ export const COMMON = {
   wet: "The driver won't let wet passengers into the van, so bring a change of clothes for water tours.",
   ready: 'Be at your hotel lobby, by the bellman desk, a few minutes before pickup.',
 };
+
+// Free guide pages reuse the photos and place details of the closest private tour.
+// stops: false = only reuse photos (the private tour's route differs from the guide).
+export const GUIDE_PRIMARY: Record<string, { slug: string; stops: boolean }> = {
+  'chichen-itza-day-trip': { slug: 'private-chichen-itza', stops: true },
+  'catamaran-isla-mujeres': { slug: 'private-catamaran-isla-mujeres', stops: true },
+  'isla-mujeres-day-trip': { slug: 'private-catamaran-isla-mujeres', stops: false },
+  'xcaret-park': { slug: 'private-xcaret-park', stops: true },
+  'xel-ha-park': { slug: 'private-xel-ha-all-inclusive', stops: true },
+  'cenote-tour': { slug: 'private-cenote-ziplines', stops: true },
+  'tulum-ruins-and-beach': { slug: 'private-tulum-ruins', stops: true },
+  'valladolid-and-cenotes': { slug: 'private-ek-balam-ruins', stops: true },
+};
+// Lines about the place itself (hours, rules, fees), not about the van or booking.
+const BOOKING_ONLY = /\bvan\b|private|Playa del Carmen stop|park extras|voucher|Max 13|booking page|Isla Blanca|Best (for|from)|driver|hotels|Return time|port is closed|boats seat|Fully private|transport is private|lobby/i;
+export const placeFacts = (t: PrivateTour) => ({
+  notes: t.notes.filter((n) => !BOOKING_ONLY.test(n)),
+  bring: t.bring.filter((n) => !BOOKING_ONLY.test(n)),
+  kids: (t.kidsPolicy ?? []).filter((n) => !BOOKING_ONLY.test(n)),
+  fees: t.notIncluded.filter((n) => /fee|tax|tram|guide|rent|extra|\$|pesos/i.test(n) && !/Tips|Food and drinks|Extra stops|Isla Blanca|Transport/i.test(n) && !BOOKING_ONLY.test(n)),
+});
 
 export const privateBySlug = (s: string) => PRIVATE_TOURS.find((t) => t.slug === s);
 export const privateForDests = (dests: Dest[], exclude?: string) => PRIVATE_TOURS.filter((t) => t.slug !== exclude && t.dests.some((d) => dests.includes(d)));

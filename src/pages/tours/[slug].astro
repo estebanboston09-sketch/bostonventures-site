@@ -6,10 +6,14 @@ import LiteYouTube from '../../components/LiteYouTube.astro';
 import { TOURS, INTEREST_LABELS } from '../../data/tours';
 import { AFFILIATE } from '../../lib/site';
 import { MONTHS } from '../../lib/tourMatch';
-import { GUIDE_DESTS, privateForDests, DEST_LABELS } from '../../data/privateTours';
+import { GUIDE_DESTS, privateForDests, DEST_LABELS, GUIDE_PRIMARY, privateBySlug, placeFacts } from '../../data/privateTours';
 export function getStaticPaths() { return TOURS.map((t) => ({ params: { slug: t.slug }, props: { t } })); }
 const { t } = Astro.props;
 const privates = GUIDE_DESTS[t.slug] ? privateForDests(GUIDE_DESTS[t.slug]) : [];
+const primaryRef = GUIDE_PRIMARY[t.slug];
+const primary = primaryRef ? privateBySlug(primaryRef.slug) : undefined;
+const photos = primary?.photos ?? [];
+const facts = primary ? placeFacts(primary) : null;
 const money = (n: number) => '$' + n.toFixed(2).replace(/\.00$/, '');
 const related = TOURS.filter((x) => x.slug !== t.slug && x.interests.some((i) => t.interests.includes(i))).slice(0, 3);
 const season = t.months ? `${MONTHS[t.months[0] - 1]} to ${MONTHS[t.months[t.months.length - 1] - 1]}` : 'All year';
@@ -18,6 +22,9 @@ const faq = [
   { q: 'Is it good for kids?', a: t.kids === 'great' ? 'Yes — this is one of the easiest outings with kids.' : t.kids === 'ok' ? 'Usually yes for kids who are comfortable with the activity. Check age limits when you book.' : 'Not really — this one is meant for adults.' },
   { q: 'When is the best time to go?', a: t.months ? `It's seasonal: roughly ${season}.` : 'It runs all year. Go early in the day to beat the heat and the crowds.' },
 ];
+if (facts?.bring.length) faq.push({ q: `What should I bring to ${t.name}?`, a: facts.bring.join('. ') + '.' });
+const closing = facts?.notes.find((n) => /close/i.test(n));
+if (closing) faq.push({ q: 'What time does it close?', a: closing });
 ---
 <Base title={`${t.name} from Cancún: Honest Local Guide`} description={`${t.short} Who it's for, who should skip it, and local tips for the ${t.name.toLowerCase()}.`}
   schema={[{ '@context': 'https://schema.org', '@type': 'TouristAttraction', name: t.name, description: t.short, url: new URL(`/tours/${t.slug}`, Astro.site).href,
@@ -25,7 +32,11 @@ const faq = [
       ...(t.reviewed?.videoId && { subjectOf: { '@type': 'VideoObject', name: `${t.name}: my video`, thumbnailUrl: `https://i.ytimg.com/vi/${t.reviewed.videoId}/hqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${t.reviewed.videoId}`, uploadDate: t.reviewed.videoDate } }) },
     { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
     { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Tours', item: new URL('/tours', Astro.site).href }, { '@type': 'ListItem', position: 2, name: t.name }] }]}>
-  <section class="bg-navy pb-10 pt-8 text-white"><div class="wrap">
+  <section class="relative overflow-hidden bg-navy pb-10 pt-8 text-white">
+    {photos[0] && <img src={photos[0]} alt="" class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()" />}
+    {photos[0] && <div class="absolute inset-0 bg-gradient-to-r from-[#063f56]/95 via-[#063f56]/70 to-[#063f56]/25"></div>}
+    {photos[0] && <p class="absolute bottom-2 right-3 z-10 text-[10px] text-white/60">Photo: USA Transfers</p>}
+    <div class="wrap relative">
     <nav class="text-sm text-white/60"><a href="/tours" class="hover:text-white">Tours</a></nav>
     {t.reviewed?.videoId && <span class="mt-4 inline-flex items-center gap-2 rounded-full bg-sun px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">★ I did this tour</span>}
     <h1 class="mt-3 text-3xl font-bold sm:text-5xl">{t.name}</h1>
@@ -52,19 +63,39 @@ const faq = [
           {t.reviewed.prices && <p class="mt-4 rounded-lg bg-sand px-3 py-2 text-sm"><b>Prices when I went:</b> {t.reviewed.prices.text}. Check current prices before you go.</p>}
         </section>
       )}
+      {primary && primaryRef.stops && (
+        <section class="card p-6">
+          <p class="eyebrow">What you'll see and do</p>
+          <ul class="mt-4 space-y-4">
+            {primary.stops.filter((x) => !/^lunch$/i.test(x.name)).map((x) => <li class="flex gap-3"><span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-gold"></span><div><p class="font-bold text-navy">{x.name.replace(/^[\d:]+ [ap]m · /, '')}</p><p class="text-sm text-ink/70">{x.text}</p></div></li>)}
+          </ul>
+          {primary.duration && <p class="mt-4 rounded-lg bg-sand px-3 py-2 text-sm"><b>How long:</b> {primary.duration}</p>}
+        </section>
+      )}
+      {photos.length > 1 && (
+        <section class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {photos.slice(1, 7).map((p) => <img src={p} alt={`${t.name} photo`} loading="lazy" onerror="this.remove()" class="aspect-[4/3] w-full rounded-xl object-cover" />)}
+        </section>
+      )}
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="card p-5"><p class="font-bold text-navy">✓ Good for</p><p class="mt-1 text-sm">{t.goodFor}</p></div>
         <div class="card p-5"><p class="font-bold text-navy">✗ Skip it if</p><p class="mt-1 text-sm">{t.skipIf}</p></div>
       </div>
       <div class="card border-l-4 border-sun p-5"><p class="eyebrow">Local tip</p><p class="mt-1">{t.localTip}</p></div>
+      {facts && (facts.notes.length + facts.fees.length + facts.kids.length + facts.bring.length > 0) && (
+        <section class="grid gap-4 sm:grid-cols-2">
+          {(facts.notes.length > 0 || facts.fees.length > 0 || facts.kids.length > 0) && <div class="card p-5"><p class="font-bold text-navy">💡 Good to know</p><ul class="mt-3 space-y-2 text-sm">{[...facts.notes, ...facts.fees.map((f) => 'Paid separately: ' + f.charAt(0).toLowerCase() + f.slice(1)), ...facts.kids].map((x) => <li class="flex gap-2"><span class="text-sun">●</span><span>{x}</span></li>)}</ul></div>}
+          {facts.bring.length > 0 && <div class="card p-5"><p class="font-bold text-navy">🎒 What to bring</p><ul class="mt-3 space-y-2 text-sm">{facts.bring.map((x) => <li class="flex gap-2"><span class="text-gold">●</span><span>{x}</span></li>)}</ul></div>}
+        </section>
+      )}
       <section>
         <h2 class="text-xl font-bold text-navy">Questions people ask</h2>
         <div class="mt-3 space-y-2">{faq.map((f) => <details class="card p-4"><summary class="cursor-pointer font-semibold text-navy">{f.q}</summary><p class="mt-2 text-sm text-ink/70">{f.a}</p></details>)}</div>
       </section>
       {privates.length > 0 && (
         <section id="book">
-          <h2 class="text-xl font-bold text-navy">Book it as a private tour</h2>
-          <p class="mt-1 text-sm text-ink/60">Your own van and driver, so you leave when you want and skip the tour bus.</p>
+          <h2 class="text-xl font-bold text-navy">Want to go? Private tour options</h2>
+          <p class="mt-1 text-sm text-ink/60">Optional: your own van and driver, so you leave when you want and skip the tour bus. Each page shows the full price list and what's included.</p>
           <div class="mt-4 grid gap-4 sm:grid-cols-2">{privates.map((x) => (
             <a href={`/tours/private/${x.slug}`} class="card lift group overflow-hidden">
               <div class="aspect-video overflow-hidden bg-navy"><img src={x.photos[0]} alt="" loading="lazy" onerror="this.remove()" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" /></div>
