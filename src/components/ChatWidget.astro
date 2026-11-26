@@ -37,7 +37,7 @@
   let busy = false;
   const ph = () => (window as any).posthog;
   const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
-  const md = (s: string) => esc(s)
+  const md = (s: string) => esc(s.replace(/^\s*[*-]\s+/gm, '• ').replace(/\n{3,}/g, '\n\n'))
     .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
     .replace(/\[([^\]]+)\]\(((?:\/|https:\/\/(?:bostonventurestravel\.com|booking\.usa-transfers\.com|holafly\.sjv\.io))[^)\s]*)\)/g, (_m, t, u) => `<a href="${u}"${u.startsWith('/') ? '' : ' target="_blank" rel="sponsored nofollow noopener"'}>${t}</a>`);
   const add = (cls: string, html: string) => { const d = document.createElement('div'); d.className = `bv-msg ${cls}`; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; };

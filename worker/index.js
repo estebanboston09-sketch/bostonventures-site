@@ -15,7 +15,6 @@ const STOP = new Set('the a an and or of to in on for is are was it i my me we y
 const words = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z0-9]+/g)?.filter((w) => w.length > 2 && !STOP.has(w)) ?? [];
 
 let cache = null;
-let lastRaw = null;
 async function getChunks(env, url) {
   if (cache) return cache;
   const r = await env.ASSETS.fetch(new URL('/chat-data.json', url));
@@ -39,7 +38,6 @@ const json = (o, status = 200) => new Response(JSON.stringify(o), { status, head
 
 async function askCloudflare(env, messages) {
   const out = await env.AI.run(env.CF_MODEL, { messages, max_tokens: 700, temperature: 0.3, chat_template_kwargs: { enable_thinking: false }, reasoning_effort: 'none' });
-  lastRaw = out;
   const r = out?.response;
   if (typeof r === 'string' && r.trim()) return r;
   if (r && typeof r === 'object') return JSON.stringify(r);
@@ -84,7 +82,6 @@ export default {
     try {
       const useClaude = env.CHAT_PROVIDER === 'claude' && env.ANTHROPIC_API_KEY;
       const answer = useClaude ? await askClaude(env, system, history) : await askCloudflare(env, [{ role: 'system', content: system }, ...history]);
-      if (body.debug === 'bv-check') return json({ raw: JSON.stringify(lastRaw)?.slice(0, 2000), answer });
       return json({ answer: answer.trim() || "Sorry, I couldn't answer that one. Try asking another way.", sources: chunks.slice(0, 3).map((c) => ({ title: c.title, url: c.url })) });
     } catch (e) {
       console.log('chat error', String(e));
