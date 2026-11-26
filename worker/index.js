@@ -38,7 +38,7 @@ function pick(chunks, query) {
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 
 async function askCloudflare(env, messages) {
-  const out = await env.AI.run(env.CF_MODEL, { messages, max_tokens: 700, temperature: 0.3 });
+  const out = await env.AI.run(env.CF_MODEL, { messages, max_tokens: 700, temperature: 0.3, chat_template_kwargs: { enable_thinking: false }, reasoning_effort: 'none' });
   lastRaw = out;
   const r = out?.response;
   if (typeof r === 'string' && r.trim()) return r;
