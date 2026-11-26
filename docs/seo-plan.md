@@ -80,9 +80,11 @@ When the list runs out, pick the next question tourists search that no guide ans
 Merge `guia/<slug>` into `main` and push. The site deploys automatically and the sitemap updates itself. Then send him the live link, `https://bostonventurestravel.com/guides/<slug>`, and remind him to request indexing in Google Search Console (URL inspection → **Request indexing**).
 
 
-## Nightly hotel batch (5 hotels per night until the list is done)
+## Nightly hotel batch (10 hotels per night, goal: every hotel in Cancún and the Riviera Maya)
 
-Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 5 hotels from the list below whose file `src/content/hotels/<slug>.md` does not exist on `main`.
+Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 10 hotels from the list below whose file `src/content/hotels/<slug>.md` does not exist on `main`.
+
+**When fewer than 10 hotels are left on the list, extend the list first** (commit the new rows in the same branch): add the next most-reviewed hotels on TripAdvisor's Cancún, Costa Mujeres, Puerto Morelos, Playa del Carmen, Riviera Maya, Tulum, Isla Mujeres and Cozumel hotel lists that are not on the site yet. Order: big resorts and all-inclusives first, then boutique hotels, then downtown/budget hotels. Keep going until every hotel with a real following is covered.
 
 1. **Facts** (official hotel website first, then big booking sites only to cross-check): name, brand, area (schema enum), all-inclusive, adults-only, rooms, restaurants, minutes from CUN airport, `highlights`, `goodToKnow`, approximate `location` pin, `officialUrl`, `sources`, `factsChecked`. If two sources disagree on a number, leave the number out.
 2. **`about`:** 2–3 sentences in our own words. Never copy the hotel's marketing text.
@@ -90,7 +92,7 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 4. **`travelers`:** read what public reviews say (TripAdvisor, Expedia, Oyster, Booking.com pages that actually open or appear in search). Write `summary`, 3–5 `praise` and 3–4 `complaints` **in our own words**. Never quote a review, never copy star ratings or scores, never invent a theme you didn't read. `links` = the real review page URL you found. `basedOn` = which sites + month.
 5. **Photos (every hotel needs one):** never copy photos from hotel, Google or booking sites. Search free-licensed sources in this order: Pexels and Unsplash (search the hotel name), then Wikimedia Commons. Use a photo of that exact hotel with `credit` + `creditUrl`. If none exists, use a free Pexels/Unsplash photo of the hotel's area (e.g. Cancún Hotel Zone, Playa del Carmen beach) with `area: true` so the card says "Area photo". Pexels URL format: `https://images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg?auto=compress&cs=tinysrgb&w=1280`; Unsplash: `https://unsplash.com/photos/<id>/download?w=1280`.
 6. Every new hotel has `needsReview: true`. `bestFor` only from facts (adults-only → adults-only, kids club → families, etc.).
-7. Build must pass. Commit all 5 on one branch `hoteles/<YYYY-MM-DD>` and push only that branch. In the nightly message, list the 5 hotel names and say: "Reply OK hotels to publish them."
+7. Build must pass. Commit them all on one branch `hoteles/<YYYY-MM-DD>` and push only that branch. In the nightly message, list the new hotel names and say: "Reply OK hotels to publish them."
 8. On "OK hotels": merge into main, push.
 
 ### Hotel list (in order)
