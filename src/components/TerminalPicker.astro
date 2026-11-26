@@ -1,0 +1,61 @@
+---
+// Pick a terminal (or type your airline) to see which airlines use it, a photo and tips.
+import { TERMINALS } from '../data/airport';
+---
+<section class="card reveal overflow-hidden" id="terminals">
+  <div class="bg-navy p-5 text-white">
+    <p class="eyebrow">Which terminal am I?</p>
+    <h2 class="mt-1 text-2xl font-bold">Find your terminal</h2>
+    <label class="mt-4 block">
+      <span class="sr-only">Your airline</span>
+      <input id="airline-q" type="search" placeholder="Type your airline, e.g. Delta, WestJet, Volaris" class="field text-ink" autocomplete="off" list="airline-list" />
+      <datalist id="airline-list">{TERMINALS.flatMap((t) => t.airlines).filter((a) => !a.includes(' (')).map((a) => <option value={a} />)}</datalist>
+    </label>
+    <p id="airline-hit" class="mt-2 min-h-5 text-sm text-sun" aria-live="polite"></p>
+    <div class="mt-3 grid grid-cols-4 gap-2" role="tablist">
+      {TERMINALS.map((t, i) => (
+        <button type="button" class="tab-btn justify-center px-1 text-center" data-t={t.id} aria-selected={i === 2 ? 'true' : 'false'} data-track={`terminal_${t.id}`}>
+          <span class="block text-lg font-bold leading-none">T{t.id}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+  {TERMINALS.map((t, i) => (
+    <div data-panel={t.id} class={`fade-in ${i === 2 ? '' : 'hidden'}`}>
+      {t.photo
+        ? <div class="relative aspect-[16/9] bg-sand-2"><img src={t.photo.src} alt={`${t.name}, Cancún airport`} loading="lazy" onerror="this.parentElement.remove()" class="h-full w-full object-cover" />
+            <a href={t.photo.creditUrl} target="_blank" rel="noopener nofollow" class="absolute bottom-1 right-2 text-[10px] text-white/80 drop-shadow">Photo: {t.photo.credit}</a></div>
+        : <div class="grid aspect-[16/9] place-items-center bg-gradient-to-br from-navy to-navy-2 text-white"><p class="font-serif text-6xl font-bold">T{t.id}</p></div>}
+      <div class="p-5">
+        <div class="flex flex-wrap items-baseline gap-2"><h3 class="text-xl font-bold text-navy">{t.name}</h3><span class="chip">{t.tag}</span></div>
+        {t.status && <p class="mt-3 rounded-xl bg-sun/25 p-3 text-sm">🚧 {t.status}</p>}
+        <p class="mt-3 text-ink/80">{t.about}</p>
+        <p class="eyebrow mt-5">Airlines here</p>
+        <ul class="mt-2 flex flex-wrap gap-2">{t.airlines.map((a) => <li class="chip" data-airline={a.toLowerCase()}>{a}</li>)}</ul>
+        <ul class="mt-4 space-y-1 text-sm text-ink/70">{t.tips.map((x) => <li>💡 {x}</li>)}</ul>
+      </div>
+    </div>
+  ))}
+  <p class="border-t border-sand-2 px-5 py-3 text-xs text-ink/50">Airlines change terminals. <b>Your boarding pass always shows the right one.</b> A free shuttle links the terminals every 10–15 minutes. Checked Nov 2026.</p>
+</section>
+<script>
+  const root = document.getElementById('terminals')!;
+  const show = (id: string) => {
+    root.querySelectorAll<HTMLElement>('[data-t]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.t === id)));
+    root.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== id));
+  };
+  root.querySelectorAll<HTMLElement>('[data-t]').forEach((b) => b.addEventListener('click', () => show(b.dataset.t!)));
+  const q = document.getElementById('airline-q') as HTMLInputElement, hit = document.getElementById('airline-hit')!;
+  q.addEventListener('input', () => {
+    const v = q.value.trim().toLowerCase();
+    root.querySelectorAll('[data-airline]').forEach((c) => c.classList.remove('!bg-sun', '!text-navy'));
+    if (v.length < 2) { hit.textContent = ''; return; }
+    const chip = [...root.querySelectorAll<HTMLElement>('[data-airline]')].find((c) => c.dataset.airline!.includes(v));
+    if (!chip) { hit.textContent = 'Not on our list. Check your boarding pass, or ask at the info desk.'; return; }
+    const panel = chip.closest<HTMLElement>('[data-panel]')!;
+    show(panel.dataset.panel!);
+    chip.classList.add('!bg-sun', '!text-navy');
+    hit.textContent = `✈️ ${chip.textContent} → Terminal ${panel.dataset.panel}`;
+    (window as any).posthog?.capture('terminal_lookup', { airline: chip.textContent, terminal: panel.dataset.panel });
+  });
+</script>

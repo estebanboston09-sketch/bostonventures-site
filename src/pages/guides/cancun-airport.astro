@@ -2,15 +2,16 @@
 import Base from '../../layouts/Base.astro';
 import TravelEssentials from '../../components/TravelEssentials.astro';
 import Disclosure from '../../components/Disclosure.astro';
+import TerminalPicker from '../../components/TerminalPicker.astro';
 const faq = [
-  { q: 'Which terminal will I arrive at in Cancún?', a: 'Scheduled flights use Terminals 2, 3 and 4. Terminal 3 handles many US and Canadian airlines, such as American, Delta, United and Air Canada. Your boarding pass always shows the terminal.' },
-  { q: 'Can I move between terminals?', a: 'Yes. A free shuttle bus links Terminals 2, 3 and 4 about every 10–15 minutes. Never pay anyone for it.' },
+  { q: 'Which terminal will I arrive at in Cancún?', a: 'Cancún has four terminals. Terminal 3 is for the big US airlines and Air Canada (American, Delta, United). Terminal 4 has Southwest, JetBlue, Frontier, WestJet, Aeroméxico and most European airlines. Terminal 2 is for flights within Mexico (Viva, Volaris) and Latin American airlines. The rebuilt Terminal 1 is coming back into use in late 2026. Your boarding pass always shows the terminal.' },
+  { q: 'Can I move between terminals?', a: 'Yes. A free shuttle bus links the terminals about every 10–15 minutes from marked stops outside. Never pay anyone for it.' },
   { q: 'How do I get from Cancún airport to my hotel?', a: 'A pre-booked private or shared transfer is the easiest: the driver waits outside with your name. ADO buses are the cheapest option to downtown Cancún and Playa del Carmen. Airport taxis are the most expensive.' },
   { q: 'Who are the people offering help after customs?', a: 'Inside the terminal, after customs, you walk through a hall of sellers offering taxis, tours and "free" gifts — often timeshare sales. Say "no, gracias" and keep walking outside to find your driver.' },
   { q: 'How early should I get to the airport to fly home?', a: 'About 3 hours before an international flight. Lines at check-in and security can be long, especially on Saturdays and in high season.' },
 ];
 ---
-<Base title="Cancún Airport Arrival Guide (2026): Step by Step From a Local" description="Landing in Cancún? What happens after you land, which terminal you'll use, how to skip the timeshare 'shark tank', and the easiest way to your hotel."
+<Base title="Cancún Airport Arrival Guide (2026): Terminals, Airlines & Step by Step" description="Landing in Cancún? Find your terminal by airline (T1–T4), what happens after you land, how to skip the timeshare 'shark tank', and the easiest way to your hotel."
   schema={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }}>
   <section class="bg-navy py-12 text-white"><div class="wrap max-w-3xl">
     <p class="eyebrow">Guide</p>
@@ -23,6 +24,8 @@ const faq = [
       <p class="eyebrow">Short answer</p>
       <p class="mt-1">Book your transfer before you fly, turn on an eSIM when you land, walk straight through the sellers after customs, and meet your driver <b>outside</b> the terminal. That's it.</p>
     </div>
+
+    <TerminalPicker />
 
     <ol class="space-y-4">
       {[
