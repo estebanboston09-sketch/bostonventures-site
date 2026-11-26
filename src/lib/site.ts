@@ -10,7 +10,7 @@ export const SITE = {
 // PostHog analytics. The project token (starts with phc_) is public and safe to put here.
 // Leave it empty and no tracking code loads.
 export const ANALYTICS = {
-  posthogToken: '',
+  posthogToken: 'phc_uDkJarsduvAeZBERVNEZ9smFR5RV2KQgPESQkBZTRZsy',
   posthogHost: 'https://us.i.posthog.com',
 };
 
