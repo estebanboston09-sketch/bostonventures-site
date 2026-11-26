@@ -1,10 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { AFFILIATE } from '../../lib/site';
 // Price ranges below come from the sources listed at the bottom of the page (checked Nov 2026).
 const CHECKS = [
-  { id: 'airport-taxi', label: 'Airport taxi → Hotel Zone', unit: 'MXN', low: 900, high: 1200, tip: 'Airport taxis are the priciest way in. A pre-booked transfer or the 140-peso ADO bus is usually cheaper.' },
-  { id: 'shuttle', label: 'Shared shuttle → Hotel Zone (per person)', unit: 'USD', low: 15, high: 22, tip: 'You stop at other hotels first, so allow 30–45 minutes.' },
-  { id: 'ado', label: 'ADO bus airport → Hotel Zone', unit: 'MXN', low: 140, high: 140, tip: 'Fixed fare. Buy at the ADO counter or on ado.com.mx.' },
+  { id: 'airport-taxi', label: 'Airport taxi → Hotel Zone', unit: 'MXN', low: 900, high: 1200, airport: true, tip: 'Airport taxis are the priciest way in. A pre-booked transfer or the 140-peso ADO bus is usually cheaper.' },
+  { id: 'private-transfer', label: 'Private transfer airport → Hotel Zone (whole car, one way)', unit: 'USD', low: 30, high: 65, airport: true, tip: 'Priced per vehicle, not per person, so for 2+ people it often costs about the same as a taxi or shuttle. Book ahead online; the airport desks charge more.' },
+  { id: 'shuttle', label: 'Shared shuttle → Hotel Zone (per person)', unit: 'USD', low: 15, high: 22, airport: true, tip: 'You stop at other hotels first, so allow 30–45 minutes.' },
+  { id: 'ado', label: 'ADO bus airport → Hotel Zone', unit: 'MXN', low: 140, high: 140, airport: true, tip: 'Fixed fare. Buy at the ADO counter or on ado.com.mx.' },
   { id: 'uber-airport', label: 'Uber Hotel Zone → airport', unit: 'MXN', low: 400, high: 600, tip: 'Typical UberX fare is around 500 pesos; it changes with demand.' },
   { id: 'housekeeping', label: 'Housekeeping tip (per night)', unit: 'MXN', low: 20, high: 50, tip: 'Leave it daily — staff rotate, so one big tip at the end may not reach everyone.' },
   { id: 'bellhop', label: 'Bellhop tip', unit: 'MXN', low: 25, high: 50, tip: 'Lean higher if you have several bags.' },
@@ -45,6 +47,14 @@ const CHECKS = [
         <div class="flex gap-2"><input id="quote" type="number" min="0" step="any" placeholder="Price" class="field" /><select id="qcur" class="field w-24"><option>MXN</option><option>USD</option></select></div>
       </div>
       <div id="verdict" class="mt-4 hidden rounded-2xl p-5"></div>
+      <div id="transfer-cta" class="mt-4 flex flex-col gap-3 rounded-2xl border-2 border-gold/40 bg-gold/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="font-bold text-navy">🚐 Skip the airport haggling</p>
+          <p class="mt-1 text-sm text-ink/70">The transfer I recommend in my videos: a private van just for your group, booked online at a fixed price, so there is nothing to negotiate when you land.</p>
+        </div>
+        <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" class="btn-sun shrink-0 justify-center">Check {AFFILIATE.transfers.name} prices →</a>
+      </div>
+      <p class="mt-2 text-xs text-ink/45">Affiliate link: if you book, I earn a small commission at no extra cost to you.</p>
     </section>
 
     <section class="card reveal p-6">
@@ -77,12 +87,12 @@ const CHECKS = [
       </div>
     </section>
 
-    <p class="text-xs text-ink/50">Ranges checked November 2026 from: Mexico News Daily (ADO bus), How is the Sargassum and The Better Vacation (shuttles and airport taxis), Welcome Pickups (Uber fares), AFAR, The Cancún Sun and Travel Binger (tipping, PROFECO warning). Exchange rate from open.er-api.com. Prices change — use these as a guide, not a guarantee.</p>
+    <p class="text-xs text-ink/50">Ranges checked November 2026 from: Mexico News Daily (ADO bus), How is the Sargassum and The Better Vacation (shuttles, private transfers and airport taxis), AAA TripCanvas transfer listings (private transfer prices), Welcome Pickups (Uber fares), AFAR, The Cancún Sun and Travel Binger (tipping, PROFECO warning). Exchange rate from open.er-api.com. Prices change — use these as a guide, not a guarantee.</p>
   </div>
   <script id="checks" type="application/json" set:html={JSON.stringify(CHECKS)} />
 </Base>
 <script>
-  type C = { id: string; label: string; unit: 'MXN' | 'USD'; low: number; high: number; tip: string };
+  type C = { id: string; label: string; unit: 'MXN' | 'USD'; low: number; high: number; tip: string; airport?: boolean };
   const CHECKS: C[] = JSON.parse(document.getElementById('checks')!.textContent!);
   const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
   let rates: Record<string, number> = { USD: 1, MXN: 18, CAD: 1.38 }; // fallback until live rate loads
@@ -111,6 +121,7 @@ const CHECKS = [
     const c = CHECKS.find((x) => x.id === $<HTMLSelectElement>('item').value)!;
     const raw = Number($<HTMLInputElement>('quote').value), cur = $<HTMLSelectElement>('qcur').value;
     const box = $('verdict');
+    $('transfer-cta').classList.toggle('pop', !!c.airport);
     if (!raw) { box.classList.add('hidden'); return; }
     const inUnit = cur === c.unit ? raw : c.unit === 'MXN' ? toMXN(raw, 'USD') : fromMXN(raw, 'USD');
     const r = inUnit / c.high;
