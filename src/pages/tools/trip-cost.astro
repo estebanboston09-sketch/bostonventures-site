@@ -1,0 +1,179 @@
+---
+import Base from '../../layouts/Base.astro';
+import { AFFILIATE } from '../../lib/site';
+// Default prices, checked Nov 2026 (sources at the bottom of the page). All editable by the visitor.
+const PRESETS = {
+  ai: { budget: 250, mid: 375, luxury: 650 },   // all-inclusive, per room per night, 2 adults
+  room: { budget: 100, mid: 200, luxury: 320 }, // room only, per room per night
+};
+---
+<Base title="Real Cancún Trip Cost Calculator (2026)" description="What will your Cancún trip really cost? Hotel, food, airport transfers, tours, tips and the Visitax tourist tax, added up in seconds. Free, from a local.">
+  <section class="bg-navy py-8 text-white"><div class="wrap">
+    <p class="eyebrow">Free tool</p>
+    <h1 class="mt-2 text-3xl font-bold sm:text-4xl">💵 Real trip cost</h1>
+    <p class="mt-2 max-w-2xl text-white/75">The hotel price is only part of it. Add food, transfers, tours, tips and the tourist tax, and see the real total before you book.</p>
+  </div></section>
+
+  <div class="wrap mt-6 grid max-w-6xl gap-6 lg:grid-cols-[1fr_380px]">
+    <form id="calc" class="space-y-5" onsubmit="return false">
+      <section class="card p-6">
+        <h2 class="text-lg font-bold text-navy">1. Who and how long</h2>
+        <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <label><span class="text-sm font-semibold">Adults</span><input name="adults" type="number" min="1" value="2" class="field mt-1" /></label>
+          <label><span class="text-sm font-semibold">Kids (4–12)</span><input name="kids" type="number" min="0" value="0" class="field mt-1" /></label>
+          <label><span class="text-sm font-semibold">Nights</span><input name="nights" type="number" min="1" value="5" class="field mt-1" /></label>
+          <label><span class="text-sm font-semibold">Rooms</span><input name="rooms" type="number" min="1" value="1" class="field mt-1" /></label>
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-lg font-bold text-navy">2. Hotel</h2>
+        <div class="mt-3 grid grid-cols-2 gap-2" data-group="plan">
+          <button type="button" class="opt p-3 text-left" data-v="ai" aria-pressed="true"><b>All-inclusive</b><br /><span class="text-xs text-ink/60">Food and drinks included</span></button>
+          <button type="button" class="opt p-3 text-left" data-v="room" aria-pressed="false"><b>Room only</b><br /><span class="text-xs text-ink/60">You pay for meals</span></button>
+        </div>
+        <div class="mt-3 grid grid-cols-3 gap-2" data-group="tier">
+          <button type="button" class="opt p-2 text-center text-sm" data-v="budget" aria-pressed="false">Budget</button>
+          <button type="button" class="opt p-2 text-center text-sm" data-v="mid" aria-pressed="true">Mid-range</button>
+          <button type="button" class="opt p-2 text-center text-sm" data-v="luxury" aria-pressed="false">Luxury</button>
+        </div>
+        <label class="mt-3 block"><span class="text-sm font-semibold">Price per room, per night (USD, with taxes)</span>
+          <input name="nightly" type="number" min="0" value="375" class="field mt-1" /></label>
+        <p class="mt-1 text-xs text-ink/55">Filled with a typical 2026 price for 2 adults. Type the real price from your booking site for the best answer.</p>
+      </section>
+
+      <section class="card p-6" id="food-box">
+        <h2 class="text-lg font-bold text-navy">3. Food outside the hotel</h2>
+        <div class="mt-3 grid grid-cols-3 gap-2" data-group="food">
+          <button type="button" class="opt p-2 text-center text-sm" data-v="25" aria-pressed="false">🌮 Local spots<br /><span class="text-xs text-ink/60">~$25 / day</span></button>
+          <button type="button" class="opt p-2 text-center text-sm" data-v="55" aria-pressed="true">🍽️ Mix<br /><span class="text-xs text-ink/60">~$55 / day</span></button>
+          <button type="button" class="opt p-2 text-center text-sm" data-v="110" aria-pressed="false">🥂 Nice dinners<br /><span class="text-xs text-ink/60">~$110 / day</span></button>
+        </div>
+        <p class="mt-2 text-xs text-ink/55" id="food-note">Per adult per day, including a 10–15% tip. Kids counted at half.</p>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-lg font-bold text-navy">4. Airport transfers (round trip)</h2>
+        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4" data-group="transfer">
+          <button type="button" class="opt p-2 text-center text-sm" data-v="private" aria-pressed="true">🚐 Private van</button>
+          <button type="button" class="opt p-2 text-center text-sm" data-v="shuttle" aria-pressed="false">🚌 Shared shuttle</button>
+          <button type="button" class="opt p-2 text-center text-sm" data-v="taxi" aria-pressed="false">🚕 Airport taxi</button>
+          <button type="button" class="opt p-2 text-center text-sm" data-v="ado" aria-pressed="false">🚍 ADO bus</button>
+        </div>
+        <p class="mt-2 text-xs text-ink/55" id="transfer-note"></p>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-lg font-bold text-navy">5. Tours and extras</h2>
+        <div class="mt-3 grid grid-cols-2 gap-3">
+          <label><span class="text-sm font-semibold">How many tours</span><input name="tours" type="number" min="0" value="2" class="field mt-1" /></label>
+          <label><span class="text-sm font-semibold">Price per person, per tour (USD)</span><input name="tourPrice" type="number" min="0" value="100" class="field mt-1" /></label>
+        </div>
+        <p class="mt-1 text-xs text-ink/55">Tour prices vary a lot (a cenote trip can be $60, an Xcaret day $150+). Use the <a href="/tools/tour-finder" class="underline">tour finder</a> to pick, then type the real price.</p>
+        <label class="mt-3 block"><span class="text-sm font-semibold">Other spending: souvenirs, Uber, spa (USD, whole trip)</span><input name="other" type="number" min="0" value="150" class="field mt-1" /></label>
+        <label class="mt-3 block"><span class="text-sm font-semibold">Flights for everyone (USD, optional)</span><input name="flights" type="number" min="0" value="0" class="field mt-1" /></label>
+      </section>
+    </form>
+
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-6">
+        <div class="flex items-center justify-between"><p class="text-sm font-semibold text-ink/60">Your real total</p>
+          <select id="cur" class="field w-24 py-1 text-sm"><option>USD</option><option>CAD</option><option>MXN</option></select></div>
+        <p class="mt-1 font-serif text-4xl font-bold text-navy" id="total">—</p>
+        <p class="text-sm text-ink/60" id="per"></p>
+        <div class="mt-4 space-y-2" id="bars"></div>
+        <div class="mt-4 rounded-xl bg-sand p-3 text-sm" id="hidden"></div>
+        <button type="button" id="share" class="btn-ghost mt-4 w-full justify-center" data-track="trip_cost_shared">🔗 Copy link to this estimate</button>
+        <p id="rate" class="mt-2 text-xs text-ink/45"></p>
+      </div>
+      <div class="mt-4 rounded-2xl border-2 border-gold/40 bg-gold/10 p-5">
+        <p class="font-bold text-navy">🚐 Lock in your transfer price</p>
+        <p class="mt-1 text-sm text-ink/70">The private transfer I use and recommend: fixed price, just your group, booked before you land.</p>
+        <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" class="btn-sun mt-3 w-full justify-center">Check {AFFILIATE.transfers.name} prices →</a>
+        <p class="mt-2 text-xs text-ink/45">Affiliate link: I earn a small commission at no extra cost to you.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="wrap mt-8 max-w-6xl">
+    <section class="card p-6">
+      <h2 class="text-xl font-bold text-navy">How to spend less</h2>
+      <ul class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+        <li>📅 <b>Move your dates.</b> September, October and May are usually the cheapest months. <a href="/tools/best-time" class="underline">See the best time to visit</a>.</li>
+        <li>🚐 <b>Groups: go private.</b> A private van is priced per vehicle, so for 3+ people it often beats the shuttle per person.</li>
+        <li>🌮 <b>Room only near downtown or Playa del Carmen</b> can beat all-inclusive if you don't drink much.</li>
+        <li>💱 <b>Pay in pesos.</b> When the card machine asks, choose MXN. <a href="/tools/fair-prices" class="underline">Check prices and tips</a>.</li>
+      </ul>
+    </section>
+    <p class="mt-6 text-xs text-ink/50">Default prices checked November 2026. Hotels: The Cancún Sun 2026 tiers (all-inclusive budget $200–400/night for 2), Expedia and Travelocity listings (mid-range all-inclusives around $355–490, luxury $640–700, JW Marriott room only about $320 with fees). Food: Numbeo-based figures (inexpensive meal about $12, mid-range dinner for two about $57). Transfers: same ranges as the <a href="/tools/fair-prices" class="underline">fair price checker</a>. Visitax: 293 pesos per foreign visitor age 4+ (Quintana Roo tax service, 2026). Exchange rate from open.er-api.com. This is an estimate, not a quote.</p>
+  </div>
+</Base>
+<style is:global>
+  .bar { height: 10px; border-radius: 9999px; background: #0A6E94; }
+</style>
+<script>
+  const PRESETS = { ai: { budget: 250, mid: 375, luxury: 650 }, room: { budget: 100, mid: 200, luxury: 320 } } as const;
+  const VISITAX_MXN = 293, TAXI_MXN = 1050, ADO_MXN = 140; // taxi: 900–1200 each way per car
+  const PRIVATE_USD = 95, SHUTTLE_USD = 18.5; // private: $30–65 each way per van (round trip ~$60–130); shuttle $15–22 pp each way
+  let rates: Record<string, number> = { USD: 1, MXN: 18, CAD: 1.38 };
+  const form = document.getElementById('calc') as HTMLFormElement;
+  const $ = (id: string) => document.getElementById(id)!;
+  const num = (n: string) => Math.max(0, Number((form.elements.namedItem(n) as HTMLInputElement).value) || 0);
+  const pick = (g: string) => form.querySelector<HTMLElement>(`[data-group="${g}"] [aria-pressed="true"]`)!.dataset.v!;
+  const set = (g: string, v: string) => form.querySelectorAll<HTMLElement>(`[data-group="${g}"] [data-v]`).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  const mxn = (v: number) => v / rates.MXN;
+  const money = (usd: number) => { const c = ($('cur') as HTMLSelectElement).value; return (usd * rates[c]).toLocaleString('en-US', { style: 'currency', currency: c, maximumFractionDigits: 0 }); };
+
+  const calc = () => {
+    const adults = Math.max(1, num('adults')), kids = num('kids'), nights = Math.max(1, num('nights')), rooms = Math.max(1, num('rooms'));
+    const people = adults + kids, days = nights + 1, plan = pick('plan'), tr = pick('transfer');
+    const hotel = num('nightly') * nights * rooms;
+    const food = plan === 'room' ? Number(pick('food')) * (adults + kids * 0.5) * days : 0;
+    const vans = Math.ceil(people / 8);
+    const transfer = tr === 'private' ? PRIVATE_USD * vans : tr === 'shuttle' ? SHUTTLE_USD * 2 * people : tr === 'taxi' ? mxn(TAXI_MXN) * 2 * Math.ceil(people / 4) : mxn(ADO_MXN) * 2 * people;
+    const tours = num('tours') * num('tourPrice') * people;
+    const tips = plan === 'ai' ? (mxn(40) * nights * rooms) + mxn(100) * adults * nights : mxn(40) * nights * rooms; // housekeeping + bar/waiter tips
+    const visitax = mxn(VISITAX_MXN) * people;
+    const other = num('other'), flights = num('flights');
+    const parts = [['🏨 Hotel', hotel], ['🍽️ Food', food], ['🚐 Transfers', transfer], ['🐋 Tours', tours], ['🙏 Tips', tips], ['🧾 Visitax tax', visitax], ['🛍️ Other', other], ['✈️ Flights', flights]] as [string, number][];
+    const total = parts.reduce((s, [, v]) => s + v, 0);
+    $('total').textContent = money(total);
+    $('per').textContent = `${money(total / people)} per person · ${money(total / days)} per day`;
+    const max = Math.max(...parts.map(([, v]) => v));
+    $('bars').innerHTML = parts.filter(([, v]) => v > 0).map(([l, v]) => `<div><div class="flex justify-between text-sm"><span>${l}</span><b>${money(v)}</b></div><div class="mt-1 bg-sand rounded-full"><div class="bar" style="width:${Math.max(3, v / max * 100)}%"></div></div></div>`).join('');
+    const extra = total - hotel - flights;
+    $('hidden').innerHTML = `💡 On top of the hotel price, you'll spend about <b>${money(extra)}</b> (${hotel ? Math.round(extra / hotel * 100) : 0}% more). Most people forget transfers, tips and the Visitax.`;
+    $('food-box').style.display = plan === 'room' ? '' : 'none';
+    $('transfer-note').textContent = tr === 'private' ? `About $30–65 each way per van (up to ~8 people). You need ${vans} van${vans > 1 ? 's' : ''}.` : tr === 'shuttle' ? '$15–22 per person each way. Stops at other hotels first.' : tr === 'taxi' ? 'Airport taxis to the Hotel Zone: 900–1,200 pesos each way, per car (up to 4 people).' : '140 pesos per person each way, to downtown or Playa del Carmen. Then a short taxi.';
+    return { total, people, nights, plan };
+  };
+
+  form.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-group] [data-v]'); if (!b) return;
+    const g = b.closest<HTMLElement>('[data-group]')!.dataset.group!;
+    set(g, b.dataset.v!);
+    if (g === 'plan' || g === 'tier') (form.elements.namedItem('nightly') as HTMLInputElement).value = String((PRESETS as any)[pick('plan')][pick('tier')]);
+    calc();
+  });
+  form.addEventListener('input', calc);
+  $('cur').addEventListener('change', calc);
+
+  // Restore from link
+  const q = new URLSearchParams(location.search);
+  ['adults', 'kids', 'nights', 'rooms', 'nightly', 'tours', 'tourPrice', 'other', 'flights'].forEach((n) => { if (q.has(n)) (form.elements.namedItem(n) as HTMLInputElement).value = q.get(n)!; });
+  ['plan', 'tier', 'food', 'transfer'].forEach((g) => { if (q.get(g)) set(g, q.get(g)!); });
+  $('share').addEventListener('click', () => {
+    const p = new URLSearchParams();
+    ['adults', 'kids', 'nights', 'rooms', 'nightly', 'tours', 'tourPrice', 'other', 'flights'].forEach((n) => p.set(n, String(num(n))));
+    ['plan', 'tier', 'food', 'transfer'].forEach((g) => p.set(g, pick(g)));
+    const url = `${location.origin}${location.pathname}?${p}`;
+    navigator.clipboard?.writeText(url).then(() => { $('share').textContent = '✅ Link copied'; setTimeout(() => ($('share').textContent = '🔗 Copy link to this estimate'), 2000); });
+    history.replaceState(null, '', url);
+  });
+  calc();
+  fetch('https://open.er-api.com/v6/latest/USD').then((r) => r.json()).then((d) => {
+    rates = { USD: 1, MXN: d.rates.MXN, CAD: d.rates.CAD }; $('rate').textContent = `Today's rate: $1 USD = ${d.rates.MXN.toFixed(2)} pesos.`; calc();
+  }).catch(() => { $('rate').textContent = 'Using an approximate exchange rate.'; });
+  let sent = false;
+  form.addEventListener('change', () => { if (sent) return; sent = true; const r = calc(); (window as any).posthog?.capture?.('trip_cost_used', { plan: r.plan, nights: r.nights, people: r.people, total_usd: Math.round(r.total) }); });
+</script>

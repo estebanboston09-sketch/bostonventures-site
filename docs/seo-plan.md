@@ -127,3 +127,9 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 | 27 | The Fives Beach Hotel | playa-del-carmen |
 | 28 | Hard Rock Hotel Riviera Maya | riviera-maya |
 | 29 | Bahia Principe Grand Tulum | tulum |
+
+## Nightly seaweed map refresh
+
+1. Search the news for the latest SEMA Quintana Roo "Semáforo del Sargazo" (zona norte y sur). Use only reports that name beaches and levels.
+2. If it is newer than `REPORT.date` in `src/data/sargassum.ts`, update `REPORT` (date and counts) and each beach's `level`. Never guess a level; keep the old one if a beach is not named, and do not add pins without a known location.
+3. Commit it on the same `hoteles/<YYYY-MM-DD>` branch as the hotel batch (never straight to `main`), and mention the new report date in the nightly message so Esteban approves it with "OK hotels".

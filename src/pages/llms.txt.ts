@@ -41,6 +41,9 @@ ${TOURS.map((t) => `- [${t.name}](${u(`/tours/${t.slug}`)}): ${t.short}`).join('
 - [Tour finder](${u('/tools/tour-finder')}): tours ranked by your interests, energy and month.
 - [Trip planner](${u('/tools/trip-planner')}): a day-by-day plan you can share.
 - [Fair price checker](${u('/tools/fair-prices')}): pesos/dollars converter and fair prices for taxis, tips and tours.
+- [Seaweed map](${u('/tools/seaweed-map')}): sargassum level by beach from the official Quintana Roo monitoring map, plus the seaweed season by month.
+- [Best time to visit](${u('/tools/best-time')}): weather, sea temperature, hurricane season, seaweed, crowds and prices for each month.
+- [Real trip cost](${u('/tools/trip-cost')}): calculator for hotel, food, airport transfers, tours, tips and the Visitax tourist tax.
 - [Compare hotels](${u('/hotels/compare')}): side-by-side scores and facts.
 - [Map](${u('/map')}): hotels and tours on one map.
 

@@ -1,0 +1,118 @@
+---
+import Base from '../../layouts/Base.astro';
+import { MONTHS } from '../../data/months';
+const f = (c: number) => Math.round(c * 9 / 5 + 32);
+const word = ['None', 'Low', 'Medium', 'High'];
+const faq = [
+  ['What is the best month to visit Cancún?', 'For the best mix of weather, low seaweed and fair prices: November, early December, late April and early May. February and March have the best weather but the highest prices and crowds.'],
+  ['What is the cheapest time to go to Cancún?', 'September and October are the cheapest months, followed by May and early June. The trade-off is rain and hurricane season in Sept–Oct, and seaweed in May–June.'],
+  ['When is hurricane season in Cancún?', 'The Atlantic hurricane season runs from June 1 to November 30. The highest risk is August to October. Most weeks have no storm at all, but travel insurance is a good idea.'],
+  ['When is seaweed season in Cancún?', 'Seaweed usually builds in April or May, peaks in June and July and eases in September and October. November to March are normally the clearest months.'],
+];
+---
+<Base title="Best Time to Visit Cancún: Month-by-Month Guide" description="When to go to Cancún: weather, rain, sea temperature, hurricane season, seaweed, crowds and prices month by month. Pick what matters to you and see your best months.">
+  <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) })} />
+  <section class="bg-navy py-8 text-white"><div class="wrap">
+    <p class="eyebrow">Free tool</p>
+    <h1 class="mt-2 text-3xl font-bold sm:text-4xl">📅 Best time to visit Cancún</h1>
+    <p class="mt-2 max-w-2xl text-white/75">Tell me what matters most and I'll rank the months for you: weather, seaweed, hurricanes, crowds and price.</p>
+  </div></section>
+
+  <div class="wrap mt-6 max-w-5xl">
+    <section class="card p-6">
+      <h2 class="text-xl font-bold text-navy">What matters most to you?</h2>
+      <p class="mt-1 text-sm text-ink/60">Tap all that apply.</p>
+      <div class="mt-4 flex flex-wrap gap-2" id="prefs">
+        <button type="button" class="chip-btn" data-p="sun" aria-pressed="true">☀️ Dry, sunny days</button>
+        <button type="button" class="chip-btn" data-p="seaweed" aria-pressed="true">🌿 No seaweed</button>
+        <button type="button" class="chip-btn" data-p="cheap" aria-pressed="false">💸 Low prices</button>
+        <button type="button" class="chip-btn" data-p="quiet" aria-pressed="false">🧘 Fewer crowds</button>
+        <button type="button" class="chip-btn" data-p="hurricane" aria-pressed="true">🌀 No hurricane risk</button>
+        <button type="button" class="chip-btn" data-p="warmsea" aria-pressed="false">🌊 Warmest sea</button>
+        <button type="button" class="chip-btn" data-p="sharks" aria-pressed="false">🦈 Whale sharks</button>
+      </div>
+      <div id="top" class="mt-5 grid gap-3 sm:grid-cols-3"></div>
+    </section>
+
+    <div class="mt-6 overflow-x-auto rounded-2xl ring-1 ring-navy/10">
+      <table class="w-full min-w-[640px] bg-white text-sm">
+        <thead class="bg-sand text-left"><tr>
+          <th class="p-3">Month</th><th class="p-3">High</th><th class="p-3">Sea</th><th class="p-3">Rain days</th><th class="p-3">Hurricanes</th><th class="p-3">Seaweed</th><th class="p-3">Crowds</th><th class="p-3">Prices</th>
+        </tr></thead>
+        <tbody>
+          {MONTHS.map((m) => (
+            <tr class="border-t border-navy/5" id={`row-${m.m}`}>
+              <td class="p-3 font-bold text-navy">{m.name}</td>
+              <td class="p-3">{m.highC}°C / {f(m.highC)}°F</td>
+              <td class="p-3">{m.seaC}°C / {f(m.seaC)}°F</td>
+              <td class="p-3">{m.rainDays}</td>
+              {[m.hurricane, m.seaweed, m.crowds, m.prices].map((v) => <td class="p-3"><span class={`lvl lvl-${v}`}>{word[v]}</span></td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <section class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {MONTHS.map((m) => (
+        <div class="card p-5" id={`card-${m.m}`}>
+          <div class="flex items-baseline justify-between"><h3 class="text-lg font-bold text-navy">{m.name}</h3><span class="text-sm text-ink/60">{m.highC}°C · {m.rainDays} rain days</span></div>
+          <p class="mt-2 text-sm text-ink/75">{m.note}</p>
+          {m.wildlife && <p class="mt-2 text-sm"><b>🐢 Nature:</b> {m.wildlife}</p>}
+        </div>
+      ))}
+    </section>
+
+    <section class="mt-8 grid gap-4 sm:grid-cols-3">
+      <a href="/tools/seaweed-map" class="card lift p-5"><p class="font-bold text-navy">🌿 Seaweed map →</p><p class="mt-1 text-sm text-ink/70">Today's levels, beach by beach.</p></a>
+      <a href="/tools/trip-cost" class="card lift p-5"><p class="font-bold text-navy">💵 Real trip cost →</p><p class="mt-1 text-sm text-ink/70">What your trip will really cost, all in.</p></a>
+      <a href="/tools/trip-planner" class="card lift p-5"><p class="font-bold text-navy">🗓️ Trip planner →</p><p class="mt-1 text-sm text-ink/70">Turn your dates into a day-by-day plan.</p></a>
+    </section>
+
+    <section class="mt-8 card p-6">
+      <h2 class="text-2xl font-bold text-navy">Questions</h2>
+      <div class="mt-3 space-y-3">{faq.map(([q, a]) => <details class="rounded-xl bg-sand p-4"><summary class="cursor-pointer font-semibold">{q}</summary><p class="mt-2 text-sm text-ink/75">{a}</p></details>)}</div>
+    </section>
+    <p class="mt-6 text-xs text-ink/50">Weather figures are long-term averages (weather2travel.com, weather-atlas.com). Hurricane season dates: NOAA. Seaweed: typical year from the Quintana Roo monitoring network. Crowd and price levels are my guide from living here, based on the holiday calendar; check real prices for your dates.</p>
+  </div>
+  <script id="months" type="application/json" set:html={JSON.stringify(MONTHS)} />
+</Base>
+<style is:global>
+  #prefs [aria-pressed="false"] { opacity: .5; }
+  .lvl { display: inline-block; border-radius: 9999px; padding: 1px 8px; font-size: 12px; font-weight: 700; }
+  .lvl-0 { background: #E6F6EF; color: #137a55; } .lvl-1 { background: #E6F6EF; color: #137a55; }
+  .lvl-2 { background: #FFF4D6; color: #8a6400; } .lvl-3 { background: #FDE3E3; color: #a11b2a; }
+  tr.is-top { background: #FFFBEA; }
+</style>
+<script>
+  type M = { m: string; name: string; highC: number; seaC: number; rainDays: number; hurricane: number; seaweed: number; crowds: number; prices: number; note: string; wildlife?: string };
+  const months: M[] = JSON.parse(document.getElementById('months')!.textContent!);
+  const prefs = document.getElementById('prefs')!;
+  const score = (m: M, on: Set<string>) => {
+    let s = 0;
+    if (on.has('sun')) s += (14 - m.rainDays) / 11 * 3;
+    if (on.has('seaweed')) s += (3 - m.seaweed) * 1.5;
+    if (on.has('cheap')) s += (3 - m.prices) * 1.5;
+    if (on.has('quiet')) s += (3 - m.crowds) * 1.5;
+    if (on.has('hurricane')) s += (3 - m.hurricane) * 1;
+    if (on.has('warmsea')) s += (m.seaC - 26) * 1;
+    if (on.has('sharks')) s += /whale shark/i.test(m.wildlife ?? '') ? 4 : -2;
+    return s;
+  };
+  const render = () => {
+    const on = new Set([...prefs.querySelectorAll<HTMLElement>('[aria-pressed="true"]')].map((b) => b.dataset.p!));
+    const ranked = [...months].map((m) => ({ m, s: score(m, on) })).sort((a, b) => b.s - a.s);
+    document.querySelectorAll('tr.is-top').forEach((r) => r.classList.remove('is-top'));
+    const top = ranked.slice(0, 3);
+    top.forEach(({ m }) => document.getElementById(`row-${m.m}`)?.classList.add('is-top'));
+    document.getElementById('top')!.innerHTML = on.size === 0 ? '<p class="text-sm text-ink/60">Pick at least one thing above.</p>' :
+      top.map(({ m }, i) => `<a href="#card-${m.m}" class="rounded-2xl ${i === 0 ? 'bg-gold/20 ring-2 ring-gold' : 'bg-sand'} p-4 block"><p class="text-xs font-bold uppercase text-ink/50">${i === 0 ? '🏆 Best match' : '#' + (i + 1)}</p><p class="mt-1 font-serif text-2xl font-bold text-navy">${m.name}</p><p class="mt-1 text-sm text-ink/70">${m.highC}°C · ${m.rainDays} rain days · seaweed ${['', 'low', 'medium', 'high'][m.seaweed]}</p></a>`).join('');
+    return { on: [...on].join(','), top: top[0]?.m.m };
+  };
+  prefs.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-p]'); if (!b) return;
+    b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
+    const r = render(); (window as any).posthog?.capture?.('best_time_prefs', { prefs: r.on, top: r.top });
+  });
+  render();
+</script>
