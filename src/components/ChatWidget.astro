@@ -1,0 +1,74 @@
+---
+// Floating "Ask me" AI chat. Answers come from /api/chat (worker/index.js), which only uses this site's own info.
+---
+<div id="bv-chat" class="fixed bottom-4 right-4 z-50 print:hidden">
+  <button id="bv-chat-open" type="button" class="flex items-center gap-2 rounded-full bg-navy px-4 py-3 font-bold text-white shadow-lg ring-2 ring-gold/70 transition hover:scale-105" aria-expanded="false" aria-controls="bv-chat-panel">
+    <span aria-hidden="true">💬</span> Ask me anything
+  </button>
+  <section id="bv-chat-panel" hidden class="fixed inset-x-2 bottom-2 flex max-h-[80vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-navy/15 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px]" aria-label="Travel helper chat">
+    <header class="flex items-center justify-between bg-navy px-4 py-3 text-white">
+      <div><p class="font-bold">Cancún travel helper</p><p class="text-xs text-white/70">AI answers from this site's reviews and guides</p></div>
+      <button id="bv-chat-close" type="button" class="rounded-full px-2 text-2xl leading-none text-white/80 hover:text-white" aria-label="Close chat">×</button>
+    </header>
+    <div id="bv-chat-log" class="flex-1 space-y-3 overflow-y-auto p-4 text-sm" aria-live="polite">
+      <div class="bv-msg bot">Hi! Ask me about hotels, tours, the airport, seaweed, prices or the best time to go. 🌴</div>
+      <div id="bv-chat-sugg" class="flex flex-wrap gap-2">
+        {['Best all-inclusive for families?', 'Is there seaweed right now?', 'How do I get from the airport?', 'Cheapest month to go?'].map((q) => <button type="button" class="chip-btn text-xs" data-q={q}>{q}</button>)}
+      </div>
+    </div>
+    <form id="bv-chat-form" class="flex gap-2 border-t border-navy/10 p-3">
+      <input id="bv-chat-input" class="field flex-1" maxlength="500" placeholder="Type your question…" autocomplete="off" aria-label="Your question" />
+      <button class="btn-sun px-4" type="submit" aria-label="Send">➤</button>
+    </form>
+    <p class="px-3 pb-2 text-[11px] text-ink/45">AI can make mistakes. Check prices and details on the official sites. Questions are saved anonymously to improve the site.</p>
+  </section>
+</div>
+<style is:global>
+  .bv-msg { max-width: 88%; border-radius: 16px; padding: 8px 12px; line-height: 1.45; white-space: pre-wrap; }
+  .bv-msg.bot { background: #F4EFE6; color: #10232f; border-bottom-left-radius: 4px; }
+  .bv-msg.me { background: #0A6E94; color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
+  .bv-msg a { font-weight: 700; text-decoration: underline; color: #0A6E94; }
+  .bv-msg.typing { opacity: .6; }
+</style>
+<script>
+  const $ = (id: string) => document.getElementById(id)!;
+  const panel = $('bv-chat-panel'), openBtn = $('bv-chat-open'), log = $('bv-chat-log'), input = $('bv-chat-input') as HTMLInputElement;
+  const msgs: { role: 'user' | 'assistant'; content: string }[] = [];
+  let busy = false;
+  const ph = () => (window as any).posthog;
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  const md = (s: string) => esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    .replace(/\[([^\]]+)\]\(((?:\/|https:\/\/(?:bostonventurestravel\.com|booking\.usa-transfers\.com|holafly\.sjv\.io))[^)\s]*)\)/g, (_m, t, u) => `<a href="${u}"${u.startsWith('/') ? '' : ' target="_blank" rel="sponsored nofollow noopener"'}>${t}</a>`);
+  const add = (cls: string, html: string) => { const d = document.createElement('div'); d.className = `bv-msg ${cls}`; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; };
+  const toggle = (open: boolean) => {
+    panel.hidden = !open; openBtn.hidden = open; openBtn.setAttribute('aria-expanded', String(open));
+    if (open) { input.focus(); ph()?.capture?.('chat_opened', { page: location.pathname }); }
+  };
+  openBtn.addEventListener('click', () => toggle(true));
+  $('bv-chat-close').addEventListener('click', () => toggle(false));
+  const ask = async (q: string) => {
+    q = q.trim(); if (!q || busy) return;
+    busy = true; $('bv-chat-sugg')?.remove();
+    add('me', esc(q)); msgs.push({ role: 'user', content: q });
+    const t = add('bot typing', 'Thinking…');
+    ph()?.capture?.('chat_question', { question: q.slice(0, 300), page: location.pathname });
+    try {
+      const r = await fetch('/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ messages: msgs.slice(-6) }) });
+      const d = await r.json();
+      const a = d.answer || 'Sorry, something went wrong. Please try again.';
+      t.className = 'bv-msg bot'; t.innerHTML = md(a);
+      if (!d.busy) msgs.push({ role: 'assistant', content: a });
+      if (d.busy) ph()?.capture?.('chat_busy', {});
+    } catch {
+      t.className = 'bv-msg bot'; t.textContent = 'Sorry, the chat is not available right now.';
+    }
+    busy = false;
+  };
+  $('bv-chat-form').addEventListener('submit', (e) => { e.preventDefault(); const q = input.value; input.value = ''; ask(q); });
+  log.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-q]'); if (b) ask(b.dataset.q!);
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a'); if (a) ph()?.capture?.('chat_link_click', { url: a.getAttribute('href') });
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) toggle(false); });
+</script>

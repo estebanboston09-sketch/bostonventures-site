@@ -1,0 +1,22 @@
+// Cloudflare deploy settings. The site itself is static files in dist/ (built by `npm run build`).
+// Only /api/* runs code (worker/index.js): the AI chat.
+{
+  "name": "bostonventures-site",
+  "compatibility_date": "2026-11-01",
+  "main": "worker/index.js",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  // Cloudflare Workers AI (free 10,000 neurons/day). No API key needed.
+  "ai": { "binding": "AI" },
+  "vars": {
+    // "cloudflare" = free Workers AI. "claude" = Claude Haiku (needs the ANTHROPIC_API_KEY secret in Cloudflare).
+    "CHAT_PROVIDER": "cloudflare",
+    "CF_MODEL": "@cf/google/gemma-4-26b-a4b-it",
+    "CLAUDE_MODEL": "claude-haiku-5-5"
+  },
+  "observability": { "enabled": true }
+}
