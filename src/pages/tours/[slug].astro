@@ -6,8 +6,11 @@ import LiteYouTube from '../../components/LiteYouTube.astro';
 import { TOURS, INTEREST_LABELS } from '../../data/tours';
 import { AFFILIATE } from '../../lib/site';
 import { MONTHS } from '../../lib/tourMatch';
+import { GUIDE_DESTS, privateForDests, DEST_LABELS } from '../../data/privateTours';
 export function getStaticPaths() { return TOURS.map((t) => ({ params: { slug: t.slug }, props: { t } })); }
 const { t } = Astro.props;
+const privates = GUIDE_DESTS[t.slug] ? privateForDests(GUIDE_DESTS[t.slug]) : [];
+const money = (n: number) => '$' + n.toFixed(2).replace(/\.00$/, '');
 const related = TOURS.filter((x) => x.slug !== t.slug && x.interests.some((i) => t.interests.includes(i))).slice(0, 3);
 const season = t.months ? `${MONTHS[t.months[0] - 1]} to ${MONTHS[t.months[t.months.length - 1] - 1]}` : 'All year';
 const faq = [
@@ -31,7 +34,7 @@ const faq = [
     {t.reviewed?.videoId && <a href="#video" class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ff0033] px-5 py-3 font-bold text-white shadow-lg hover:brightness-110"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg> Watch my video</a>}
   </div></section>
   <div class="wrap mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
-    <article class="space-y-6">
+    <article class="min-w-0 space-y-6">
       {t.reviewed?.videoId && (
         <section id="video" class="scroll-mt-24">
           <div class="mb-3 flex items-center justify-between gap-3">
@@ -58,6 +61,18 @@ const faq = [
         <h2 class="text-xl font-bold text-navy">Questions people ask</h2>
         <div class="mt-3 space-y-2">{faq.map((f) => <details class="card p-4"><summary class="cursor-pointer font-semibold text-navy">{f.q}</summary><p class="mt-2 text-sm text-ink/70">{f.a}</p></details>)}</div>
       </section>
+      {privates.length > 0 && (
+        <section id="book">
+          <h2 class="text-xl font-bold text-navy">Book it as a private tour</h2>
+          <p class="mt-1 text-sm text-ink/60">Your own van and driver, so you leave when you want and skip the tour bus.</p>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">{privates.map((x) => (
+            <a href={`/tours/private/${x.slug}`} class="card lift group overflow-hidden">
+              <div class="aspect-video overflow-hidden bg-navy"><img src={x.photos[0]} alt="" loading="lazy" onerror="this.remove()" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" /></div>
+              <div class="p-4"><p class="font-bold text-navy group-hover:underline">{x.name}</p><p class="mt-1 text-xs text-ink/60">{x.dests.filter((d) => d !== 'dinner').map((d) => DEST_LABELS[d]).join(' · ')}</p><p class="mt-2 text-sm">From <b>{money(x.price.adult)}</b> {x.price.table ? 'per adult' : x.price.label} + tax</p></div>
+            </a>
+          ))}</div>
+        </section>
+      )}
       <TravelEssentials />
     </article>
     <aside class="space-y-5 lg:sticky lg:top-24 lg:self-start">
@@ -69,9 +84,9 @@ const faq = [
           <div class="flex justify-between gap-3"><dt class="text-ink/60">Effort</dt><dd class="font-semibold">{['', 'Easy', 'Moderate', 'Active'][t.energy]}</dd></div>
         </dl>
         <p class="mt-3 text-xs text-ink/50">{t.travel}</p>
-        {AFFILIATE.tours
-          ? <a href={AFFILIATE.tours.url(t.name)} target="_blank" rel="sponsored nofollow noopener" class="btn-sun mt-4 w-full">See prices & book →</a>
-          : <p class="mt-4 rounded-lg bg-sand p-3 text-xs text-ink/60">Booking links coming soon.</p>}
+        {privates.length > 0
+          ? <a href="#book" class="btn-sun mt-4 w-full">See private tours from {money(Math.min(...privates.map((x) => x.price.adult)))} →</a>
+          : AFFILIATE.tours ? <a href={AFFILIATE.tours.url(t.name)} target="_blank" rel="sponsored nofollow noopener" class="btn-sun mt-4 w-full">See prices & book →</a> : null}
       </div>
       <Disclosure />
     </aside>

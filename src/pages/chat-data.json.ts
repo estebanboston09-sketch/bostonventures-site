@@ -3,6 +3,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { TOURS } from '../data/tours';
+import { PRIVATE_TOURS, DEST_LABELS, COMMON } from '../data/privateTours';
 import { TERMINALS } from '../data/airport';
 import { MONTHS } from '../data/months';
 import { BEACHES, LEVELS, REPORT } from '../data/sargassum';
@@ -41,6 +42,9 @@ export const GET: APIRoute = async () => {
   }
   for (const t of TOURS) {
     chunks.push({ title: t.name, url: `/tours/${t.slug}`, text: `Tour: ${t.name}. ${t.short} Travel: ${t.travel}. Kids: ${t.kids}. ${t.length === 'full' ? 'Full day' : 'Half day'}. ${t.months ? `Season: months ${t.months.join(', ')}.` : ''} Local tip: ${t.localTip} Good for: ${t.goodFor} Skip if: ${t.skipIf} ${t.reviewed ? `Esteban went: ${t.reviewed.verdict ?? ''} ${list(t.reviewed.notes)} ${t.reviewed.prices ? `Prices (${t.reviewed.prices.checked}): ${t.reviewed.prices.text}` : ''}` : ''}` });
+  }
+  for (const t of PRIVATE_TOURS) {
+    chunks.push({ title: t.name, url: `/tours/private/${t.slug}`, text: `Private tour (book with USA Transfers, Esteban's recommended company): ${t.name}. Places: ${t.dests.map((d) => DEST_LABELS[d]).join(', ')}. ${t.short} Runs: ${t.days}. ${t.duration ?? ''}. Price from $${t.price.adult} ${t.price.label}${t.price.table ? ` (2 people: $${t.price.table.find(([n]) => n === 2)?.[1]} each)` : ''}${t.price.kid ? `, kids $${t.price.kid}` : ''}. ${COMMON.tax} Stops: ${t.stops.map((s) => s.name + ': ' + s.text).join(' ')} Included: ${t.included.join('; ')}. Not included: ${t.notIncluded.join('; ')}. Notes: ${t.notes.join(' ')} ${COMMON.cancel}` });
   }
   chunks.push({ title: 'Cancún airport terminals', url: '/guides/cancun-airport', text: TERMINALS.map((t: any) => `${t.id ?? t.name}: ${JSON.stringify(t).replace(/["{}\[\]]/g, ' ')}`).join(' ').slice(0, 4000) });
   chunks.push({ title: 'Best time to visit Cancún (month by month)', url: '/tools/best-time', text: MONTHS.map((m) => `${m.name}: high ${m.highC}°C, sea ${m.seaC}°C, ${m.rainDays} rain days, hurricane risk ${['none', 'low', 'medium', 'high'][m.hurricane]}, seaweed ${['', 'low', 'medium', 'high'][m.seaweed]}, crowds ${['', 'low', 'medium', 'high'][m.crowds]}, prices ${['', 'low', 'medium', 'high'][m.prices]}. ${m.note} ${m.wildlife ?? ''}`).join(' ') });

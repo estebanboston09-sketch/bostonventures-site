@@ -1,13 +1,18 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { TOURS, INTEREST_LABELS } from '../../data/tours';
+import { PRIVATE_TOURS, DEST_LABELS, type Dest } from '../../data/privateTours';
+const money = (n: number) => '$' + n.toFixed(2).replace(/\.00$/, '');
+const GROUPS: [string, Dest[]][] = [['Chichén Itzá & Mayan ruins', ['chichen-itza', 'coba', 'ek-balam']], ['Tulum', ['tulum']], ['Parks: Xcaret, Xel-Há, Xenses', ['xcaret', 'xel-ha', 'xenses']], ['Cenotes, caves & snorkeling', ['cenotes', 'rio-secreto', 'akumal', 'reef']], ['Boats, nights out & city', ['isla-mujeres', 'xoximilco', 'nightlife', 'downtown', 'dinner']]];
+const seen = new Set<string>();
+const groups = GROUPS.map(([label, ds]) => ({ label, list: PRIVATE_TOURS.filter((t) => t.dests.some((d) => ds.includes(d)) && !seen.has(t.slug) && (seen.add(t.slug), true)) })).filter((g) => g.list.length);
 ---
 <Base title="Best Tours & Day Trips from Cancún: Honest Local Guide" description="Whale sharks, Chichén Itzá, Isla Mujeres, cenotes, Xcaret and more — what each Cancún tour is really like, who it's for and who should skip it.">
   <section class="bg-navy py-12 text-white"><div class="wrap">
     <p class="eyebrow">Tours & day trips</p>
     <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Tours from Cancún, honestly</h1>
     <p class="mt-2 max-w-2xl text-white/75">Who each tour is for, who should skip it, and the tip that makes it better.</p>
-    <a href="/tools/tour-finder" class="btn-sun mt-6">Find the tours that fit you →</a>
+    <div class="mt-6 flex flex-wrap gap-3"><a href="/tools/tour-finder" class="btn-sun">Find the tours that fit you →</a><a href="#private" class="btn-ghost !border-white/40 !text-white">Book a private tour ↓</a></div>
   </div></section>
   <div class="wrap mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
     {[...TOURS].sort((a, b) => Number(!!b.reviewed?.videoId) - Number(!!a.reviewed?.videoId)).map((t) => (
@@ -22,4 +27,22 @@ import { TOURS, INTEREST_LABELS } from '../../data/tours';
       </a>
     ))}
   </div>
+
+  <section id="private" class="wrap mt-16 scroll-mt-24">
+    <p class="eyebrow">Book online</p>
+    <h2 class="mt-1 text-3xl font-bold text-navy">Private tours: your own van and driver</h2>
+    <p class="mt-2 max-w-2xl text-ink/70">Leave when you want, skip the big tour bus, and pay less per person the bigger your group. Booked with USA Transfers, the company I use for transfers and tours.</p>
+    {groups.map((g) => (
+      <div class="mt-8">
+        <h3 class="text-xl font-bold text-navy">{g.label}</h3>
+        <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{g.list.map((x) => (
+          <a href={`/tours/private/${x.slug}`} class="card lift reveal group overflow-hidden">
+            <div class="aspect-video overflow-hidden bg-navy"><img src={x.photos[0]} alt="" loading="lazy" onerror="this.remove()" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" /></div>
+            <div class="p-4"><p class="font-bold text-navy group-hover:underline">{x.name}</p><p class="mt-1 text-xs text-ink/60">{x.dests.filter((d) => d !== 'dinner').map((d) => DEST_LABELS[d]).join(' · ')}</p><p class="mt-2 text-sm">From <b>{money(x.price.adult)}</b> {x.price.table ? 'per adult' : x.price.label} + tax</p></div>
+          </a>
+        ))}</div>
+      </div>
+    ))}
+    <p class="mt-6 text-xs text-ink/50">Affiliate links: I earn a small commission at no extra cost to you. Prices from the booking pages, Nov 2026, before 16% tax.</p>
+  </section>
 </Base>

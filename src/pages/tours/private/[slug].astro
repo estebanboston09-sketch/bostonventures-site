@@ -1,0 +1,162 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Disclosure from '../../../components/Disclosure.astro';
+import LiteYouTube from '../../../components/LiteYouTube.astro';
+import { PRIVATE_TOURS, DEST_LABELS, COMMON, CHECKED, privateForDests, perPerson2, type PrivateTour } from '../../../data/privateTours';
+import { tourBySlug } from '../../../data/tours';
+export function getStaticPaths() { return PRIVATE_TOURS.map((t) => ({ params: { slug: t.slug }, props: { t } })); }
+const { t } = Astro.props as { t: PrivateTour };
+const guide = t.guide ? tourBySlug(t.guide) : undefined;
+const mine = guide?.reviewed; // Esteban's own video/verdict for this place
+const money = (n: number) => '$' + n.toFixed(2).replace(/\.00$/, '');
+const two = perPerson2(t);
+const checked = new Date(CHECKED + '-15').toLocaleString('en-US', { month: 'long', year: 'numeric' });
+// "All our Chichén Itzá tours" — one group per destination this tour visits.
+const groups = t.dests
+  .map((d) => ({ d, list: PRIVATE_TOURS.filter((x) => x.slug !== t.slug && x.dests.includes(d)) }))
+  .filter((g) => g.list.length > 0 && !['cenotes', 'reef', 'valladolid', 'dinner'].includes(g.d) || (g.list.length > 0 && t.dests.length === 1));
+const shown = new Set<string>();
+const groupsDedup = groups.map((g) => ({ ...g, list: g.list.filter((x) => (shown.has(x.slug) ? false : (shown.add(x.slug), true))) })).filter((g) => g.list.length);
+const more = privateForDests(t.dests, t.slug).filter((x) => !shown.has(x.slug)).slice(0, 3);
+const faq: [string, string][] = [
+  [`How much is the ${t.name}?`, t.price.table ? `From ${money(t.price.adult)} per adult in a group of 10${two ? `, or ${money(two)} per adult for 2 people` : ''}${t.price.kid ? `; kids ${money(t.price.kid)}` : ''}. ${COMMON.tax}` : `${money(t.price.adult)} ${t.price.label}. ${COMMON.tax}`],
+  ['Is it really private?', t.notes.some((n) => /shared|not be private/i.test(n)) ? `The transport is just your group, but ${t.notes.find((n) => /shared|not be private/i.test(n))!.charAt(0).toLowerCase() + t.notes.find((n) => /shared|not be private/i.test(n))!.slice(1)}` : 'Yes. The van and driver are only for your group, and you set the pace of the day.'],
+  ['Where do they pick you up?', t.pickup],
+  ['What is the cancellation policy?', COMMON.cancel],
+];
+if (t.kidsPolicy?.length) faq.push(['What are the kids prices and ages?', t.kidsPolicy.join(' ')]);
+const desc = `${t.short} Prices, what's included, stops, pickup times and tips for the ${t.name} from Cancún.`.slice(0, 165);
+---
+<Base title={`${t.name} from Cancún: Price, Stops & What's Included`} description={desc}
+  schema={[
+    { '@context': 'https://schema.org', '@type': 'Product', name: t.name, description: t.short, image: t.photos.slice(0, 3), url: new URL(`/tours/private/${t.slug}`, Astro.site).href,
+      offers: { '@type': 'Offer', priceCurrency: 'USD', price: t.price.adult, url: t.url, availability: 'https://schema.org/InStock' } },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Tours', item: new URL('/tours', Astro.site).href }, { '@type': 'ListItem', position: 2, name: t.name }] },
+  ]}>
+  <section class="relative overflow-hidden bg-navy pb-12 pt-8 text-white">
+    <img src={t.photos[0]} alt="" class="absolute inset-0 h-full w-full object-cover" onerror="this.remove()" />
+    <div class="absolute inset-0 bg-gradient-to-r from-[#063f56]/95 via-[#063f56]/70 to-[#063f56]/25"></div>
+    <div class="wrap relative">
+      <nav class="text-sm text-white/70"><a href="/tours" class="hover:text-white">Tours</a> / Private tours</nav>
+      <div class="mt-16 flex flex-wrap gap-2">
+        <span class="rounded-full bg-sun px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">Private · your group only</span>
+        {mine?.videoId && <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wide backdrop-blur">★ I've been here</span>}
+      </div>
+      <h1 class="mt-3 max-w-3xl text-3xl font-bold drop-shadow sm:text-5xl">{t.name}</h1>
+      <p class="mt-3 max-w-2xl text-lg text-white/85">{t.short}</p>
+      <div class="mt-4 flex flex-wrap gap-2">{t.dests.filter((d) => d !== 'dinner').map((d) => <span class="rounded-full border border-white/40 bg-white/10 px-3 py-1 text-sm backdrop-blur">{DEST_LABELS[d]}</span>)}</div>
+      <a href={t.url} target="_blank" rel="sponsored nofollow noopener" class="btn-sun mt-6" data-track="tour_book_hero">Check dates & book →</a>
+    </div>
+    <p class="absolute bottom-2 right-3 text-[10px] text-white/60">Photo: USA Transfers</p>
+  </section>
+
+  <div class="wrap mt-8 grid gap-8 lg:grid-cols-[1fr_340px]">
+    <article class="min-w-0 space-y-8">
+      {mine?.videoId && (
+        <section class="card reveal p-6">
+          <p class="eyebrow">My take on {guide!.name}</p>
+          {mine.verdict && <p class="mt-2 text-lg leading-relaxed">{mine.verdict}</p>}
+          <div class="mt-4"><LiteYouTube id={mine.videoId} title={guide!.name} chapters={mine.chapters} /></div>
+          {mine.notes && <ul class="mt-4 space-y-2 text-sm">{mine.notes.slice(0, 4).map((n) => <li class="flex gap-2"><span class="text-gold">●</span><span>{n}</span></li>)}</ul>}
+          <a href={`/tours/${guide!.slug}`} class="mt-4 inline-block text-sm font-semibold underline">Read my full {guide!.name} guide →</a>
+        </section>
+      )}
+
+      {t.photos.length > 1 && (
+        <section class="reveal grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {t.photos.slice(1, 7).map((p) => <img src={p} alt={`${t.name} photo`} loading="lazy" onerror="this.remove()" class="aspect-[4/3] w-full rounded-xl object-cover" />)}
+        </section>
+      )}
+
+      <section class="card reveal p-6">
+        <p class="eyebrow">The day, stop by stop</p>
+        <ol class="mt-4 space-y-4">
+          <li class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-sm font-bold text-white">🚐</span><div><p class="font-bold text-navy">Hotel pickup</p><p class="text-sm text-ink/70">{t.pickup}</p></div></li>
+          {t.stops.map((s, i) => <li class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gold text-sm font-bold text-navy">{i + 1}</span><div><p class="font-bold text-navy">{s.name}</p><p class="text-sm text-ink/70">{s.text}</p></div></li>)}
+          {t.url.includes('catamaran') ? null : <li class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-navy text-sm font-bold text-white">🏨</span><div><p class="font-bold text-navy">Back to your hotel</p><p class="text-sm text-ink/70">Your driver takes you back when you're ready.</p></div></li>}
+        </ol>
+      </section>
+
+      <section class="grid gap-5 sm:grid-cols-2">
+        <div class="card reveal p-5"><p class="font-bold text-navy">✅ Included</p><ul class="mt-3 space-y-2 text-sm">{t.included.map((x) => <li class="flex gap-2"><span class="text-teal">✓</span><span>{x}</span></li>)}</ul></div>
+        <div class="card reveal p-5"><p class="font-bold text-navy">💵 Not included</p><ul class="mt-3 space-y-2 text-sm">{t.notIncluded.map((x) => <li class="flex gap-2"><span class="text-ink/40">✗</span><span>{x}</span></li>)}</ul></div>
+      </section>
+
+      {t.price.table && (
+        <section class="card reveal p-6">
+          <p class="eyebrow">Price by group size</p>
+          <p class="mt-1 text-sm text-ink/60">It's priced per van, so the more adults, the less each one pays. {t.price.kid && <>Kids pay {money(t.price.kid)} at any group size. </>}{COMMON.tax}</p>
+          <div class="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {t.price.table.map(([n, p]) => <div class="rounded-xl bg-sand p-3 text-center"><p class="text-xs text-ink/60">{n} {n === 1 ? 'adult' : 'adults'}</p><p class="mt-1 font-serif text-xl font-bold text-navy">{money(p)}</p><p class="text-[11px] text-ink/50">each</p></div>)}
+          </div>
+          {t.price.note && <p class="mt-3 text-xs text-ink/55">{t.price.note}</p>}
+        </section>
+      )}
+
+      <section class="grid gap-5 sm:grid-cols-2">
+        <div class="card reveal p-5"><p class="font-bold text-navy">🎒 What to bring</p><ul class="mt-3 space-y-2 text-sm">{t.bring.map((x) => <li class="flex gap-2"><span class="text-gold">●</span><span>{x}</span></li>)}</ul></div>
+        <div class="card reveal border-l-4 border-sun p-5"><p class="font-bold text-navy">💡 Good to know</p><ul class="mt-3 space-y-2 text-sm">{[...t.notes, ...(t.kidsPolicy ?? []), COMMON.ready].map((x) => <li class="flex gap-2"><span class="text-sun">●</span><span>{x}</span></li>)}</ul></div>
+      </section>
+
+      {t.addOns && t.addOns.length > 0 && (
+        <section class="card reveal p-5"><p class="font-bold text-navy">➕ Add-ons and area fees</p><ul class="mt-3 grid gap-2 text-sm sm:grid-cols-2">{t.addOns.map((x) => <li class="rounded-lg bg-sand px-3 py-2">{x}</li>)}</ul></section>
+      )}
+
+      {guide && !mine?.videoId && (
+        <section class="card reveal p-5">
+          <p class="font-bold text-navy">Planning tips for {guide.name}</p>
+          <p class="mt-2 text-sm"><b>Local tip:</b> {guide.localTip}</p>
+          <p class="mt-2 text-sm"><b>Good for:</b> {guide.goodFor}</p>
+          <p class="mt-2 text-sm"><b>Skip it if:</b> {guide.skipIf}</p>
+          <a href={`/tours/${guide.slug}`} class="mt-3 inline-block text-sm font-semibold underline">Read the full guide →</a>
+        </section>
+      )}
+
+      <section class="card reveal p-6">
+        <h2 class="text-xl font-bold text-navy">Questions</h2>
+        <div class="mt-3 space-y-3">{faq.map(([q, a]) => <details class="rounded-xl bg-sand p-4"><summary class="cursor-pointer font-semibold">{q}</summary><p class="mt-2 text-sm text-ink/75">{a}</p></details>)}</div>
+      </section>
+      <p class="text-xs text-ink/50">Details from the operator's booking page, checked {checked}. {COMMON.seats} Prices and schedules can change, so confirm on the booking page.</p>
+    </article>
+
+    <aside class="space-y-5 lg:sticky lg:top-24 lg:self-start">
+      <div class="card p-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink/50">From</p>
+        <p class="font-serif text-4xl font-bold text-navy">{money(t.price.adult)}</p>
+        <p class="text-sm text-ink/60">{t.price.label}{t.price.table && ' in a group of 10'} + tax</p>
+        {two && <p class="mt-2 rounded-lg bg-sand px-3 py-2 text-sm">For 2 people: <b>{money(two)}</b> each</p>}
+        {t.price.kid && <p class="mt-2 text-sm">Kids: <b>{money(t.price.kid)}</b> · infants free</p>}
+        <dl class="mt-4 space-y-2 border-t border-sand-2 pt-3 text-sm">
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Runs</dt><dd class="text-right font-semibold">{t.days}</dd></div>
+          {t.duration && <div class="flex justify-between gap-3"><dt class="text-ink/60">Length</dt><dd class="text-right font-semibold">{t.duration}</dd></div>}
+          <div class="flex justify-between gap-3"><dt class="text-ink/60">Cancel</dt><dd class="text-right font-semibold">48 h before</dd></div>
+        </dl>
+        <a href={t.url} target="_blank" rel="sponsored nofollow noopener" class="btn-sun mt-5 w-full" data-track="tour_book_side">Check dates & book →</a>
+        <p class="mt-2 text-center text-xs text-ink/50">Booked with USA Transfers, the company I use for transfers and tours.</p>
+      </div>
+      <Disclosure />
+    </aside>
+  </div>
+
+  {groupsDedup.length > 0 && (
+    <section class="wrap mt-14 space-y-10">
+      {groupsDedup.map((g) => (
+        <div>
+          <h2 class="text-2xl font-bold text-navy">All our {DEST_LABELS[g.d]} tours</h2>
+          <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{g.list.map((x) => (
+            <a href={`/tours/private/${x.slug}`} class="card lift group overflow-hidden">
+              <div class="aspect-video overflow-hidden bg-navy"><img src={x.photos[0]} alt="" loading="lazy" onerror="this.remove()" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" /></div>
+              <div class="p-4"><p class="font-bold text-navy group-hover:underline">{x.name}</p><p class="mt-1 text-sm text-ink/60">{x.dests.filter((d) => d !== 'dinner').map((d) => DEST_LABELS[d]).join(' · ')}</p><p class="mt-2 text-sm">From <b>{money(x.price.adult)}</b> {x.price.table ? 'per adult' : x.price.label}</p></div>
+            </a>
+          ))}</div>
+        </div>
+      ))}
+    </section>
+  )}
+  {more.length > 0 && (
+    <section class="wrap mt-10"><h2 class="text-2xl font-bold text-navy">You might also like</h2>
+      <div class="mt-5 grid gap-5 sm:grid-cols-3">{more.map((x) => <a href={`/tours/private/${x.slug}`} class="card lift p-4"><p class="font-bold text-navy">{x.name}</p><p class="mt-1 text-sm text-ink/70">{x.short}</p></a>)}</div>
+    </section>
+  )}
+</Base>

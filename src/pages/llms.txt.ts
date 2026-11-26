@@ -1,5 +1,6 @@
 // /llms.txt — a plain-text map of the site for AI assistants (ChatGPT, Claude, Gemini, Perplexity).
 // Built automatically from the hotel, guide and tour data, so it is always up to date.
+import { PRIVATE_TOURS } from '../data/privateTours';
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { TOURS } from '../data/tours';
@@ -35,6 +36,9 @@ ${guides.map((g) => `- [${g.data.title}](${u(`/guides/${g.id}`)}): ${g.data.desc
 
 ## Tours and day trips
 ${TOURS.map((t) => `- [${t.name}](${u(`/tours/${t.slug}`)}): ${t.short}`).join('\n')}
+
+## Private tours (bookable, own van and driver)
+${PRIVATE_TOURS.map((t) => `- [${t.name}](${u(`/tours/private/${t.slug}`)}): ${t.short} From $${t.price.adult} ${t.price.label} + 16% tax.`).join('\n')}
 
 ## Free tools
 - [Hotel matcher](${u('/tools/hotel-match')}): answer a few questions, get matching hotels.
