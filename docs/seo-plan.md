@@ -82,7 +82,7 @@ Merge `guia/<slug>` into `main` and push. The site deploys automatically and the
 
 ## Nightly hotel batch (10 hotels per night, goal: every hotel in Cancún and the Riviera Maya)
 
-Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 10 hotels from the list below whose file `src/content/hotels/<slug>.md` does not exist on `main`.
+Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 10 hotels from the list below that are not marked ✅ (and whose file does not exist on `main`). Mark each one you add with ✅ and its slug in the same commit.
 
 **When fewer than 10 hotels are left on the list, extend the list first** (commit the new rows in the same branch): add the next most-reviewed hotels on TripAdvisor's Cancún, Costa Mujeres, Puerto Morelos, Playa del Carmen, Riviera Maya, Tulum, Isla Mujeres and Cozumel hotel lists that are not on the site yet. Order: big resorts and all-inclusives first, then boutique hotels, then downtown/budget hotels. Keep going until every hotel with a real following is covered.
 
@@ -96,18 +96,18 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 8. On "OK hotels": merge into main, push.
 
 ### Hotel list (in order)
-| # | Hotel | Area |
-|---|---|---|
-| 1 | Le Blanc Spa Resort Cancún | hotel-zone |
-| 2 | Hyatt Zilara Cancún | hotel-zone |
-| 3 | Iberostar Selection Cancún | hotel-zone |
-| 4 | Nizuc Resort & Spa | hotel-zone |
-| 5 | Kempinski Hotel Cancún | hotel-zone |
-| 6 | Marriott Cancún All-Inclusive | hotel-zone |
-| 7 | Riu Palace Peninsula | hotel-zone |
-| 8 | Riu Palace Kukulkan | hotel-zone |
-| 9 | Riu Cancún | hotel-zone |
-| 10 | Royalton Chic Cancún | hotel-zone |
+| # | Hotel | Area | Status |
+|---|---|---|---|
+| 1 | Le Blanc Spa Resort Cancún | hotel-zone | ✅ added as `le-blanc-spa-resort-cancun` |
+| 2 | Hyatt Zilara Cancún | hotel-zone | ✅ added as `hyatt-zilara-cancun` |
+| 3 | Iberostar Selection Cancún | hotel-zone | ✅ added as `iberostar-selection-cancun` |
+| 4 | Nizuc Resort & Spa | hotel-zone | ✅ added as `nizuc-resort-and-spa` |
+| 5 | Kempinski Hotel Cancún | hotel-zone | ✅ added as `kempinski-hotel-cancun` |
+| 6 | Marriott Cancún All-Inclusive | hotel-zone | ✅ added as `marriott-cancun-all-inclusive` |
+| 7 | Riu Palace Peninsula | hotel-zone | ✅ added as `riu-palace-peninsula` |
+| 8 | Riu Palace Kukulkan | hotel-zone | ✅ added as `riu-palace-kukulkan` |
+| 9 | Riu Cancún | hotel-zone | ✅ added as `riu-cancun` |
+| 10 | Royalton Chic Cancún | hotel-zone | ✅ added as `royalton-chic-cancun` |
 | 11 | Royalton Suites Cancún | hotel-zone |
 | 12 | Paradisus Cancún | hotel-zone |
 | 13 | Breathless Cancún Soul | costa-mujeres |
