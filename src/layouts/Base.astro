@@ -86,8 +86,12 @@ const phToken = ANALYTICS.posthogToken;
           const a = el.closest<HTMLAnchorElement>('a[href]');
           if (a && a.host && a.host !== location.host) {
             const sponsored = (a.rel || '').includes('sponsored');
+            const host = a.host.replace(/^www\./, '');
+            const names: Record<string, string> = { 'booking.usa-transfers.com': 'USA Transfers', 'holafly.sjv.io': 'Holafly', 'booking.com': 'Booking.com' };
+            const hotel = location.pathname.startsWith('/hotels/') && location.pathname !== '/hotels/compare'
+              ? (document.querySelector('h1')?.textContent || '').trim() : undefined;
             posthog.capture(sponsored ? 'affiliate_click' : 'outbound_click', {
-              url: a.href, partner: a.host.replace(/^www\./, ''), label: (a.textContent || '').trim().slice(0, 80), page: location.pathname,
+              url: a.href, partner: names[host] || host, hotel, label: (a.textContent || '').trim().slice(0, 80), page: location.pathname,
             });
           }
           const v = el.closest<HTMLElement>('[data-play-at]');
