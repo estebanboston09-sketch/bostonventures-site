@@ -33,7 +33,13 @@
 <script>
   const $ = (id: string) => document.getElementById(id)!;
   const panel = $('bv-chat-panel'), openBtn = $('bv-chat-open'), log = $('bv-chat-log'), input = $('bv-chat-input') as HTMLInputElement;
-  const msgs: { role: 'user' | 'assistant'; content: string }[] = [];
+  // Keep the conversation (and open/closed state) while the visitor moves between pages.
+  const KEY = 'bv-chat-v1';
+  const load = () => { try { return JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch { return null; } };
+  const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify({ msgs: msgs.slice(-20), open: !panel.hidden })); } catch {} };
+  const saved = load();
+  const msgs: { role: 'user' | 'assistant'; content: string }[] = Array.isArray(saved?.msgs) ? saved.msgs : [];
+  if (msgs.length && msgs[msgs.length - 1].role === 'user') msgs.pop(); // question left without an answer
   let busy = false;
   const ph = () => (window as any).posthog;
   const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -43,14 +49,24 @@
   const add = (cls: string, html: string) => { const d = document.createElement('div'); d.className = `bv-msg ${cls}`; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; };
   const toggle = (open: boolean) => {
     panel.hidden = !open; openBtn.hidden = open; openBtn.setAttribute('aria-expanded', String(open));
-    if (open) { input.focus(); ph()?.capture?.('chat_opened', { page: location.pathname }); }
+    if (open) { log.scrollTop = log.scrollHeight; ph()?.capture?.('chat_opened', { page: location.pathname }); }
+    save();
   };
+  if (msgs.length) {
+    $('bv-chat-sugg')?.remove();
+    msgs.forEach((m) => add(m.role === 'user' ? 'me' : 'bot', m.role === 'user' ? esc(m.content) : md(m.content)));
+    const n = document.createElement('button'); n.type = 'button'; n.className = 'block mx-auto text-xs text-ink/50 underline'; n.textContent = 'Start a new chat';
+    n.addEventListener('click', () => { msgs.length = 0; try { sessionStorage.removeItem(KEY); } catch {} location.reload(); });
+    log.prepend(n);
+  }
+  if (msgs.length) openBtn.innerHTML = '<span aria-hidden="true">💬</span> Back to your chat';
+  if (saved?.open) { panel.hidden = false; openBtn.hidden = true; openBtn.setAttribute('aria-expanded', 'true'); log.scrollTop = log.scrollHeight; }
   openBtn.addEventListener('click', () => toggle(true));
   $('bv-chat-close').addEventListener('click', () => toggle(false));
   const ask = async (q: string) => {
     q = q.trim(); if (!q || busy) return;
     busy = true; $('bv-chat-sugg')?.remove();
-    add('me', esc(q)); msgs.push({ role: 'user', content: q });
+    add('me', esc(q)); msgs.push({ role: 'user', content: q }); save();
     const t = add('bot typing', 'Thinking…');
     ph()?.capture?.('chat_question', { question: q.slice(0, 300), page: location.pathname });
     try {
@@ -58,7 +74,7 @@
       const d = await r.json();
       const a = d.answer || 'Sorry, something went wrong. Please try again.';
       t.className = 'bv-msg bot'; t.innerHTML = md(a);
-      if (!d.busy) msgs.push({ role: 'assistant', content: a });
+      if (!d.busy) { msgs.push({ role: 'assistant', content: a }); save(); }
       if (d.busy) ph()?.capture?.('chat_busy', {});
     } catch {
       t.className = 'bv-msg bot'; t.textContent = 'Sorry, the chat is not available right now.';
@@ -68,7 +84,12 @@
   $('bv-chat-form').addEventListener('submit', (e) => { e.preventDefault(); const q = input.value; input.value = ''; ask(q); });
   log.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-q]'); if (b) ask(b.dataset.q!);
-    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a'); if (a) ph()?.capture?.('chat_link_click', { url: a.getAttribute('href') });
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a');
+    if (a) {
+      ph()?.capture?.('chat_link_click', { url: a.getAttribute('href') });
+      // On phones the open chat would cover the page they're going to: fold it, keep the conversation.
+      if (window.innerWidth < 640) { try { sessionStorage.setItem(KEY, JSON.stringify({ msgs: msgs.slice(-20), open: false })); } catch {} }
+    }
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) toggle(false); });
 </script>

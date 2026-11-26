@@ -71,7 +71,9 @@ export default {
     try { body = await request.json(); } catch { return json({ error: 'Bad request' }, 400); }
     const history = (Array.isArray(body.messages) ? body.messages : [])
       .filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-      .slice(-6).map((m) => ({ role: m.role, content: m.content.slice(0, 600) }));
+      .slice(-6).map((m) => ({ role: m.role, content: m.content.slice(0, 600) }))
+      .reduce((a, m) => { const last = a[a.length - 1]; if (last && last.role === m.role) last.content += '\n' + m.content; else a.push(m); return a; }, []);
+    while (history.length && history[0].role !== 'user') history.shift();
     if (!history.length || history[history.length - 1].role !== 'user') return json({ error: 'Bad request' }, 400);
 
     const userText = history.filter((m) => m.role === 'user').slice(-2).map((m) => m.content).join(' ');
