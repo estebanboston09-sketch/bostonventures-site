@@ -128,7 +128,10 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
         <section class="card reveal p-6">
           <p class="eyebrow">What to know before booking</p>
           <p class="mt-2 text-sm text-ink/70">I haven't stayed here yet, so there are no scores — just checked facts.{reviewedSimilar && <> Want a real review of something similar? See <a class="font-semibold underline" href={`/hotels/${reviewedSimilar.id}`}>{reviewedSimilar.data.name}</a>.</>}</p>
-          <a href={`mailto:${SITE.email}?subject=Review request: ${encodeURIComponent(d.name)}`} class="btn-ghost mt-4 text-sm">Request a review of this hotel</a>
+          <div class="mt-4 flex flex-wrap items-center gap-3" id="vote-box" data-hotel={d.name} data-slug={hotel.id}>
+            <button type="button" id="vote-btn" class="btn-sun text-sm">👍 I want a review of this hotel</button>
+            <p id="vote-msg" class="text-sm text-ink/60">The most-voted hotels are the ones I review next.</p>
+          </div>
         </section>
       )}
 
@@ -232,5 +235,18 @@ if (r?.videoId) schema.push({ '@context': 'https://schema.org', '@type': 'VideoO
       function next(){var n=steps.shift();if(!n)return;i.src=i.src.replace(/(maxres|sd)default/,n);}
       function check(){if(i.naturalWidth&&i.naturalWidth<=120)next();}
       i.addEventListener('load',check);i.addEventListener('error',next);if(i.complete)check();})();
+  </script>
+  <script is:inline>
+    (function () {
+      var box = document.getElementById('vote-box'); if (!box) return;
+      var key = 'bv-vote-' + box.dataset.slug, btn = document.getElementById('vote-btn'), msg = document.getElementById('vote-msg');
+      function done() { btn.disabled = true; btn.textContent = '✅ Vote counted'; btn.classList.add('opacity-80'); msg.textContent = "Thanks! I'll use the votes to pick my next reviews. Subscribe on YouTube to see it."; }
+      try { if (localStorage.getItem(key)) done(); } catch (e) {}
+      btn.addEventListener('click', function () {
+        if (window.posthog) window.posthog.capture('review_vote', { hotel: box.dataset.hotel, slug: box.dataset.slug });
+        try { localStorage.setItem(key, '1'); } catch (e) {}
+        done();
+      });
+    })();
   </script>
 </Base>
