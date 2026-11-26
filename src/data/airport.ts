@@ -15,17 +15,17 @@ export type Terminal = {
 
 export const TERMINALS: Terminal[] = [
   {
-    id: '1', name: 'Terminal 1', tag: 'Rebuilt · reopening',
-    status: 'Rebuilt in 2025–2026 and coming back into use. Some Latin American airlines are being moved here from Terminal 2. If your boarding pass says T1, that\'s why.',
-    about: 'The original terminal, closed for years and rebuilt from scratch with 7 gates. Most US and Canadian travelers will not use it.',
-    airlines: ['Charter flights', 'Some Latin American airlines (moving from T2, check your boarding pass)'],
-    tips: ['If you land here and connect or leave from another terminal, take the free inter-terminal shuttle.'],
+    id: '1', name: 'Terminal 1', tag: 'Under construction',
+    status: 'Still under construction and not used by passenger flights (confirmed with the airport, Nov 2026). All flights use Terminals 2, 3 and 4 for now.',
+    about: 'The original terminal, closed for years and now being rebuilt and expanded. When it reopens, some airlines may move here. We\'ll update this page when that happens.',
+    airlines: ['No passenger flights yet'],
+    tips: ['Ignore older guides or apps that send you to Terminal 1.'],
   },
   {
     id: '2', name: 'Terminal 2', tag: 'Mexico & Latin America',
     about: 'The oldest terminal still in use. Domestic flights within Mexico plus Latin American and some European leisure airlines. It has separate domestic and international arrival areas.',
     airlines: ['Viva Aerobus', 'Volaris', 'Magnicharters', 'Copa Airlines', 'Avianca', 'LATAM', 'Aerolíneas Argentinas', 'Arajet', 'GOL', 'Sky Airline Peru', 'Wingo', 'TUI', 'Neos'],
-    tips: ['Flying within Mexico on Viva or Volaris? This is almost always your terminal.', 'Some Latin American airlines are moving to the rebuilt Terminal 1. Check your boarding pass.'],
+    tips: ['Flying within Mexico on Viva or Volaris? This is almost always your terminal.'],
     photo: { src: 'https://commons.wikimedia.org/wiki/Special:FilePath/Terminal_2_Cancun.jpg?width=1200', credit: 'Wikimedia Commons', creditUrl: 'https://commons.wikimedia.org/wiki/File:Terminal_2_Cancun.jpg' },
   },
   {
