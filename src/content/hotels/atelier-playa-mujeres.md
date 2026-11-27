@@ -19,6 +19,6 @@ extras: {"rooms": ["Suites and INSPIRA suites, with sea or golf-course views", "
 officialUrl: "https://atelierdehoteles.com/atelier-playa-mujeres-all-inclusive-plan"
 sources: [{"url": "https://atelierdehoteles.com/atelier-playa-mujeres-all-inclusive-plan", "checked": "2026-11"}, {"url": "https://atelierdehoteles.com/atelier-playa-mujeres-restaurants-and-bars", "checked": "2026-11"}, {"url": "https://atelierdehoteles.com/atelier-playa-mujeres-golf", "checked": "2026-11"}, {"url": "https://atelierdehoteles.com/atelier-playa-mujeres-pet-it-dog-friendly-program", "checked": "2026-11"}, {"url": "https://atelierdehoteles.com/atelier-playa-mujeres-location-map", "checked": "2026-11"}, {"url": "https://uk.hotels.com/ho881877312/atelier-playa-mujeres-all-inclusive-punta-sam-mexico", "checked": "2026-11"}, {"url": "https://www.tripadvisor.com/Hotel_Review-d15144755", "checked": "2026-11"}, {"url": "https://www.westjet.com/en-ca/hotels/cancun/CUNAP4/atelier-playa-mujeres/reviews", "checked": "2026-11"}, {"url": "https://preferredhotels.com/hotels/mexico/atelier-playa-mujeres", "checked": "2026-11"}]
 factsChecked: "2026-11"
-needsReview: true
+needsReview: false
 photos: [{"src": "/hotels/atelier-playa-mujeres/main.webp", "alt": "Aerial view of Atelier Playa Mujeres", "credit": "Photo: Atelier Playa Mujeres"}]
 ---

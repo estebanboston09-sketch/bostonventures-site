@@ -21,6 +21,6 @@ extras: {"rooms": ["All rooms are suites with an oversized jacuzzi", "Junior sui
 officialUrl: "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/"
 sources: [{"url": "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/", "checked": "2026-11"}, {"url": "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/frecuently-asked-questions", "checked": "2026-11"}, {"url": "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/flavors-and-spirits", "checked": "2026-11"}, {"url": "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/rooms/", "checked": "2026-11"}, {"url": "https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/transportation-from-cancun-airport-to-excellence-playa-mujeres", "checked": "2026-11"}, {"url": "https://www.expedia.com/Cancun-Hotels-Excellence-Playa-Mujeres-All-Inclusive-Adults-Only.h1672497.Hotel-Information", "checked": "2026-11"}, {"url": "https://www.oyster.com/playa-mujeres/hotels/excellence-playa-mujeres/", "checked": "2026-11"}, {"url": "https://www.tripadvisor.com/Hotel_Review-g1229340-d649432-Reviews-or10-Excellence_Playa_Mujeres-Playa_Mujeres_Costa_Mujeres_Yucatan_Peninsula.html", "checked": "2026-11"}]
 factsChecked: "2026-11"
-needsReview: true
+needsReview: false
 photos: [{"src": "/hotels/excellence-playa-mujeres/main.webp", "alt": "Aerial view of Excellence Playa Mujeres", "credit": "Photo: Excellence Playa Mujeres"}]
 ---

@@ -20,6 +20,6 @@ extras: {"rooms": ["473 suites, all non-smoking", "Junior Suite Ocean View, abou
 officialUrl: "https://palladiumhotelgroup.com/en/hotels/mexico/costamujerescancun/trs-coral-hotel"
 sources: [{"url": "https://palladiumhotelgroup.com/en/hotels/mexico/costamujerescancun/trs-coral-hotel", "checked": "2026-11"}, {"url": "https://www.wyndhamhotels.com/en-ca/registry-collection/cancun-mexico/trs-coral-costa-mujeres-a-registry-collection-hotel/services-amenities", "checked": "2026-11"}, {"url": "https://vacations.aircanada.com/en/accommodation-details/HID-1761678/trs-coral-hotel", "checked": "2026-11"}, {"url": "https://www.tripadvisor.com/Hotel_Review-g1229340-d14091089-Reviews-TRS_Coral_Hotel-Playa_Mujeres_Costa_Mujeres_Yucatan_Peninsula.html", "checked": "2026-11"}]
 factsChecked: "2026-11"
-needsReview: true
+needsReview: false
 photos: [{"src": "https://images.pexels.com/photos/20210508/pexels-photo-20210508.jpeg?auto=compress&cs=tinysrgb&w=1280", "alt": "Resorts on the Cancún coast (area photo, not this hotel)", "credit": "Israel Torres / Pexels", "creditUrl": "https://www.pexels.com/photo/hotels-and-resorts-on-sea-coast-in-cancun-20210508/", "area": true}]
 ---

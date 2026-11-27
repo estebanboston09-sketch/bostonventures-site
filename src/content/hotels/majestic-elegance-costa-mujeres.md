@@ -19,6 +19,6 @@ extras: {"rooms": ["All suites; junior suites from 625 sq ft with an outdoor jac
 officialUrl: "https://www.majestic-resorts.com/costa-mujeres/resorts/majestic-elegance-costa-mujeres"
 sources: [{"url": "https://www.majestic-resorts.com/costa-mujeres/resorts/majestic-elegance-costa-mujeres", "checked": "2026-11"}, {"url": "https://www.majestic-resorts.com/costa-mujeres/resorts/majestic-elegance-costa-mujeres/inclusions", "checked": "2026-11"}, {"url": "https://www.majestic-resorts.com/costa-mujeres/resorts/majestic-elegance-costa-mujeres/dining-and-drinks", "checked": "2026-11"}, {"url": "https://www.majestic-resorts.com/costa-mujeres/resorts/majestic-elegance-costa-mujeres/rooms", "checked": "2026-11"}, {"url": "https://www.hotels.com/ho1085291296", "checked": "2026-11"}, {"url": "https://vacations.aircanada.com/en/accommodation-details/HID-1765681/majestic-elegance-costa-mujeres", "checked": "2026-11"}, {"url": "https://www.tripadvisor.com/Hotel_Review-g7983226-d16855390-Reviews-Majestic_Elegance_Costa_Mujeres-Punta_Sam_Costa_Mujeres_Yucatan_Peninsula.html", "checked": "2026-11"}]
 factsChecked: "2026-11"
-needsReview: true
+needsReview: false
 photos: [{"src": "https://images.pexels.com/photos/20210512/pexels-photo-20210512.jpeg?auto=compress&cs=tinysrgb&w=1280", "alt": "Resorts on the Cancún coast (area photo, not this hotel)", "credit": "Israel Torres / Pexels", "creditUrl": "https://www.pexels.com/photo/resorts-on-sea-shore-in-cancun-20210512/", "area": true}]
 ---

@@ -18,6 +18,6 @@ extras: {"rooms": ["Junior suites of about 66 m² (710 sq ft), some with pool ac
 officialUrl: "https://www.palladiumhotelgroup.com/en/hotels/mexico/costamujerescancun/grand-palladium-select-costa-mujeres"
 sources: [{"url": "https://www.palladiumhotelgroup.com/en/hotels/mexico/costamujerescancun/grand-palladium-select-costa-mujeres", "checked": "2026-11"}, {"url": "https://palladiumhotelgroup.com/content/dam/palladium/content-fragments/hoteles/en/grand-palladium-select-costa-mujeres/grand-palladium-costa-mujeres-resort-spa-ficha-tecnica.pdf", "checked": "2026-11"}, {"url": "https://vacations.aircanada.com/en/accommodation-details/HID-1757795/grand-palladium-costa-mujeres-resort--spa", "checked": "2026-11"}, {"url": "https://www.wyndhamhotels.com/registry-collection/cancun-mexico/grand-palladium-select-costa-mujeres-all-inclusive/photo-gallery", "checked": "2026-11"}, {"url": "https://www.tripadvisor.com/Hotel_Review-g23328775-d13964145-Reviews-Grand_Palladium_Select_Costa_Mujeres-Costa_Mujeres_Yucatan_Peninsula.html", "checked": "2026-11"}]
 factsChecked: "2026-11"
-needsReview: true
+needsReview: false
 photos: [{"src": "/hotels/grand-palladium-costa-mujeres/main.webp", "alt": "Aerial view of Grand Palladium Select Costa Mujeres", "credit": "Photo: Grand Palladium Select Costa Mujeres"}]
 ---

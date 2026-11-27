@@ -113,7 +113,7 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 7. **Backfill:** each night, also fill the missing `extras` fields above (including the new ones: pools, activities, spa, wifi, beachReality, walkable, bestRooms, avoidRooms, built) and `ratings` for the next 10 hotels already on the site that don't have them yet, reviewed hotels included (never touch Esteban's `review` scores or text). Put them on the same `hoteles/<YYYY-MM-DD>` branch.
 8. Every new hotel has `needsReview: true`. `bestFor` only from facts (adults-only → adults-only, kids club → families, etc.).
 9. Build must pass. Commit them all on one branch `hoteles/<YYYY-MM-DD>` and push only that branch. In the nightly message, list the new hotel names and say: "Reply OK hotels to publish them."
-10. On "OK hotels": merge into main, push.
+10. On "OK hotels": set `needsReview: false` on that batch's hotels (Esteban's approval is the review; this makes them visible to Google and the AI chat), then merge into main and push.
 
 ### Hotel list (in order)
 | # | Hotel | Area | Status |
