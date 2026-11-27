@@ -12,11 +12,11 @@ export const LEVELS: Record<Level, { label: string; es: string; color: string; a
 };
 
 export const REPORT = {
-  date: '2026-11-11',
+  date: '2026-11-26',
   source: 'Semáforo del Sargazo, SEMA Quintana Roo (Red de Monitoreo del Sargazo)',
   officialUrl: 'https://www.facebook.com/search/top?q=Red%20de%20Monitoreo%20del%20Sargazo%20de%20Quintana%20Roo',
-  north: { total: 100, excessive: 0, abundant: 3, moderate: 8, low: 86, none: 3 },
-  south: { total: 40, excessive: 3, abundant: 10, moderate: 15, low: 10, none: 2 },
+  north: { total: 100, excessive: 0, abundant: 0, moderate: 2, low: 95, none: 3 },
+  south: { total: 40, excessive: 3, abundant: 3, moderate: 4, low: 28, none: 2 },
 };
 
 export type Beach = { name: string; area: string; level: Level; at?: [number, number] };
@@ -33,7 +33,7 @@ export const BEACHES: Beach[] = [
   { area: 'Cancún', name: 'Playa Ballenas', level: 'low', at: [21.0905, -86.768] },
   { area: 'Cancún', name: 'Playa San Miguel', level: 'low', at: [21.079, -86.773] },
   { area: 'Cancún', name: 'Playa Delfines', level: 'low', at: [21.06, -86.78] },
-  { area: 'Cancún', name: 'Playa Coral', level: 'abundant', at: [21.044, -86.7845] },
+  { area: 'Cancún', name: 'Playa Coral', level: 'moderate', at: [21.044, -86.7845] },
   { area: 'Cancún', name: 'Punta Nizuc', level: 'low', at: [21.034, -86.779] },
   // Isla Mujeres
   { area: 'Isla Mujeres', name: 'Playa Norte', level: 'low', at: [21.262, -86.751] },
@@ -42,7 +42,7 @@ export const BEACHES: Beach[] = [
   { area: 'Isla Mujeres', name: 'Playa Lancheros', level: 'low', at: [21.2215, -86.734] },
   { area: 'Isla Mujeres', name: 'Punta Sur', level: 'low', at: [21.205, -86.715] },
   // Puerto Morelos
-  { area: 'Puerto Morelos', name: 'Puerto Morelos Norte', level: 'moderate', at: [20.865, -86.87] },
+  { area: 'Puerto Morelos', name: 'Puerto Morelos Norte', level: 'low', at: [20.865, -86.87] },
   { area: 'Puerto Morelos', name: 'Puerto Morelos Centro', level: 'low', at: [20.847, -86.875] },
   { area: 'Puerto Morelos', name: 'Punta Brava', level: 'low', at: [20.822, -86.888] },
   // Playa del Carmen
@@ -54,7 +54,7 @@ export const BEACHES: Beach[] = [
   { area: 'Playa del Carmen', name: 'Playacar Fase 1', level: 'low', at: [20.616, -87.076] },
   { area: 'Playa del Carmen', name: 'Playacar Fase 2', level: 'low', at: [20.602, -87.086] },
   // Cozumel
-  { area: 'Cozumel', name: 'Punta Molas', level: 'abundant', at: [20.591, -86.734] },
+  { area: 'Cozumel', name: 'Punta Molas', level: 'moderate', at: [20.591, -86.734] },
   { area: 'Cozumel', name: 'Playa Xhanan', level: 'abundant' },
   { area: 'Cozumel', name: 'Playa El Castillo', level: 'moderate', at: [20.517, -86.788] },
   { area: 'Cozumel', name: 'Playa Mezcalitos', level: 'moderate', at: [20.476, -86.813] },

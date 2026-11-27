@@ -119,17 +119,17 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 | 8 | Riu Palace Kukulkan | hotel-zone | ✅ added as `riu-palace-kukulkan` |
 | 9 | Riu Cancún | hotel-zone | ✅ added as `riu-cancun` |
 | 10 | Royalton Chic Cancún | hotel-zone | ✅ added as `royalton-chic-cancun` |
-| 11 | Royalton Suites Cancún | hotel-zone |
-| 12 | Paradisus Cancún | hotel-zone |
-| 13 | Breathless Cancún Soul | costa-mujeres |
-| 14 | Dreams Natura Resort & Spa | costa-mujeres |
-| 15 | Finest Playa Mujeres | costa-mujeres |
-| 16 | Excellence Playa Mujeres | costa-mujeres |
-| 17 | Atelier Playa Mujeres | costa-mujeres |
-| 18 | Majestic Elegance Costa Mujeres | costa-mujeres |
-| 19 | Grand Palladium Costa Mujeres | costa-mujeres |
-| 20 | TRS Coral Hotel | costa-mujeres |
-| 21 | Sun Palace | south-cancun |
+| 11 | Royalton Suites Cancún | hotel-zone | ✅ duplicate: same property as `royalton-chic-cancun` (renamed 2020) |
+| 12 | Paradisus Cancún | hotel-zone | ✅ added as `paradisus-cancun` |
+| 13 | Breathless Cancún Soul (now Amàre Cancún) | hotel-zone | ✅ added as `amare-cancun` |
+| 14 | Dreams Natura Resort & Spa | puerto-morelos | ✅ added as `dreams-natura-resort-and-spa` |
+| 15 | Finest Playa Mujeres | costa-mujeres | ✅ added as `finest-playa-mujeres` |
+| 16 | Excellence Playa Mujeres | costa-mujeres | ✅ added as `excellence-playa-mujeres` |
+| 17 | Atelier Playa Mujeres | costa-mujeres | ✅ added as `atelier-playa-mujeres` |
+| 18 | Majestic Elegance Costa Mujeres | costa-mujeres | ✅ added as `majestic-elegance-costa-mujeres` |
+| 19 | Grand Palladium Costa Mujeres | costa-mujeres | ✅ added as `grand-palladium-costa-mujeres` |
+| 20 | TRS Coral Hotel | costa-mujeres | ✅ added as `trs-coral-hotel` |
+| 21 | Sun Palace | hotel-zone | ✅ added as `sun-palace` |
 | 22 | Beach Palace | hotel-zone |
 | 23 | Grand Velas Riviera Maya | riviera-maya |
 | 24 | Secrets Maroma Beach | riviera-maya |
