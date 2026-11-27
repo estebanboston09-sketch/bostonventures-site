@@ -2,17 +2,46 @@
 import Base from '../../layouts/Base.astro';
 import { TOURS, INTEREST_LABELS } from '../../data/tours';
 import { AFFILIATE } from '../../lib/site';
+import { getCollection } from 'astro:content';
+import { AREA_GUIDE } from '../../data/areaGuide';
+import { BEACHES, REPORT, LEVELS } from '../../data/sargassum';
+import { MONTHS } from '../../data/months';
+import { GUIDE_DESTS, GUIDE_PRIMARY, privateBySlug, privateForDests, placeFacts } from '../../data/privateTours';
+const hotelList = (await getCollection('hotels')).map((h) => ({
+  id: h.id, name: h.data.name, area: h.data.area, loc: h.data.location ?? null, ai: h.data.allInclusive,
+  airportMinutes: h.data.airportMinutes ?? null,
+  checkin: h.data.practical.find((p) => /check-?in/i.test(p.label) && !/age/i.test(p.label))?.value ?? null,
+})).sort((a, b) => a.name.localeCompare(b.name));
+// Per tour: what to bring and how many private options exist (for the "book" link).
+const tourExtras = Object.fromEntries(TOURS.map((t) => {
+  const prim = GUIDE_PRIMARY[t.slug] ? privateBySlug(GUIDE_PRIMARY[t.slug].slug) : undefined;
+  const bring = prim ? placeFacts(prim).bring.slice(0, 4) : [];
+  const privateCount = GUIDE_DESTS[t.slug] ? privateForDests(GUIDE_DESTS[t.slug]).length : 0;
+  return [t.slug, { bring, privateCount }];
+}));
+const beaches = BEACHES.filter((b) => b.at).map((b) => ({ name: b.name, at: b.at, level: b.level, label: LEVELS[b.level].label }));
 ---
-<Base title="Free Cancún Trip Planner: Day-by-Day Itinerary" description="Enter your dates and what you like — get a day-by-day Cancún and Riviera Maya itinerary with tours, beach days and a packing checklist, from a local.">
+<Base title="Free Cancún Trip Planner: Day-by-Day Itinerary" description="Tell me your hotel, dates and what you like: get a local guide's day-by-day Cancún and Riviera Maya plan with pickup times, beaches near you, evenings out and tour links.">
   <section class="no-print bg-navy py-10 text-white">
     <div class="wrap max-w-4xl">
       <p class="eyebrow">Free tool</p>
       <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Plan your Cancún trip, day by day</h1>
-      <p class="mt-2 text-white/75">Your dates and your style in, a realistic plan out — with rest days, because it's a vacation.</p>
+      <p class="mt-2 text-white/75">Like having a local guide plan it: times, drive distances from your hotel, the best beach near you, where to eat at night, and rest days, because it's a vacation.</p>
     </div>
   </section>
   <div class="wrap mt-8 max-w-4xl">
     <form id="f" class="no-print card grid gap-5 p-5 sm:grid-cols-2" onsubmit="return false">
+      <div class="sm:col-span-2">
+        <label for="hotel" class="font-bold text-navy">Where are you staying?</label>
+        <input id="hotel" list="hotel-list" class="field mt-2" placeholder="Type your hotel name…" autocomplete="off" />
+        <datalist id="hotel-list">{hotelList.map((h) => <option value={h.name} />)}</datalist>
+        <label class="mt-2 flex items-center gap-2 text-sm"><input id="nohotel" type="checkbox" class="accent-navy" /> I don't know my hotel yet (or it isn't on the list)</label>
+        <select id="area" class="field mt-2 hidden">
+          <option value="">Which area will you stay in?</option>
+          {Object.entries(AREA_GUIDE).map(([k, a]) => <option value={k}>{a.label}</option>)}
+        </select>
+        <p class="mt-1 text-xs text-ink/50">Your plan uses real drive times from your hotel, the beaches near you and things to do in your area.</p>
+      </div>
       <label class="block"><span class="font-bold text-navy">Arrival</span><input id="from" type="date" class="field mt-2" required /></label>
       <label class="block"><span class="font-bold text-navy">Departure</span><input id="to" type="date" class="field mt-2" required /></label>
       <label class="block"><span class="font-bold text-navy">Who's going?</span>
@@ -78,22 +107,50 @@ import { AFFILIATE } from '../../lib/site';
     </section>
   </div>
   <script id="tour-data" type="application/json" set:html={JSON.stringify(TOURS)} />
+  <script id="plan-data" type="application/json" set:html={JSON.stringify({ hotels: hotelList, guide: AREA_GUIDE, beaches, report: REPORT.date, months: MONTHS, extras: tourExtras })} />
 </Base>
 <script>
   import { rankTours, seasonNote, type Prefs } from '../../lib/tourMatch';
   import type { Tour } from '../../data/tours';
   const TOURS: Tour[] = JSON.parse(document.getElementById('tour-data')!.textContent!);
+  const D = JSON.parse(document.getElementById('plan-data')!.textContent!);
   const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
   const picked = new Set<string>();
+  const AIRPORT = { lat: 21.0365, lng: -86.8771 };
 
   $('interests').addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button'); if (!b) return;
     const on = !picked.has(b.dataset.i!); on ? picked.add(b.dataset.i!) : picked.delete(b.dataset.i!);
     b.setAttribute('aria-pressed', String(on));
   });
+  $('nohotel').addEventListener('change', () => {
+    const on = $<HTMLInputElement>('nohotel').checked;
+    $('area').classList.toggle('hidden', !on); $<HTMLInputElement>('hotel').disabled = on;
+  });
 
   const fmt = (d: Date) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
   const parse = (s: string) => new Date(s + 'T00:00:00Z');
+  const esc = (t: string) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as any)[c]);
+  const km = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+    const r = Math.PI / 180, dLat = (b.lat - a.lat) * r, dLng = (b.lng - a.lng) * r;
+    const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+    return 2 * 6371 * Math.asin(Math.sqrt(x));
+  };
+  // Rough drive time: city streets for short hops, highway speed for long trips.
+  const driveMin = (k: number) => Math.round(k < 15 ? (k * 1.3) / 35 * 60 + 5 : (k * 1.25) / 80 * 60 + 15);
+  const dur = (m: number) => { m = Math.round(m / 5) * 5; return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}`; };
+  const clock = (mins: number) => { mins = Math.max(5 * 60 + 30, Math.round(mins / 15) * 15); const h = Math.floor(mins / 60), m = mins % 60; return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+  const guideAreaFor = (area: string, loc?: { lat: number; lng: number } | null) => {
+    if (area === 'hotel-zone') return loc && loc.lat < 21.11 ? 'hotel-zone-south' : 'hotel-zone-north';
+    if (area === 'south-cancun') return 'hotel-zone-south';
+    if (area === 'downtown' || area === 'isla-mujeres') return 'downtown';
+    if (area === 'costa-mujeres' || area === 'puerto-morelos' || area === 'tulum') return area;
+    if (area === 'playa-del-carmen' || area === 'riviera-maya') return loc && loc.lat < 20.45 ? 'tulum' : 'playa-del-carmen';
+    return 'hotel-zone-north';
+  };
+
+  type Block = { when: string; text: string };
+  type Day = { date: Date; tag: string; title: string; link?: string; blocks: Block[]; actions?: string; tip?: string };
 
   function build() {
     const from = $<HTMLInputElement>('from').value, to = $<HTMLInputElement>('to').value;
@@ -102,53 +159,114 @@ import { AFFILIATE } from '../../lib/site';
     const nights = Math.round((+b - +a) / 86400000);
     if (nights < 1) { $('err').textContent = 'Departure must be after arrival.'; return; }
     if (nights > 30) { $('err').textContent = 'Plans up to 30 nights — split longer trips.'; return; }
+
+    // Where they stay.
+    const noHotel = $<HTMLInputElement>('nohotel').checked;
+    const typed = $<HTMLInputElement>('hotel').value.trim().toLowerCase();
+    const hotel = !noHotel && typed ? D.hotels.find((h: any) => h.name.toLowerCase() === typed) || D.hotels.find((h: any) => h.name.toLowerCase().includes(typed)) : null;
+    let gKey = noHotel ? $<HTMLSelectElement>('area').value : '';
+    if (!hotel && !gKey) { $('err').textContent = noHotel ? 'Pick the area you\'ll stay in.' : 'Type your hotel, or tick "I don\'t know my hotel yet".'; return; }
     $('err').textContent = '';
+    if (hotel) gKey = guideAreaFor(hotel.area, hotel.loc);
+    const G = D.guide[gKey];
+    const base = hotel?.loc ?? { lat: G.at[0], lng: G.at[1] };
+    const stayName = hotel ? hotel.name : G.label.split(' (')[0];
+
     const pace = Number($<HTMLSelectElement>('pace').value) as 1 | 2 | 3;
     const kids = $<HTMLSelectElement>('kids').value as Prefs['kids'];
     const month = a.getUTCMonth() + 1;
+    const M = D.months[month - 1];
     const interests = [...picked] as Prefs['interests'];
-    const ranked = rankTours(TOURS, { interests: interests.length ? interests : ['beach', 'cenotes', 'ruins', 'sea-life'], kids, energy: pace, month }).map((m) => m.tour);
+    // Rank tours, then push far-away trips (over ~3 h each way from this hotel) down.
+    const ranked = rankTours(TOURS, { interests: interests.length ? interests : ['beach', 'cenotes', 'ruins', 'sea-life'], kids, energy: pace, month })
+      .map((m) => { const d = m.tour.where ? driveMin(km(base, { lat: m.tour.where[0], lng: m.tour.where[1] })) : 60; return { t: m.tour, d, s: m.score - (d > 180 ? 3 : d > 120 ? 1 : 0) }; })
+      .sort((x, y) => y.s - x.s);
 
-    // Middle days (not arrival or departure) get tours according to pace.
     const middle = Math.max(nights - 1, 0);
     const tourDays = Math.min(ranked.length, pace === 1 ? Math.floor(middle / 3) || (middle ? 1 : 0) : pace === 2 ? Math.ceil(middle / 2) : middle);
     const queue = ranked.slice(0, tourDays);
-    const days: { date: Date; title: string; body: string; link?: string; tag: string }[] = [];
-    let foodNight = interests.includes('food-culture') || nights >= 4;
+    // Beaches near the stay, lowest seaweed first.
+    const lvlRank: Record<string, number> = { none: 0, low: 1, moderate: 2, abundant: 3, excessive: 4 };
+    const nearBeaches = D.beaches.map((x: any) => ({ ...x, k: km(base, { lat: x.at[0], lng: x.at[1] }) })).filter((x: any) => x.k < 25)
+      .sort((x: any, y: any) => (lvlRank[x.level] - lvlRank[y.level]) || x.k - y.k);
+    let evening = 0, nearbyIdx = 0, beachIdx = 0;
+    // Families: skip party-zone evenings. Beach days: skip ideas already planned as a tour.
+    const evenings = kids === 'none' ? G.evenings : G.evenings.filter((e: any) => !/party|night out|Calle 12|Coco Bongo/i.test(e.title + e.text));
+    const plannedLinks = new Set(queue.map((x) => `/tours/${x.t.slug}`));
+    const nearby = G.nearby.filter((n: any) => !n.link || !plannedLinks.has(n.link) && !(n.link === '/tours/xcaret-park' && [...plannedLinks].some((l) => /xcaret|xplor/.test(l))));
+    const nextEvening = () => evenings[evening++ % evenings.length];
+    const airportDrive = hotel?.airportMinutes ?? driveMin(km(base, AIRPORT));
+    const days: Day[] = [];
 
     for (let i = 0; i <= nights; i++) {
       const date = new Date(+a + i * 86400000);
-      if (i === 0) { days.push({ date, tag: 'Arrive', title: 'Land, transfer, settle in', body: 'Meet your pre-booked driver outside the terminal, check in, and take it easy at the pool or beach. Early night — tomorrow starts the fun.' }); continue; }
-      if (i === nights) { days.push({ date, tag: 'Fly home', title: 'Last swim, then the airport', body: 'Enjoy breakfast and a final swim, then leave for the airport about 3 hours before your flight.' }); continue; }
-      // Spread tours: in balanced mode alternate, in relaxed mode every third day.
+      if (i === 0) {
+        const ev = nextEvening();
+        days.push({ date, tag: 'Arrive', title: `Land and settle in at ${stayName}`, blocks: [
+          { when: 'Airport', text: `Clear immigration and customs, then walk straight past the people offering taxis and tours inside the terminal: your driver waits outside. The drive to ${esc(stayName)} takes about ${dur(airportDrive)}.` },
+          { when: 'Afternoon', text: `Check-in is usually ${hotel?.checkin ? esc(hotel.checkin.split('/')[0].trim()) : 'around 3 pm'}. If you're early, ask to leave your bags and have lunch by the pool${hotel?.ai ? ' (your all-inclusive wristband usually starts at check-in)' : ''}.` },
+          { when: 'Evening', text: `<b>${esc(ev.title)}.</b> ${esc(ev.text)} Or keep it simple and stay in: travel days are long.` },
+        ], actions: `<a href="/guides/cancun-airport" class="underline">Airport arrival guide</a>` });
+        continue;
+      }
+      if (i === nights) {
+        const leave = 3 * 60 + airportDrive;
+        days.push({ date, tag: 'Fly home', title: 'Last swim, then the airport', blocks: [
+          { when: 'Morning', text: 'Breakfast and a last swim. Check-out is usually at noon; most resorts keep your bags and let you use the pool until you leave.' },
+          { when: 'Airport', text: `For an international flight, leave ${esc(stayName)} about <b>${dur(leave)}</b> before departure (${dur(airportDrive)} drive plus 3 hours at the airport). Check which terminal your airline uses.` },
+        ], actions: `<a href="/guides/cancun-airport" class="underline">Terminal by airline</a>` });
+        continue;
+      }
       const slot = pace === 3 || (pace === 2 && i % 2 === 1) || (pace === 1 && i % 3 === 2);
-      const t = slot ? queue.shift() : undefined;
-      if (t) {
-        days.push({ date, tag: t.length === 'half' ? 'Half-day tour' : 'Day trip', title: t.name, body: t.short + (t.length === 'half' ? ' Back by the afternoon for pool time.' : '') + ` Tip: ${t.localTip}`, link: `/tours/${t.slug}` });
-      } else if (foodNight && i >= 2) {
-        foodNight = false;
-        days.push({ date, tag: 'Beach + night out', title: 'Beach day, then dinner downtown', body: 'Rest at the resort by day. In the evening, take a taxi downtown for tacos and marquesitas at Parque de las Palapas.', link: '/tours/cancun-taco-tour' });
+      const q = slot ? queue.shift() : undefined;
+      if (q) {
+        const t = q.t, ex = D.extras[t.slug] || { bring: [], privateCount: 0 };
+        const full = t.length === 'full';
+        // Aim to arrive around 8:30 am for full days (heat and crowds), 9:30 for half days.
+        const pickup = clock((full ? 9 * 60 : 9.5 * 60) - q.d);
+        const ev = nextEvening();
+        days.push({ date, tag: full ? 'Day trip' : 'Half-day tour', title: t.name, link: `/tours/${t.slug}`, blocks: [
+          { when: 'Morning', text: `Plan to leave ${esc(stayName)} around <b>${pickup}</b> (your tour confirms the exact pickup time). It's about ${dur(q.d)} each way from your hotel. ${esc(t.short)}` },
+          { when: full ? 'Afternoon' : 'Afternoon', text: full ? 'Most of the day is on the tour. Expect to be back in the late afternoon or early evening.' : 'Back for lunch and pool time.' },
+          { when: 'Evening', text: full ? 'Easy dinner at your hotel: full-day trips are tiring.' : `<b>${esc(ev.title)}.</b> ${esc(ev.text)}` },
+        ], tip: `${esc(t.localTip)}${ex.bring.length ? ` <b>Bring:</b> ${ex.bring.map(esc).join('; ')}.` : ''}`,
+          actions: `<a href="/tours/${t.slug}" class="btn-sun text-sm">See this tour →</a>${ex.privateCount ? ` <a href="/tours/${t.slug}#book" class="btn-ghost text-sm">Private options (${ex.privateCount})</a>` : ''}` });
+        if (full) evening--; // didn't use the evening idea
       } else {
-        days.push({ date, tag: 'Rest day', title: kids === 'none' ? 'Beach, pool and spa' : 'Beach and pool day', body: 'No alarms. Enjoy the resort — this is what keeps a vacation from becoming a marathon.' });
+        const bch = nearBeaches[beachIdx++ % Math.max(1, nearBeaches.length)];
+        const nb = (nearby.length ? nearby : G.nearby)[nearbyIdx++ % (nearby.length || G.nearby.length)];
+        const ev = nextEvening();
+        days.push({ date, tag: 'Beach & local day', title: bch ? `Beach morning at ${bch.name}` : 'Beach and pool day', blocks: [
+          { when: 'Morning', text: bch ? `${esc(bch.name)} is about ${dur(driveMin(bch.k))} from your hotel${bch.k * 1.3 < 2 ? ' (or a walk)' : ''}. Seaweed there: <b>${esc(bch.label)}</b> in the official report of ${new Date(D.report + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}. Go before 11 am for the calmest water and the best light.` : 'Enjoy your resort beach early, before the loungers fill up.' },
+          { when: 'Afternoon', text: `Shade, lunch and a siesta in the hottest hours. If you want to get out instead: <b>${esc(nb.title)}</b>. ${esc(nb.text)}${nb.link ? ` <a href="${nb.link}" class="font-semibold underline">More →</a>` : ''}` },
+          { when: 'Sunset & evening', text: `${esc(G.sunset)} Then: <b>${esc(ev.title)}.</b> ${esc(ev.text)}` },
+        ], tip: `If it rains: ${G.rainy.map(esc).join(' · ')}.` });
       }
     }
-    // Packed trips with leftover tours: fill remaining rest days.
-    if (pace === 3) days.forEach((d) => { if (d.tag === 'Rest day' && queue.length) { const t = queue.shift()!; Object.assign(d, { tag: 'Day trip', title: t.name, body: t.short, link: `/tours/${t.slug}` }); } });
+    if (pace === 3) days.forEach((d) => { if (d.tag === 'Beach & local day' && queue.length) { const q = queue.shift()!; Object.assign(d, { tag: 'Day trip', title: q.t.name, link: `/tours/${q.t.slug}`, blocks: [{ when: 'Morning', text: `Leave around <b>${clock(9 * 60 - q.d)}</b> (about ${dur(q.d)} each way). ${esc(q.t.short)}` }], tip: esc(q.t.localTip), actions: `<a href="/tours/${q.t.slug}" class="btn-sun text-sm">See this tour →</a>` }); } });
 
-    $('plan-title').textContent = `${nights} night${nights > 1 ? 's' : ''}: ${fmt(a)} – ${fmt(b)}`;
-    $('season').innerHTML = seasonNote(month).map((n) => `<p class="rounded-xl bg-sun/30 px-4 py-2.5 text-sm">${n}</p>`).join('');
+    $('plan-title').textContent = `${nights} night${nights > 1 ? 's' : ''} at ${stayName}: ${fmt(a)} – ${fmt(b)}`;
+    const tempF = (c: number) => Math.round(c * 9 / 5 + 32);
+    $('season').innerHTML = [
+      `<div class="card p-4 text-sm"><p class="font-bold text-navy">📍 Your base: ${esc(G.label)}</p><p class="mt-1 text-ink/70">${esc(G.vibe)} ${esc(G.gettingAround)}</p>${hotel ? `<a href="/hotels/${hotel.id}" class="mt-2 inline-block font-semibold underline">Your hotel's page →</a>` : ''}</div>`,
+      `<p class="rounded-xl bg-sand px-4 py-2.5 text-sm">🌤️ ${M.name}: highs around ${M.highC}°C (${tempF(M.highC)}°F), sea ${M.seaC}°C (${tempF(M.seaC)}°F), about ${M.rainDays} rainy days. ${esc(M.note)}${M.wildlife ? ' ' + esc(M.wildlife) : ''}</p>`,
+      ...seasonNote(month).map((n) => `<p class="rounded-xl bg-sun/30 px-4 py-2.5 text-sm">${n}</p>`),
+    ].join('');
     $('days').innerHTML = days.map((d, i) => `
-      <li class="card flex gap-4 p-4">
-        <div class="w-16 shrink-0 text-center"><p class="text-xs font-bold uppercase text-ink/50">Day ${i + 1}</p><p class="text-sm font-semibold text-navy">${fmt(d.date)}</p></div>
-        <div class="min-w-0 border-l border-navy/10 pl-4">
+      <li class="card p-4 sm:p-5">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="text-xs font-bold uppercase tracking-wide text-ink/50">Day ${i + 1} · ${fmt(d.date)}</p>
           <span class="chip">${d.tag}</span>
-          <p class="mt-1.5 font-bold text-navy">${d.link ? `<a class="hover:underline" href="${d.link}">${d.title}</a>` : d.title}</p>
-          <p class="mt-1 text-sm text-ink/70">${d.body}</p>
         </div>
+        <p class="mt-1.5 text-lg font-bold text-navy">${d.link ? `<a class="hover:underline" href="${d.link}">${esc(d.title)}</a>` : esc(d.title)}</p>
+        <dl class="mt-3 space-y-2 text-sm">${d.blocks.map((x) => `<div class="grid gap-1 sm:grid-cols-[110px_1fr]"><dt class="font-bold text-navy/70">${x.when}</dt><dd class="text-ink/80">${x.text}</dd></div>`).join('')}</dl>
+        ${d.tip ? `<p class="mt-3 rounded-lg bg-sand px-3 py-2 text-xs text-ink/75">💡 ${d.tip}</p>` : ''}
+        ${d.actions ? `<div class="no-print mt-3 flex flex-wrap gap-2">${d.actions}</div>` : ''}
       </li>`).join('');
     $('plan').classList.remove('hidden');
-    const q = new URLSearchParams({ from, to, kids, pace: String(pace), i: [...picked].join(',') });
-    history.replaceState(null, '', `?${q}`);
+    const qs = new URLSearchParams({ from, to, kids, pace: String(pace), i: [...picked].join(','), ...(hotel ? { h: hotel.id } : { a: gKey }) });
+    history.replaceState(null, '', `?${qs}`);
+    (window as any).posthog?.capture?.('trip_plan_hotel', { hotel: hotel?.id ?? null, area: gKey, nights });
     $('plan').scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -158,10 +276,12 @@ import { AFFILIATE } from '../../lib/site';
 
   // Restore a shared plan from the link.
   const q = new URLSearchParams(location.search);
+  if (q.get('h')) { const h = D.hotels.find((x: any) => x.id === q.get('h')); if (h) $<HTMLInputElement>('hotel').value = h.name; }
+  if (q.get('a')) { $<HTMLInputElement>('nohotel').checked = true; $('area').classList.remove('hidden'); $<HTMLInputElement>('hotel').disabled = true; $<HTMLSelectElement>('area').value = q.get('a')!; }
   if (q.get('from') && q.get('to')) {
     $<HTMLInputElement>('from').value = q.get('from')!; $<HTMLInputElement>('to').value = q.get('to')!;
     $<HTMLSelectElement>('kids').value = q.get('kids') || 'none'; $<HTMLSelectElement>('pace').value = q.get('pace') || '2';
     (q.get('i') || '').split(',').filter(Boolean).forEach((k) => { picked.add(k); document.querySelector(`[data-i="${k}"]`)?.setAttribute('aria-pressed', 'true'); });
-    build();
+    if ($<HTMLInputElement>('hotel').value || q.get('a')) build();
   }
 </script>
