@@ -30,6 +30,10 @@ export const AFFILIATE = {
   tours: null as null | { name: string; url: (q: string) => string },
 };
 
+// Cities for filters: several areas belong to one city (Hotel Zone, downtown and the south end are all Cancún).
+export const CITIES: Record<string, string> = { cancun: 'Cancún', 'costa-mujeres': 'Costa Mujeres', 'isla-mujeres': 'Isla Mujeres', 'puerto-morelos': 'Puerto Morelos', 'playa-del-carmen': 'Playa del Carmen', 'riviera-maya': 'Riviera Maya', tulum: 'Tulum', other: 'Other' };
+export const cityOf = (area: string) => (['hotel-zone', 'downtown', 'south-cancun'].includes(area) ? 'cancun' : area in CITIES ? area : 'other');
+
 export const AREAS: Record<string, { label: string; blurb: string }> = {
   'hotel-zone': { label: 'Hotel Zone', blurb: 'The 22 km strip of beach resorts, nightlife and malls between the sea and the lagoon.' },
   'downtown': { label: 'Downtown Cancún', blurb: 'Where locals live: cheaper hotels, real Mexican food, no beach on your doorstep.' },

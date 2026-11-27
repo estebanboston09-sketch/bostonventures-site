@@ -1,5 +1,5 @@
 ---
-import { AREAS } from '../lib/site';
+import { AREAS, cityOf } from '../lib/site';
 import AreaArt from './AreaArt.astro';
 import { hotelImage } from '../lib/hotelImage';
 import { overallScore } from '../lib/score';
@@ -14,6 +14,7 @@ const img = hotelImage(d);
 <a href={`/hotels/${hotel.id}`} class="card lift reveal group flex flex-col overflow-hidden"
   data-hotel
   data-area={d.area}
+  data-city={cityOf(d.area)}
   data-ai={d.allInclusive ? '1' : '0'}
   data-adults={d.adultsOnly ? '1' : '0'}
   data-reviewed={reviewed ? '1' : '0'}

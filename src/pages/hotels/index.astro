@@ -2,9 +2,9 @@
 import Base from '../../layouts/Base.astro';
 import HotelCard from '../../components/HotelCard.astro';
 import { getCollection } from 'astro:content';
-import { AREAS } from '../../lib/site';
+import { AREAS, CITIES, cityOf } from '../../lib/site';
 const hotels = (await getCollection('hotels')).sort((a, b) => (Number(!!b.data.review) - Number(!!a.data.review)) || a.data.name.localeCompare(b.data.name));
-const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
+const citiesUsed = Object.keys(CITIES).filter((c) => hotels.some((h) => cityOf(h.data.area) === c));
 ---
 <Base title="Cancún & Riviera Maya Hotels: Honest Local Guide" description="Every hotel in Cancún and the Riviera Maya with honest, local information — filter by area, all-inclusive, adults-only and family. Reviewed hotels include real scores and video.">
   <section class="bg-navy py-12 text-white">
@@ -22,9 +22,9 @@ const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
   <section class="wrap mt-8">
     <form id="filters" class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-7" onsubmit="return false">
       <input id="q" type="search" placeholder="Search a hotel…" class="field lg:col-span-2" aria-label="Search hotels" />
-      <select id="area" class="field" aria-label="Area">
+      <select id="area" class="field" aria-label="City">
         <option value="">All areas</option>
-        {areasUsed.map((a) => <option value={a}>{AREAS[a]?.label ?? a}</option>)}
+        {citiesUsed.map((c) => <option value={c}>{CITIES[c]}</option>)}
       </select>
       <select id="who" class="field" aria-label="Who">
         <option value="">Adults & families</option>
@@ -56,13 +56,13 @@ const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
   const cards = [...document.querySelectorAll<HTMLElement>('[data-hotel]')];
   const params = new URLSearchParams(location.search);
   if (params.get('reviewed')) $('reviewed').checked = true;
-  if (params.get('area')) $('area').value = params.get('area')!;
+  if (params.get('area')) { const a = params.get('area')!; $('area').value = ['hotel-zone', 'downtown', 'south-cancun'].includes(a) ? 'cancun' : a; }
   function apply() {
     const q = $('q').value.trim().toLowerCase(), area = $('area').value, who = $('who').value, plan = $('plan').value, rev = $('reviewed').checked;
     let n = 0;
     cards.forEach((c) => {
       const d = c.dataset;
-      const ok = (!q || d.name!.includes(q)) && (!area || d.area === area) &&
+      const ok = (!q || d.name!.includes(q)) && (!area || d.city === area) &&
         (!who || (who === 'adults' ? d.adults === '1' : d.adults === '0')) &&
         (!plan || (plan === 'ai' ? d.ai === '1' : d.ai === '0')) && (!rev || d.reviewed === '1');
       c.style.display = ok ? '' : 'none'; if (ok) n++;
