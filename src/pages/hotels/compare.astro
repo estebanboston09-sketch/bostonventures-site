@@ -61,7 +61,7 @@ const hotels = (await getCollection('hotels'))
     const shown = hits.slice(0, 8);
     results.innerHTML = (words.length ? '' : '<p class="text-xs font-semibold text-ink/50">Hotels I reviewed — or type to search all</p>') +
       (shown.length ? shown.map((h) => `<button type="button" role="option" data-id="${h.id}" class="lift flex w-full items-center justify-between gap-3 rounded-xl bg-sand px-3 py-2 text-left text-sm"><span><b class="text-navy">${h.reviewed ? '★ ' : ''}${esc(h.name)}</b> <span class="text-ink/50">· ${esc(h.area)}</span></span><span class="shrink-0 font-bold text-navy">${h.overall != null ? h.overall + '/10' : '+ Add'}</span></button>`).join('')
-        : '<p class="text-sm text-ink/60">No hotel matches that. Try part of the name, like "riu" or "hyatt".</p>') +
+        : `<p class="text-sm text-ink/70"><b>"${esc(search.value.trim())}" isn't on the site yet.</b> Searches like this tell me which hotels to add next, and new hotels go up every week. Check the spelling, or try part of the name, like "riu" or "hyatt".</p>`) +
       (hits.length > shown.length ? `<p class="text-xs text-ink/50">${hits.length - shown.length} more — keep typing to narrow it down.</p>` : '');
   }
   const q = new URLSearchParams(location.search).get('h');
@@ -110,7 +110,14 @@ const hotels = (await getCollection('hotels'))
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-remove]'); if (!b) return;
     picked.splice(picked.indexOf(b.dataset.remove!), 1); draw();
   });
-  search.addEventListener('input', list);
+  // Log names people search for that we don't have yet, so those hotels get added first.
+  let missTimer: any;
+  search.addEventListener('input', () => {
+    list();
+    clearTimeout(missTimer);
+    const typed = search.value.trim();
+    if (typed.length >= 3 && !results.querySelector('[data-id]')) missTimer = setTimeout(() => (window as any).posthog?.capture?.('hotel_not_found', { q: typed, page: 'compare' }), 1500);
+  });
   search.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); (results.querySelector('[data-id]') as HTMLElement | null)?.click(); } });
   draw();
 </script>

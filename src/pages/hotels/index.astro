@@ -74,8 +74,13 @@ const areasUsed = [...new Set(hotels.map((h) => h.data.area))];
       grid.appendChild(c);
       if (c.style.display !== 'none') { c.classList.add('in'); c.style.animation = 'none'; void c.offsetWidth; c.style.animation = `fadein .4s ease ${Math.min(i, 8) * 40}ms both`; }
     });
-    document.getElementById('empty')!.classList.toggle('hidden', n > 0);
+    const empty = document.getElementById('empty')!;
+    empty.classList.toggle('hidden', n > 0);
+    empty.textContent = n === 0 && q ? `"${$('q').value.trim()}" isn't on the site yet. Searches like this tell me which hotels to add next, and new hotels go up every week.` : 'No hotels match. Try removing a filter.';
+    clearTimeout(missTimer);
+    if (n === 0 && q.length >= 3) missTimer = setTimeout(() => (window as any).posthog?.capture?.('hotel_not_found', { q: $('q').value.trim(), page: 'hotels' }), 1500);
   }
+  let missTimer: any;
   document.getElementById('filters')!.addEventListener('input', apply);
   document.getElementById('filters')!.addEventListener('change', apply);
   apply();
