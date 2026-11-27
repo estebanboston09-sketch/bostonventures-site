@@ -53,9 +53,13 @@ const golfNearest = d.location ? COURSES.map((c) => ({ c, k: km(d.location!, { l
 const transfer = transferEstimate(d.area, d.airportMinutes);
 const ex = d.extras;
 const exSections = ex ? ([
-  ['🛏️ Rooms', ex.rooms], ['🧒 Kids & families', ex.kids], ['🍽️ Restaurant rules', ex.diningRules], ['💸 Costs to know about', ex.extraCosts],
+  ['🛏️ Rooms', ex.rooms], ['🏊 Pools', ex.pools], ['🧒 Kids & families', ex.kids], ['🎭 Activities & shows (included)', ex.activities],
+  ['🍽️ Restaurant rules', ex.diningRules], ['💆 Spa', ex.spa], ['💸 Costs to know about', ex.extraCosts],
+  ['🏖️ The beach, honestly', ex.beachReality], ['🚶 Walking distance', ex.walkable], ['📶 Wi-Fi', ex.wifi ? [ex.wifi] : []],
   ['🏆 Awards', ex.awards], ['♿ Accessibility', ex.accessibility], ['⚠️ Heads-up', ex.warnings],
 ] as [string, string[]][]).filter(([, v]) => v.length > 0) : [];
+const roomTips = ex && (ex.bestRooms.length || ex.avoidRooms.length) ? ex : null;
+const fmtCount = (n?: number) => n ? n.toLocaleString('en-US') : '';
 // Reviewed hotels most like this one, so readers can see a real review of a similar stay.
 const reviewedLike = all
   .filter((h) => h.id !== hotel.id && h.data.review && overallScore(h.data.review) != null)
@@ -209,7 +213,7 @@ schema.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: 
           {d.dining.length > 0 && <>
             <p class="eyebrow">Restaurants & bars</p>
             <ul class="mt-3 grid gap-2 sm:grid-cols-2">
-              {d.dining.map((r) => <li class="lift flex items-baseline justify-between gap-3 rounded-xl bg-sand p-3"><span class="font-semibold text-navy">{r.name}</span><span class="text-right text-xs text-ink/60">{r.type}</span></li>)}
+              {d.dining.map((r) => <li class="lift flex items-baseline justify-between gap-3 rounded-xl bg-sand p-3"><span class="font-semibold text-navy">{r.name}</span><span class="text-right text-xs text-ink/60">{r.type}{r.note && <span class="block text-ink/45">{r.note}</span>}</span></li>)}
             </ul>
           </>}
           {d.practical.length > 0 && <>
@@ -236,6 +240,33 @@ schema.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: 
             {exSections.map(([t, items]) => <div><p class="font-bold text-navy">{t}</p><ul class="mt-2 space-y-1.5 text-sm">{items.map((x) => <li class="flex gap-2"><span class="text-teal">●</span><span>{x}</span></li>)}</ul></div>)}
             {ex?.dayPass && <div><p class="font-bold text-navy">🎟️ Day pass</p><p class="mt-2 text-sm">{ex.dayPass}</p></div>}
           </div>
+        </section>
+      )}
+
+      {roomTips && (
+        <section class="card reveal p-6">
+          <p class="eyebrow">Which room to book</p>
+          <div class="mt-3 grid gap-4 sm:grid-cols-2">
+            {roomTips.bestRooms.length > 0 && <div class="rounded-xl bg-green-50 p-4"><p class="font-bold text-green-900">👍 Guests recommend</p><ul class="mt-2 space-y-1.5 text-sm text-green-900/85">{roomTips.bestRooms.map((x) => <li>• {x}</li>)}</ul></div>}
+            {roomTips.avoidRooms.length > 0 && <div class="rounded-xl bg-red-50 p-4"><p class="font-bold text-red-900">👎 Guests warn about</p><ul class="mt-2 space-y-1.5 text-sm text-red-900/85">{roomTips.avoidRooms.map((x) => <li>• {x}</li>)}</ul></div>}
+          </div>
+          <p class="mt-3 text-xs text-ink/50">Our summary of tips in public guest reviews, not a BostonVentures review.</p>
+        </section>
+      )}
+
+      {d.ratings.length > 0 && (
+        <section class="card reveal p-6">
+          <p class="eyebrow">Public ratings</p>
+          <div class="mt-3 grid gap-3 sm:grid-cols-3">
+            {d.ratings.map((r) => (
+              <a href={r.url} target="_blank" rel="nofollow noopener" class="lift rounded-xl bg-sand p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-ink/55">{r.site}</p>
+                <p class="mt-1 font-serif text-2xl font-bold text-navy">{r.score}<span class="text-sm text-ink/50">/{r.outOf}</span></p>
+                <p class="text-xs text-ink/60">{r.count ? `${fmtCount(r.count)} reviews` : ''}{r.rank ? ` · ${r.rank}` : ''}</p>
+              </a>
+            ))}
+          </div>
+          <p class="mt-3 text-xs text-ink/50">Ratings from each site, read {[...new Set(d.ratings.map((r) => r.checked))].join(', ')}. They change over time. These aren't BostonVentures scores.</p>
         </section>
       )}
 
@@ -281,6 +312,8 @@ schema.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: 
           {d.rooms && <div class="flex justify-between gap-3"><dt class="text-ink/60">Rooms</dt><dd class="text-right font-semibold">~{d.rooms.toLocaleString()}</dd></div>}
           {d.restaurants && <div class="flex justify-between gap-3"><dt class="text-ink/60">Restaurants</dt><dd class="text-right font-semibold">{d.restaurants}</dd></div>}
           {d.airportMinutes && <div class="flex justify-between gap-3"><dt class="text-ink/60">From airport</dt><dd class="text-right font-semibold">~{d.airportMinutes} min</dd></div>}
+          {ex?.built && <div class="flex justify-between gap-3"><dt class="text-ink/60">Built</dt><dd class="text-right font-semibold">{ex.built}</dd></div>}
+          {d.ratings[0] && <div class="flex justify-between gap-3"><dt class="text-ink/60">{d.ratings[0].site}</dt><dd class="text-right font-semibold">{d.ratings[0].score}/{d.ratings[0].outOf}{d.ratings[0].count ? ` (${fmtCount(d.ratings[0].count)})` : ''}</dd></div>}
           {d.address && <div class="flex justify-between gap-3"><dt class="text-ink/60">Address</dt><dd class="text-right font-semibold">{d.address}</dd></div>}
           {d.priceRangeUSD && <div class="flex justify-between gap-3"><dt class="text-ink/60">Typical price</dt><dd class="text-right font-semibold">${d.priceRangeUSD.low}–${d.priceRangeUSD.high}/night</dd></div>}
         </dl>

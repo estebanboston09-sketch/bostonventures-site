@@ -29,7 +29,7 @@ const hotels = defineCollection({
     about: z.string().optional(),
     amenities: z.array(z.string()).default([]),
     // Restaurants/bars from the hotel's official site.
-    dining: z.array(z.object({ name: z.string(), type: z.string() })).default([]),
+    dining: z.array(z.object({ name: z.string(), type: z.string(), note: z.string().optional() /* buffet, reservations, extra cost… */ })).default([]),
     // Check-in, minimum age, Wi-Fi, fees, dress code… { label, value } from official sources.
     practical: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
     // Summary in our own words of what travelers commonly mention in public reviews. No copied reviews, no star ratings.
@@ -50,7 +50,18 @@ const hotels = defineCollection({
       dayPass: z.string().optional(),                  // whether outsiders can buy a day pass, and the price
       accessibility: z.array(z.string()).default([]),  // accessible rooms, elevators, stairs to the beach
       warnings: z.array(z.string()).default([]),       // timeshare pitches, renovations, shared beach…
+      pools: z.array(z.string()).default([]),          // how many, adults-only pool, swim-up, heated, lazy river, kids splash
+      activities: z.array(z.string()).default([]),     // what's included: shows, classes, kayaks, snorkel gear, gym, tennis
+      spa: z.array(z.string()).default([]),            // hydrotherapy free or paid, age limits, rough treatment prices
+      wifi: z.string().optional(),                      // free? rooms or lobby only? what guests say about speed
+      beachReality: z.array(z.string()).default([]),   // swimmable? red flags often? lounger rush? (reviews + official)
+      walkable: z.array(z.string()).default([]),       // what's within walking distance
+      bestRooms: z.array(z.string()).default([]),      // rooms/buildings guests recommend (reviews, own words)
+      avoidRooms: z.array(z.string()).default([]),     // rooms/buildings guests warn about (noise, no view…)
+      built: z.string().optional(),                     // "Opened 1998, renovated 2024"
     }).optional(),
+    // Public ratings shown with their source and date. Only numbers we actually read on the site.
+    ratings: z.array(z.object({ site: z.string(), score: z.number(), outOf: z.number(), count: z.number().optional(), rank: z.string().optional(), url: z.string().url(), checked: z.string() })).default([]),
     highlights: z.array(z.string()).default([]),
     goodToKnow: z.array(z.string()).default([]),
     bestFor: z.array(z.enum(['families', 'couples', 'adults-only', 'party', 'budget', 'luxury', 'groups', 'honeymoon', 'theme-parks', 'quiet', 'nightlife', 'foodies'])),
