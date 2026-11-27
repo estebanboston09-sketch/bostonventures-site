@@ -41,7 +41,7 @@ const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.starts
       <div class="card p-4"><p class="text-sm text-ink/60">Best season</p><p class="mt-1 font-serif text-2xl font-bold text-navy">Nov – Apr</p></div>
     </div>
 
-    <div class="relative z-[1200] mt-5">
+    <div class="relative z-30 mt-5">
       <label for="golf-search" class="sr-only">Search golf courses</label>
       <input id="golf-search" type="search" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="golf-dd" aria-autocomplete="list" placeholder={`🔎 Search ${COURSES.length} courses, areas or hotels…`} class="w-full rounded-full border-0 bg-white px-5 py-3 text-base shadow-sm ring-1 ring-navy/15 focus:ring-2 focus:ring-navy" />
       <ul id="golf-dd" role="listbox" hidden class="absolute inset-x-0 top-full mt-2 max-h-[60vh] overflow-y-auto rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-navy/10"></ul>

@@ -106,3 +106,6 @@ header.scrolled .bar-inner { height: 3.5rem; }
 .prose-bv td { @apply border-t border-navy/10 bg-white px-4 py-2.5; }
 .prose-bv tr:nth-child(even) td { @apply bg-sand; }
 .prose-bv h3 { @apply mt-8; }
+
+/* Keep every Leaflet map in its own layer so it never covers the menu or dropdowns */
+.leaflet-container { isolation: isolate; z-index: 0; }

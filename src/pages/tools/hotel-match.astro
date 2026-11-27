@@ -1,18 +1,29 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
-import { AREAS } from '../../lib/site';
+import { AREAS, CITIES, cityOf } from '../../lib/site';
 const hotels = (await getCollection('hotels')).map((h) => ({
   id: h.id, name: h.data.name, area: h.data.area, areaLabel: AREAS[h.data.area]?.label ?? '',
   ai: h.data.allInclusive, adults: h.data.adultsOnly, price: h.data.priceLevel ?? 0,
-  tags: h.data.bestFor, reviewed: !!h.data.review,
+  tags: h.data.bestFor, reviewed: !!h.data.review, city: cityOf(h.data.area),
 }));
+// First question: only places we actually have hotels in (grows as hotels are added)
+const counts: Record<string, number> = {};
+for (const h of hotels) counts[h.city] = (counts[h.city] ?? 0) + 1;
+const places: [string, string][] = [];
+for (const [k, label] of Object.entries(CITIES)) {
+  if (!counts[k] || k === 'other') continue;
+  places.push([k, k === 'cancun' ? 'Cancún (any area)' : label]);
+  if (k === 'cancun' && hotels.some((h) => h.area === 'hotel-zone')) places.push(['hotel-zone', 'Cancún Hotel Zone only']);
+}
+places.push(['any', "Not sure yet — show me everything"]);
+const placeLabels: Record<string, string> = { ...CITIES, 'hotel-zone': 'the Cancún Hotel Zone' };
 ---
-<Base title="Which Cancún Hotel Is Right for Me? Free Hotel Matcher" description="Answer 6 quick questions and get 10+ Cancún and Riviera Maya hotels that fit your group, budget and vibe — from a local who reviews them.">
+<Base title="Hotel Finder: Which Cancún, Playa or Riviera Maya Hotel Is Right for Me?" description="Answer 6 quick questions and get 10+ hotels in Cancún, Costa Mujeres, Playa del Carmen and the Riviera Maya that fit your group, budget and vibe — from a local who reviews them.">
   <section class="bg-navy py-10 text-white">
     <div class="wrap max-w-3xl">
       <p class="eyebrow">Free tool</p>
-      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Find your Cancún hotel</h1>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Find your hotel</h1>
       <p class="mt-2 text-white/75">6 quick questions. No email, no sign-up.</p>
     </div>
   </section>
@@ -37,20 +48,22 @@ const hotels = (await getCollection('hotels')).map((h) => ({
       <p class="mt-6 text-sm text-ink/60">Matches use each hotel's type (adults-only, all-inclusive, area) and what it's best for. Hotels marked ★ are reviewed on my YouTube channel. <a class="font-semibold underline" href="/hotels">Browse all hotels</a>.</p>
     </div>
   </div>
-  <script id="hotel-data" type="application/json" set:html={JSON.stringify(hotels)} />
+  <script id="hotel-data" type="application/json" set:html={JSON.stringify({ hotels, places, placeLabels })} />
 </Base>
 <script>
-  type H = { id: string; name: string; area: string; areaLabel: string; ai: boolean; adults: boolean; price: number; tags: string[]; reviewed: boolean };
-  const HOTELS: H[] = JSON.parse(document.getElementById('hotel-data')!.textContent!);
+  type H = { id: string; name: string; area: string; areaLabel: string; ai: boolean; adults: boolean; price: number; tags: string[]; reviewed: boolean; city: string };
+  const DATA = JSON.parse(document.getElementById('hotel-data')!.textContent!);
+  const HOTELS: H[] = DATA.hotels;
+  const PLACE_LABEL: Record<string, string> = DATA.placeLabels;
 
   const Q = [
+    { k: 'place', q: 'Where are you thinking of staying?', o: DATA.places as [string, string][] },
     { k: 'who', q: 'Who is coming on this trip?', o: [['couple', 'Just the two of us'], ['family-young', 'Family with young kids'], ['family-teens', 'Family with teens'], ['friends', 'Group of friends'], ['solo', 'Solo']] },
     { k: 'vibe', q: 'What kind of vacation do you want?', o: [['relax', 'Relax and do nothing'], ['party', 'Party and nightlife'], ['romance', 'Romantic / honeymoon'], ['explore', 'Explore tours and parks'], ['food', 'Great food above all']] },
     { k: 'kids', q: 'Do you want a kid-free resort?', o: [['adults', 'Yes, adults-only please'], ['any', "Doesn't matter"], ['family', 'No, we need a family resort']] },
     { k: 'plan', q: 'All-inclusive or not?', o: [['ai', 'All-inclusive, everything paid'], ['any', 'Either is fine'], ['ep', "Room only — I'll eat out"]] },
     { k: 'budget', q: 'What budget feels right?', o: [['1', 'Keep it affordable'], ['2', 'Mid-range'], ['3', 'Premium'], ['4', 'Treat ourselves — luxury']] },
-    { k: 'where', q: 'Where do you want to be?', o: [['hotel-zone', 'Hotel Zone — walk to restaurants and clubs'], ['quiet', 'Somewhere quieter'], ['playa-del-carmen', 'Near Playa del Carmen and the parks'], ['any', 'No preference']] },
-  ] as const;
+  ];
 
   const ans: Record<string, string> = {};
   let i = 0;
@@ -72,6 +85,7 @@ const hotels = (await getCollection('hotels')).map((h) => ({
   el('back').addEventListener('click', () => { if (i) { i--; draw(); } });
   el('restart').addEventListener('click', () => { i = 0; for (const k in ans) delete ans[k]; el('results').classList.add('hidden'); el('quiz').classList.remove('hidden'); draw(); });
 
+  const inPlace = (h: H) => ans.place && ans.place !== 'any' && (ans.place === 'hotel-zone' ? h.area === 'hotel-zone' : h.city === ans.place);
   function score(h: H) {
     let s = 0; const why: string[] = [];
     const kidsTrip = ans.who === 'family-young' || ans.who === 'family-teens';
@@ -90,9 +104,7 @@ const hotels = (await getCollection('hotels')).map((h) => ({
     if (ans.plan === 'ai') { if (h.ai) { s += 2; why.push('All-inclusive'); } else s -= 3; }
     if (ans.plan === 'ep') { if (!h.ai) { s += 3; why.push('Room-only rates'); } else s -= 1; }
     if (h.price) { const d = Math.abs(h.price - Number(ans.budget)); s += d === 0 ? 3 : d === 1 ? 1 : -2; if (d === 0) why.push('Fits your budget'); }
-    if (ans.where === 'hotel-zone' && h.area === 'hotel-zone') { s += 2; why.push('In the Hotel Zone'); }
-    if (ans.where === 'playa-del-carmen' && h.area === 'playa-del-carmen') { s += 3; why.push('Near Playa del Carmen'); }
-    if (ans.where === 'quiet' && (h.area !== 'hotel-zone' || h.tags.includes('quiet'))) { s += 2; why.push('Quieter location'); }
+    if (inPlace(h)) { s += 20; why.unshift(`In ${PLACE_LABEL[ans.place] ?? h.areaLabel}`); }
     if (h.reviewed) s += 0.5;
     return { h, s, why: [...new Set(why)].slice(0, 4) };
   }
@@ -101,8 +113,11 @@ const hotels = (await getCollection('hotels')).map((h) => ({
     const ranked = HOTELS.map(score).filter((x): x is NonNullable<ReturnType<typeof score>> => !!x).sort((a, b) => b.s - a.s);
     shownCount = 10; lastRanked = ranked;
     el('quiz').classList.add('hidden'); el('results').classList.remove('hidden');
-    const label = (k: string) => (Q.find((q) => q.k === k)!.o as readonly (readonly [string, string])[]).find(([v]) => v === ans[k])?.[1];
-    el('summary').textContent = `${label('who')} · ${label('vibe')} · ${label('budget')}`;
+    const label = (k: string) => (Q.find((q) => q.k === k)!.o as [string, string][]).find(([v]) => v === ans[k])?.[1];
+    const nIn = ranked.filter((r) => inPlace(r.h)).length;
+    const where = PLACE_LABEL[ans.place];
+    el('summary').textContent = `${ans.place === 'any' ? 'Anywhere' : where} · ${label('who')} · ${label('vibe')} · ${label('budget')}`
+      + (ans.place !== 'any' && nIn < 10 ? ` — I have ${nIn} matching hotel${nIn === 1 ? '' : 's'} in ${where} so far, so after ${nIn === 1 ? 'it' : 'those'} you'll see the best matches in other areas.` : '');
     renderList();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
