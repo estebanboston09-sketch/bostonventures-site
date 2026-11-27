@@ -41,10 +41,11 @@ const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.starts
       <div class="card p-4"><p class="text-sm text-ink/60">Best season</p><p class="mt-1 font-serif text-2xl font-bold text-navy">Nov – Apr</p></div>
     </div>
 
-    <label class="mt-5 block">
-      <span class="sr-only">Search golf courses</span>
-      <input id="golf-search" type="search" autocomplete="off" placeholder={`🔎 Search ${COURSES.length} courses, areas or hotels…`} class="w-full rounded-full border-0 bg-white px-5 py-3 text-base shadow-sm ring-1 ring-navy/15 focus:ring-2 focus:ring-navy" />
-    </label>
+    <div class="relative z-[1200] mt-5">
+      <label for="golf-search" class="sr-only">Search golf courses</label>
+      <input id="golf-search" type="search" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="golf-dd" aria-autocomplete="list" placeholder={`🔎 Search ${COURSES.length} courses, areas or hotels…`} class="w-full rounded-full border-0 bg-white px-5 py-3 text-base shadow-sm ring-1 ring-navy/15 focus:ring-2 focus:ring-navy" />
+      <ul id="golf-dd" role="listbox" hidden class="absolute inset-x-0 top-full mt-2 max-h-[60vh] overflow-y-auto rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-navy/10"></ul>
+    </div>
     <p id="golf-empty" class="mt-3 hidden text-sm text-ink/60">No course matches that. Try a town (Playa del Carmen), a hotel (Moon Palace) or a designer (Nicklaus).</p>
 
     <div class="mt-5 flex flex-wrap gap-2 text-sm" id="filters" aria-label="Filter courses">
@@ -127,7 +128,7 @@ const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.starts
 
     <p class="mt-6 text-sm text-ink/60">I haven't reviewed these courses myself yet. Course facts come from each club or resort and from golf booking sites, linked on every card. Prices and access change, so confirm with the course before you book.</p>
   </div>
-  <script id="courses" type="application/json" set:html={JSON.stringify(COURSES.map((c) => ({ slug: c.slug, name: c.name, at: c.at, holes: c.holes, area: c.area, level: c.level })))} />
+  <script id="courses" type="application/json" set:html={JSON.stringify(COURSES.map((c) => ({ slug: c.slug, name: c.name, at: c.at, holes: c.holes, area: c.area, level: c.level, where: c.where, rating: c.golfers?.rating ?? null })))} />
 </Base>
 <style is:global>
   .chip { border-radius: 9999px; background: #fff; padding: .35rem .8rem; font-weight: 600; box-shadow: inset 0 0 0 1px rgb(10 110 148 / .15); }
@@ -170,11 +171,35 @@ const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.starts
     clearTimeout(timer);
     timer = setTimeout(() => { if (search.value.trim().length > 2) (window as any).posthog?.capture?.('golf_search', { q: search.value.trim() }); }, 1200);
   });
+  // Dropdown under the search bar: matching courses, tap to open the course page.
+  const dd = document.getElementById('golf-dd')!;
+  let active = -1;
+  const esc = (t: string) => t.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as any)[ch]);
+  const renderDD = () => {
+    const shown = [...document.querySelectorAll<HTMLElement>('[data-course]:not([hidden])')].map((el) => courses.find((c: any) => c.slug === el.id)).filter(Boolean);
+    active = -1;
+    if (!shown.length) {
+      dd.innerHTML = '<li class="px-4 py-3 text-sm text-ink/60">No course matches. Try a town (Playa del Carmen), a hotel (Moon Palace) or a designer (Nicklaus).</li>';
+    } else {
+      dd.innerHTML = shown.map((c: any, i: number) => `<li role="option" id="dd-${i}"><a href="/golf/${c.slug}" data-i="${i}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-sand"><span class="text-lg">⛳</span><span class="min-w-0 flex-1"><span class="block font-semibold text-navy">${esc(c.name)}</span><span class="block truncate text-xs text-ink/60">${esc(c.where)} · ${esc(c.holes)}</span></span>${c.rating ? `<span class="shrink-0 rounded-full bg-sand px-2 py-0.5 text-xs font-bold">${c.rating.toFixed(1)}★</span>` : ''}</a></li>`).join('')
+        + `<li class="border-t border-sand-2 mt-1 px-3 pt-2 pb-1 text-xs text-ink/55">${shown.length} course${shown.length > 1 ? 's' : ''} · also shown on the map below</li>`;
+    }
+    dd.hidden = false; search.setAttribute('aria-expanded', 'true');
+  };
+  const closeDD = () => { dd.hidden = true; search.setAttribute('aria-expanded', 'false'); active = -1; };
+  const links = () => [...dd.querySelectorAll<HTMLAnchorElement>('a')];
+  const highlight = () => links().forEach((a, i) => { a.classList.toggle('bg-sand', i === active); if (i === active) a.scrollIntoView({ block: 'nearest' }); });
+  search.addEventListener('focus', renderDD);
+  search.addEventListener('input', renderDD);
   search.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    const first = document.querySelector<HTMLElement>('[data-course]:not([hidden])');
-    first?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const l = links();
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (dd.hidden) renderDD(); active = Math.min(active + 1, l.length - 1); highlight(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); highlight(); }
+    else if (e.key === 'Escape') closeDD();
+    else if (e.key === 'Enter') { e.preventDefault(); const go = l[active >= 0 ? active : 0]; if (go) location.href = go.href; }
   });
+  dd.addEventListener('click', (e) => { const a = (e.target as HTMLElement).closest('a'); if (a) (window as any).posthog?.capture?.('golf_search_pick', { q: search.value.trim(), course: a.getAttribute('href') }); });
+  document.addEventListener('click', (e) => { if (!(e.target as HTMLElement).closest('#golf-dd, #golf-search')) closeDD(); });
   show();
   map.on('click', () => map.scrollWheelZoom.enable());
 </script>
