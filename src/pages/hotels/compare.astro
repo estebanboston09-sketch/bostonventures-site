@@ -95,7 +95,7 @@ const hotels = (await getCollection('hotels'))
     html += row('Who', hs.map((h) => (h.adults ? 'Adults only' : 'All ages')));
     html += row('From airport', hs.map((h) => (h.airport ? `~${h.airport} min` : '—')));
     html += row('Best for', hs.map((h) => h.bestFor.map((t) => `<span class="chip mr-1 mb-1 capitalize">${t.replace('-', ' ')}</span>`).join('')));
-    html += row('My verdict', hs.map((h) => (h.verdict ? `<p class="text-sm">"${h.verdict}"</p>` : '<span class="text-sm text-ink/50">Not reviewed yet</span>')));
+    html += row('My verdict', hs.map((h) => (h.verdict ? `<p class="text-sm">"${h.verdict}"</p>` : '<span class="text-sm text-ink/50">—</span>')));
     html += row('', hs.map((h) => `<a href="/hotels/${h.id}" class="btn-sun w-full text-sm">See hotel →</a>`));
     out.innerHTML = html + '</div><p class="mt-3 text-xs text-ink/50">Highlighted = the best score in that row. Categories are matched across reviews, so one may cover two of my video categories.</p>';
   }
