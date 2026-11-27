@@ -33,8 +33,10 @@ const beaches = BEACHES.filter((b) => b.at).map((b) => ({ name: b.name, at: b.at
     <form id="f" class="no-print card grid gap-5 p-5 sm:grid-cols-2" onsubmit="return false">
       <div class="sm:col-span-2">
         <label for="hotel" class="font-bold text-navy">Where are you staying?</label>
-        <input id="hotel" list="hotel-list" class="field mt-2" placeholder="Type your hotel name…" autocomplete="off" />
-        <datalist id="hotel-list">{hotelList.map((h) => <option value={h.name} />)}</datalist>
+        <div class="relative mt-2">
+          <input id="hotel" type="search" role="combobox" aria-expanded="false" aria-controls="hotel-dd" aria-autocomplete="list" class="field" placeholder="🔎 Type or pick your hotel…" autocomplete="off" />
+          <ul id="hotel-dd" role="listbox" hidden class="absolute inset-x-0 top-full z-50 mt-1 max-h-72 overflow-y-auto rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-navy/15"></ul>
+        </div>
         <label class="mt-2 flex items-center gap-2 text-sm"><input id="nohotel" type="checkbox" class="accent-navy" /> I don't know my hotel yet (or it isn't on the list)</label>
         <select id="area" class="field mt-2 hidden">
           <option value="">Which area will you stay in?</option>
@@ -123,9 +125,35 @@ const beaches = BEACHES.filter((b) => b.at).map((b) => ({ name: b.name, at: b.at
     const on = !picked.has(b.dataset.i!); on ? picked.add(b.dataset.i!) : picked.delete(b.dataset.i!);
     b.setAttribute('aria-pressed', String(on));
   });
+  // Hotel dropdown (a real list under the box, not the browser's datalist).
+  const hIn = $<HTMLInputElement>('hotel'), hDd = $('hotel-dd');
+  const AREA_NAMES: Record<string, string> = { 'hotel-zone': 'Hotel Zone', downtown: 'Downtown', 'costa-mujeres': 'Costa Mujeres', 'south-cancun': 'South Cancún', 'puerto-morelos': 'Puerto Morelos', 'playa-del-carmen': 'Playa del Carmen', tulum: 'Tulum', 'isla-mujeres': 'Isla Mujeres', 'riviera-maya': 'Riviera Maya' };
+  const normH = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  let hActive = -1;
+  const drawHotels = () => {
+    const words = normH(hIn.value).split(/\s+/).filter(Boolean);
+    const list = D.hotels.filter((h: any) => words.every((w) => normH(h.name + ' ' + (AREA_NAMES[h.area] || '')).includes(w)));
+    hActive = -1;
+    hDd.innerHTML = list.length
+      ? list.map((h: any) => `<li role="option"><button type="button" data-name="${esc(h.name)}" class="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-sand"><span class="font-semibold text-navy">${esc(h.name)}</span><span class="shrink-0 text-xs text-ink/55">${esc(AREA_NAMES[h.area] || '')}</span></button></li>`).join('')
+      : `<li class="px-3 py-3 text-sm text-ink/65">Not on the list yet. Tick "I don't know my hotel yet" below and pick your area instead.</li>`;
+    hDd.hidden = false; hIn.setAttribute('aria-expanded', 'true');
+  };
+  const closeHotels = () => { hDd.hidden = true; hIn.setAttribute('aria-expanded', 'false'); };
+  hIn.addEventListener('focus', drawHotels);
+  hIn.addEventListener('input', drawHotels);
+  hIn.addEventListener('keydown', (e) => {
+    const btns = [...hDd.querySelectorAll<HTMLButtonElement>('button')];
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); hActive = Math.max(0, Math.min(btns.length - 1, hActive + (e.key === 'ArrowDown' ? 1 : -1))); btns.forEach((b, i) => b.classList.toggle('bg-sand', i === hActive)); btns[hActive]?.scrollIntoView({ block: 'nearest' }); }
+    else if (e.key === 'Enter') { e.preventDefault(); (btns[hActive >= 0 ? hActive : 0])?.click(); }
+    else if (e.key === 'Escape') closeHotels();
+  });
+  hDd.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button'); if (!b) return; hIn.value = b.dataset.name!; closeHotels(); hIn.blur(); });
+  document.addEventListener('click', (e) => { if (!(e.target as HTMLElement).closest('#hotel, #hotel-dd')) closeHotels(); });
+
   $('nohotel').addEventListener('change', () => {
     const on = $<HTMLInputElement>('nohotel').checked;
-    $('area').classList.toggle('hidden', !on); $<HTMLInputElement>('hotel').disabled = on;
+    $('area').classList.toggle('hidden', !on); $<HTMLInputElement>('hotel').disabled = on; if (on) closeHotels();
   });
 
   const fmt = (d: Date) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
