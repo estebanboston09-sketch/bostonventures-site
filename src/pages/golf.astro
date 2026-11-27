@@ -36,11 +36,16 @@ const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.starts
   </section>
 
   <div class="wrap mt-6">
-    <div class="grid gap-3 sm:grid-cols-3">
-      <div class="card p-4"><p class="text-sm text-ink/60">Courses on this page</p><p class="mt-1 font-serif text-2xl font-bold text-navy">{COURSES.length} ({holes18} full-size)</p></div>
-      <div class="card p-4"><p class="text-sm text-ink/60">Designers</p><p class="mt-1 font-serif text-lg font-bold leading-snug text-navy">Nicklaus, Norman, Price, Dye, Weiskopf, Trent Jones II</p></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="card p-4"><p class="text-sm text-ink/60">Golf courses</p><p class="mt-1 font-serif text-2xl font-bold text-navy">{COURSES.length} <span class="text-base font-normal text-ink/60">({holes18} full-size)</span></p></div>
       <div class="card p-4"><p class="text-sm text-ink/60">Best season</p><p class="mt-1 font-serif text-2xl font-bold text-navy">Nov – Apr</p></div>
     </div>
+
+    <label class="mt-5 block">
+      <span class="sr-only">Search golf courses</span>
+      <input id="golf-search" type="search" autocomplete="off" placeholder={`🔎 Search ${COURSES.length} courses, areas or hotels…`} class="w-full rounded-full border-0 bg-white px-5 py-3 text-base shadow-sm ring-1 ring-navy/15 focus:ring-2 focus:ring-navy" />
+    </label>
+    <p id="golf-empty" class="mt-3 hidden text-sm text-ink/60">No course matches that. Try a town (Playa del Carmen), a hotel (Moon Palace) or a designer (Nicklaus).</p>
 
     <div class="mt-5 flex flex-wrap gap-2 text-sm" id="filters" aria-label="Filter courses">
       <button type="button" data-f="all" class="chip is-on">All</button>
@@ -73,7 +78,7 @@ const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.starts
         <h2 class="text-2xl font-bold text-navy">{AREA_LABELS[a]}</h2>
         <div class="mt-4 grid gap-5 lg:grid-cols-2">
           {COURSES.filter((c) => c.area === a).map((c) => (
-            <article id={c.slug} class="card reveal flex flex-col p-6" data-course data-area={c.area} data-level={c.level}>
+            <article id={c.slug} class="card reveal flex flex-col p-6" data-course data-area={c.area} data-level={c.level} data-q={[c.name, c.where, c.designer, AREA_LABELS[c.area], ...c.hotels, ...(c.siteHotels ?? []).map((x) => hotels.find((h) => h.id === x)?.data.name ?? '')].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}>
               <div class="flex flex-wrap items-start justify-between gap-2">
                 <h3 class="text-xl font-bold text-navy">{c.name}</h3>
                 <span class:list={['rounded-full px-2.5 py-0.5 text-xs font-bold', c.level === 'beginner' ? 'bg-green-100 text-green-800' : c.level === 'all' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800']}>{LEVEL_LABEL[c.level]}</span>
@@ -140,20 +145,39 @@ const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.starts
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(map);
   const icon = L.divIcon({ className: '', html: '<div class="golf-pin">⛳</div>', iconSize: [22, 22], iconAnchor: [11, 11] });
   const markers = courses.map((c: any) => ({ c, m: L.marker(c.at, { icon, title: c.name }).bindPopup(`<p style="font-weight:700;color:#0A6E94;margin:0">${c.name}</p><p style="margin:2px 0;font-size:12px">${c.holes}</p><a href="#${c.slug}" style="font-size:12px">See details ↓</a>`) }));
-  const show = (f: string) => {
-    const pts: [number, number][] = [];
-    markers.forEach(({ c, m }: any) => {
-      const on = f === 'all' || c.area === f || c.level === f;
-      if (on) { m.addTo(map); pts.push(c.at); } else m.remove();
+  const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  const search = document.getElementById('golf-search') as HTMLInputElement;
+  let filter = 'all';
+  let timer: any;
+  const show = () => {
+    const words = norm(search.value).split(/\s+/).filter(Boolean);
+    const visible = new Set<string>();
+    document.querySelectorAll<HTMLElement>('[data-course]').forEach((el) => {
+      const okF = filter === 'all' || el.dataset.area === filter || el.dataset.level === filter;
+      const okQ = words.every((w) => el.dataset.q!.includes(w));
+      el.hidden = !(okF && okQ);
+      if (!el.hidden) visible.add(el.id);
     });
-    document.querySelectorAll<HTMLElement>('[data-course]').forEach((el) => { el.hidden = !(f === 'all' || el.dataset.area === f || el.dataset.level === f); });
     document.querySelectorAll<HTMLElement>('[data-area-block]').forEach((el) => { el.hidden = !el.querySelector('[data-course]:not([hidden])'); });
+    document.getElementById('golf-empty')!.classList.toggle('hidden', visible.size > 0);
+    const pts: [number, number][] = [];
+    markers.forEach(({ c, m }: any) => { if (visible.has(c.slug)) { m.addTo(map); pts.push(c.at); } else m.remove(); });
     if (pts.length) map.fitBounds(pts, { padding: [30, 30], maxZoom: 12 });
   };
   document.querySelectorAll<HTMLButtonElement>('#filters .chip').forEach((b) => b.addEventListener('click', () => {
     document.querySelectorAll('#filters .chip').forEach((x) => x.classList.toggle('is-on', x === b));
-    show(b.dataset.f!);
+    filter = b.dataset.f!; show();
   }));
-  show('all');
+  search.addEventListener('input', () => {
+    show();
+    clearTimeout(timer);
+    timer = setTimeout(() => { if (search.value.trim().length > 2) (window as any).posthog?.capture?.('golf_search', { q: search.value.trim() }); }, 1200);
+  });
+  search.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const first = document.querySelector<HTMLElement>('[data-course]:not([hidden])');
+    first?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  show();
   map.on('click', () => map.scrollWheelZoom.enable());
 </script>
