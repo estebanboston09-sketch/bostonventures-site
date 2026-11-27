@@ -5,13 +5,13 @@ description: "When is sargassum season in Cancún? The bad months, what the offi
 targetSearch: "cancun sargassum season"
 category: "seasons"
 emoji: "🌿"
-shortAnswer: "Sargassum usually starts building in spring, is worst from May to July, and fades through September and October. November to March is the low season, and as of November 2026 the official map had 86 of the 100 beaches from Cancún to Tulum at a low level. If you travel in summer, pick a beach that faces the bay (Isla Mujeres, Costa Mujeres or the north end of the Hotel Zone) and a hotel with a good pool."
+shortAnswer: "Sargassum usually starts building in spring, is worst from May to July, and fades through September and October. November to March is the low season, and as of November 26, 2026 the official map had 95 of the 100 beaches from Cancún to Tulum at a low level. If you travel in summer, pick a beach that faces the bay (Isla Mujeres, Costa Mujeres or the north end of the Hotel Zone) and a hotel with a good pool."
 updated: "2026-11"
 faqs:
   - q: "What months is sargassum season in Cancún?"
     a: "In a normal year it builds from April or May, peaks in June and July, and drops off in August, September and October. November to March is considered the low season, and December to February has the lowest chance of big piles. 2026 was different: seaweed started arriving in January, so check the map even outside summer."
   - q: "Is there seaweed in Cancún right now?"
-    a: "On the official Quintana Roo seaweed map of November 11, 2026, almost every Cancún beach was at a low level. The exception was Playa Coral, at the south end near Punta Nizuc, which had abundant seaweed. Levels change with wind and currents, so check my seaweed map before you go."
+    a: "On the official Quintana Roo seaweed map of November 26, 2026, almost every Cancún beach was at a low level. The exception was Playa Coral, at the south end near Punta Nizuc, which had moderate seaweed. Levels change with wind and currents, so check my seaweed map before you go."
   - q: "Which Cancún beaches have the least sargassum?"
     a: "The beaches that face north into the bay usually get the least: Las Perlas, Langosta, Tortugas and Caracol at the start of the Hotel Zone, Playa Norte on Isla Mujeres and Costa Mujeres. The long east-facing beaches from Km 9 to Km 22 face the open Caribbean and get hit harder in bad weeks."
   - q: "Is sargassum dangerous?"
@@ -22,6 +22,8 @@ relatedHotels: ["villa-del-palmar-cancun", "hilton-cancun-mar-caribe", "grand-oa
 relatedTours: ["isla-mujeres-day-trip", "cenote-tour"]
 affiliates: []
 sources:
+  - title: "Ruptura360 — SEMA Semáforo del Sargazo #446, November 26, 2026"
+    url: "https://ruptura360.mx/el-estado/sargazo-en-quintana-roo-hoy/"
   - title: "Ruptura360 — SEMA Semáforo del Sargazo, November 11, 2026"
     url: "https://ruptura360.mx/periodismo-de-servicio/sargazo-en-quintana-roo-5/"
   - title: "Ruptura360 — SEMA Semáforo del Sargazo, November 5, 2026"
@@ -75,12 +77,12 @@ The good news is that it did ease off. On October 8, 2026, SEMAR lowered its ale
 
 ## What the map says as of November 2026
 
-The official SEMA semáforo checks 100 beaches in the north of the state and 40 in the south. On the **November 11, 2026** report:
+The official SEMA semáforo checks 100 beaches in the north of the state and 40 in the south. On the **November 26, 2026** report:
 
-- **North:** 86 beaches low, 3 with none, 8 moderate, 3 abundant and 0 excessive.
-- **Cancún:** every Hotel Zone beach on the list was low except **Playa Coral**, near Punta Nizuc, which was abundant.
-- **Isla Mujeres:** Playa Norte, Playa Centro, Playa Mia, Lancheros and Punta Sur were all low.
-- **Still messy:** Puerto Morelos Norte and parts of Cozumel's east side were moderate or abundant, and the far south (Xcalak, Bacalar Chico) was excessive.
+- **North:** 95 beaches low, 3 with none, 2 moderate, 0 abundant and 0 excessive.
+- **Cancún:** every Hotel Zone beach on the list was low except **Playa Coral**, near Punta Nizuc, which was moderate.
+- **Isla Mujeres:** Playa Norte, Playa Centro, Lancheros and Punta Sur were all low.
+- **Still messy:** Punta Molas, at the north tip of Cozumel, was moderate, and 3 of the 40 beaches in the far south of the state were still excessive. Two weeks earlier, on November 11, the north had 86 beaches low and 3 abundant, so it keeps getting better.
 
 So if you're coming this winter, seaweed is unlikely to be your problem. My [seaweed map](/tools/seaweed-map) shows every beach on that report, pin by pin, and I update it when a new semáforo comes out.
 
