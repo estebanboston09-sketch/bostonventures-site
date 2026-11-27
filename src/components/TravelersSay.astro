@@ -1,12 +1,12 @@
 ---
 // "What travelers say": our own-words summary of common themes in public reviews, with a switch between praise and complaints.
-interface Props { t: { summary: string; praise: string[]; complaints: string[]; basedOn: string; links: { name: string; url: string }[] }; name: string }
-const { t, name } = Astro.props;
+interface Props { t: { summary: string; praise: string[]; complaints: string[]; basedOn: string; links: { name: string; url: string }[] }; name: string; who?: string }
+const { t, name, who = 'travelers' } = Astro.props;
 const id = 'ts-' + Math.random().toString(36).slice(2, 8);
 ---
 <section class="card reveal overflow-hidden" id={id}>
   <div class="bg-sand-2 p-6">
-    <p class="eyebrow">What other travelers say</p>
+    <p class="eyebrow">What other {who} say</p>
     <h2 class="mt-1 text-2xl font-bold text-navy">The overall feeling about {name}</h2>
     <p class="mt-3 text-ink/80">{t.summary}</p>
   </div>
@@ -21,7 +21,7 @@ const id = 'ts-' + Math.random().toString(36).slice(2, 8);
     <ul data-list="complaints" class="mt-4 hidden space-y-2 text-sm">
       {t.complaints.map((x, i) => <li class="pop flex gap-2 rounded-lg bg-[#ff6b6b]/10 p-3" style={`animation-delay:${i * 60}ms`}><span class="text-[#d94848]">✕</span><span>{x}</span></li>)}
     </ul>
-    <p class="mt-5 text-xs text-ink/55">Our summary of common themes in public guest reviews ({t.basedOn}). This is not a BostonVentures review and not a score.{t.links.length > 0 && <> Read the full reviews: {t.links.map((l, i) => <><a class="underline" href={l.url} target="_blank" rel="nofollow noopener">{l.name}</a>{i < t.links.length - 1 && ' · '}</>)}</>}</p>
+    <p class="mt-5 text-xs text-ink/55">Our summary of common themes in public {who === 'travelers' ? 'guest' : who.replace(/s$/, '')} reviews ({t.basedOn}). This is not a BostonVentures review and not a score.{t.links.length > 0 && <> Read the full reviews: {t.links.map((l, i) => <><a class="underline" href={l.url} target="_blank" rel="nofollow noopener">{l.name}</a>{i < t.links.length - 1 && ' · '}</>)}</>}</p>
   </div>
 </section>
 <script define:vars={{ id }}>

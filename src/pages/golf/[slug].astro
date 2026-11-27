@@ -1,0 +1,161 @@
+---
+import Base from '../../layouts/Base.astro';
+import TravelersSay from '../../components/TravelersSay.astro';
+import { getCollection } from 'astro:content';
+import { COURSES, AREA_LABELS, LEVEL_LABEL, GOLF_TIPS, type Course } from '../../data/golf';
+import { AFFILIATE } from '../../lib/site';
+import { km, distanceText, PLACES } from '../../lib/hotelExtras';
+
+export async function getStaticPaths() {
+  return COURSES.map((c) => ({ params: { slug: c.slug }, props: { c } }));
+}
+const { c } = Astro.props as { c: Course };
+const hotels = await getCollection('hotels');
+const here = { lat: c.at[0], lng: c.at[1] };
+const dist = (p: { lat: number; lng: number }) => distanceText(km(here, p));
+
+const from = [
+  PLACES.airport,
+  { name: 'Hotel Zone (La Isla mall)', lat: PLACES.laIsla.lat, lng: PLACES.laIsla.lng },
+  PLACES.downtown,
+  { name: 'Playa del Carmen (5th Avenue)', lat: 20.6296, lng: -87.0739 },
+  { name: 'Tulum town', lat: 20.2114, lng: -87.4654 },
+].map((p) => ({ name: p.name, k: km(here, p), text: dist(p) })).sort((a, b) => a.k - b.k);
+
+const nearHotels = hotels
+  .filter((h) => h.data.location)
+  .map((h) => ({ h, k: km(here, h.data.location!) }))
+  .sort((a, b) => a.k - b.k)
+  .slice(0, 6);
+const linked = (c.siteHotels ?? []).map((s) => hotels.find((h) => h.id === s)).filter(Boolean) as typeof hotels;
+const otherCourses = COURSES.filter((x) => x.slug !== c.slug)
+  .map((x) => ({ x, k: km(here, { lat: x.at[0], lng: x.at[1] }) }))
+  .sort((a, b) => a.k - b.k).slice(0, 3);
+
+const g = c.golfers;
+const airport = from.find((f) => f.name === PLACES.airport.name)!;
+const mapSrc = `https://maps.google.com/maps?q=${encodeURIComponent(c.mapQuery)}&t=k&z=15&ie=UTF8&iwloc=&output=embed`;
+const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.mapQuery)}`;
+const fmtMonth = (ym: string) => new Date(ym + '-15T12:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+const faq: [string, string][] = [
+  [`Can I play ${c.name} if I'm not staying at a resort?`, c.access],
+  [`How much does it cost to play ${c.name}?`, c.price ? `${c.price.text}, checked ${fmtMonth(c.price.checked)}. Prices change by season and time of day; twilight rounds are usually cheaper.` : 'We didn\'t find a current published price. Rates change by season and tee time, so ask the course or check a tee-time site before you go.'],
+  ...(c.includes ? [[`What does the green fee include at ${c.name}?`, c.includes + ' Confirm when you book.']] as [string, string][] : []),
+  [`How far is ${c.name} from Cancún airport?`, `About ${airport.text}, measured from the course's map pin.`],
+  [`Is ${c.name} hard?`, `${LEVEL_LABEL[c.level]}. ${c.holes}${c.yards ? `, ${c.yards} from the back tees` : ''}, designed by ${c.designer}.`],
+  ['What should I wear?', GOLF_TIPS.find(([t]) => t.includes('Dress'))![1]],
+];
+---
+<Base title={`${c.name}: Green Fees, Map, Reviews & Tips (${c.area === 'riviera-maya' ? 'Riviera Maya' : 'Cancún'})`} description={`${c.name}: ${c.holes} by ${c.designer}. Who can play, what's included, prices we found, a satellite view of the course, what golfers say, and the closest hotels.`}>
+  <script type="application/ld+json" set:html={JSON.stringify([
+    { '@context': 'https://schema.org', '@type': 'GolfCourse', name: c.name, description: `${c.holes}. Designed by ${c.designer}. ${c.where}.`, url: new URL(`/golf/${c.slug}`, Astro.site).href, geo: { '@type': 'GeoCoordinates', latitude: c.at[0], longitude: c.at[1] }, hasMap: mapLink },
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Golf', item: new URL('/golf', Astro.site).href },
+      { '@type': 'ListItem', position: 2, name: c.name },
+    ] },
+  ])} />
+  <section class="bg-navy py-8 text-white">
+    <div class="wrap">
+      <a href="/golf" class="text-sm text-white/70 hover:text-white">← All golf courses</a>
+      <p class="eyebrow mt-3">{AREA_LABELS[c.area]}</p>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">⛳ {c.name}</h1>
+      <p class="mt-2 text-white/75">📍 {c.where}</p>
+      <div class="mt-4 flex flex-wrap gap-2 text-sm">
+        <span class="rounded-full bg-white/10 px-3 py-1">{c.holes}</span>
+        {c.yards && <span class="rounded-full bg-white/10 px-3 py-1">{c.yards}</span>}
+        <span class="rounded-full bg-white/10 px-3 py-1">{c.designer}{c.opened && ` · ${c.opened}`}</span>
+        <span class="rounded-full bg-sun px-3 py-1 font-bold text-navy">{LEVEL_LABEL[c.level]}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
+    <article class="min-w-0 space-y-6">
+      <section class="card overflow-hidden">
+        <div class="p-5 pb-3">
+          <p class="eyebrow">Satellite view</p>
+          <h2 class="mt-1 text-xl font-bold text-navy">What the course looks like from above</h2>
+        </div>
+        <iframe src={mapSrc} title={`Satellite map of ${c.name}`} loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="h-[380px] w-full border-0 sm:h-[460px]"></iframe>
+        <p class="p-4 text-xs text-ink/55">Map: Google Maps. Zoom in to see the fairways, greens and water. <a href={mapLink} target="_blank" rel="noopener" class="font-semibold underline">Open in Google Maps →</a></p>
+      </section>
+
+      <section class="card p-6">
+        <p class="eyebrow">The essentials</p>
+        <dl class="mt-3 divide-y divide-sand-2 text-sm">
+          <div class="grid gap-1 py-2 sm:grid-cols-[150px_1fr]"><dt class="text-ink/60">Who can play</dt><dd>{c.access}</dd></div>
+          {c.includes && <div class="grid gap-1 py-2 sm:grid-cols-[150px_1fr]"><dt class="text-ink/60">Green fee includes</dt><dd>{c.includes}</dd></div>}
+          <div class="grid gap-1 py-2 sm:grid-cols-[150px_1fr]"><dt class="text-ink/60">Price</dt><dd>{c.price ? <>{c.price.text} <span class="text-ink/50">(checked {fmtMonth(c.price.checked)})</span></> : 'No current price found. Check with the course.'}</dd></div>
+          <div class="grid gap-1 py-2 sm:grid-cols-[150px_1fr]"><dt class="text-ink/60">Course</dt><dd>{c.holes}{c.yards && `, ${c.yards} from the back tees`}</dd></div>
+          <div class="grid gap-1 py-2 sm:grid-cols-[150px_1fr]"><dt class="text-ink/60">Designer</dt><dd>{c.designer}{c.opened && `, opened ${c.opened}`}</dd></div>
+          {c.hotels.length > 0 && <div class="grid gap-1 py-2 sm:grid-cols-[150px_1fr]"><dt class="text-ink/60">Golf hotels</dt><dd>{c.hotels.join(' · ')}</dd></div>}
+        </dl>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div><p class="font-bold text-navy">✨ Highlights</p><ul class="mt-2 space-y-1.5 text-sm">{c.highlights.map((x) => <li class="flex gap-2"><span class="text-gold">●</span><span>{x}</span></li>)}</ul></div>
+          <div class="rounded-xl bg-amber-50 p-4"><p class="font-bold text-amber-900">⚠️ Good to know</p><ul class="mt-2 space-y-1 text-sm text-amber-900/85">{c.heads.map((x) => <li>• {x}</li>)}</ul></div>
+        </div>
+      </section>
+
+      {g ? (
+        <>
+          {g.rating && (
+            <section class="card flex flex-wrap items-center gap-5 p-5">
+              <div class="text-center"><p class="font-serif text-4xl font-bold text-navy">{g.rating.toFixed(1)}<span class="text-lg text-ink/50">/5</span></p><p class="text-xs text-ink/55">golfer rating</p></div>
+              <div class="min-w-0 flex-1 text-sm">
+                <p><b>{g.count} reviews</b> on GolfPass{g.recommend != null && <>, and <b>{g.recommend}%</b> of golfers recommend it</>}.</p>
+                <p class="mt-1 text-xs text-ink/55">This is GolfPass's public rating, not a BostonVentures score. <a href={g.url} target="_blank" rel="nofollow noopener" class="underline">See the reviews</a></p>
+              </div>
+            </section>
+          )}
+          <TravelersSay t={{ summary: g.summary, praise: g.praise, complaints: g.complaints, basedOn: g.basedOn, links: [{ name: 'GolfPass', url: g.url }] }} name={c.name} who="golfers" />
+        </>
+      ) : (
+        <section class="card p-6 text-sm text-ink/70"><p class="eyebrow">What golfers say</p><p class="mt-2">We couldn't find enough recent public golfer reviews for this course yet.</p></section>
+      )}
+
+      <section class="card p-6">
+        <p class="eyebrow">Getting there</p>
+        <dl class="mt-3 divide-y divide-sand-2 text-sm">
+          {from.map((f) => <div class="flex justify-between gap-4 py-2"><dt class="text-ink/60">From {f.name}</dt><dd class="text-right font-medium">{f.text}</dd></div>)}
+        </dl>
+        <p class="mt-2 text-xs text-ink/45">Approximate road distances from the course's map pin.</p>
+        <div class="mt-4 flex flex-col gap-3 rounded-xl bg-navy p-4 text-white sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm">🚐 Bringing clubs? A private van has room for golf bags, at a fixed price. It's the company I use for transfers.</p>
+          <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" data-track="golf_course_transfer" class="btn-sun shrink-0 justify-center">Check prices →</a>
+        </div>
+      </section>
+
+      <section class="card p-6">
+        <p class="eyebrow">Where to stay</p>
+        <h2 class="mt-1 text-xl font-bold text-navy">Hotels on this site closest to {c.name}</h2>
+        {linked.length > 0 && <div class="mt-3 rounded-xl bg-green-50 p-4 text-sm text-green-900">{linked.map((h) => <p><a href={`/hotels/${h.id}`} class="font-semibold underline">{h.data.name}</a>: {c.siteNotes?.[h.id]}</p>)}</div>}
+        <ul class="mt-3 divide-y divide-sand-2 text-sm">
+          {nearHotels.map(({ h, k }) => <li class="flex flex-wrap justify-between gap-x-4 py-2"><a href={`/hotels/${h.id}`} class="font-semibold text-navy hover:underline">{h.data.name}</a><span class="text-ink/60">{distanceText(k)}</span></li>)}
+        </ul>
+      </section>
+
+      <section class="card p-6">
+        <h2 class="text-xl font-bold text-navy">Questions</h2>
+        <div class="mt-3 space-y-3">{faq.map(([q, a]) => <details class="rounded-xl bg-sand p-4"><summary class="cursor-pointer font-semibold">{q}</summary><p class="mt-2 text-sm text-ink/75">{a}</p></details>)}</div>
+      </section>
+
+      <p class="text-xs text-ink/50">I haven't played this course myself yet. Facts come from the club, the resorts and golf booking sites: {c.sources.map((u, i) => <>{i > 0 && ', '}<a href={u} target="_blank" rel="noopener" class="underline">{new URL(u).hostname.replace('www.', '')}</a></>)}. Prices and access change, so confirm with the course before you book.</p>
+    </article>
+
+    <aside class="space-y-4 lg:sticky lg:top-20 lg:self-start">
+      <div class="card p-5">
+        <p class="font-bold text-navy">Other courses nearby</p>
+        <ul class="mt-3 space-y-3 text-sm">
+          {otherCourses.map(({ x, k }) => <li><a href={`/golf/${x.slug}`} class="font-semibold text-navy hover:underline">{x.name}</a><p class="text-xs text-ink/55">{x.holes} · {distanceText(k)}</p></li>)}
+        </ul>
+        <a href="/golf" class="btn-ghost mt-4 inline-flex w-full justify-center">All {COURSES.length} courses & tips</a>
+      </div>
+      <div class="card p-5 text-sm">
+        <p class="font-bold text-navy">Golf tips for Cancún</p>
+        <ul class="mt-2 space-y-2 text-ink/75">{GOLF_TIPS.slice(0, 4).map(([t, d]) => <li><b>{t}</b><br />{d}</li>)}</ul>
+      </div>
+    </aside>
+  </div>
+</Base>
