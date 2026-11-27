@@ -81,7 +81,23 @@ const phToken = ANALYTICS.posthogToken;
       // PostHog: pageviews, clicks, heatmaps and session replays (turn replays/heatmaps on in PostHog settings),
       // plus named events for the things that matter: affiliate clicks, video plays, tool use.
       const m = document.querySelector<HTMLMetaElement>('meta[name="ph-token"]');
-      if (m && !/localhost|127\.0\.0\.1|workers\.dev/.test(location.hostname)) {
+      // Esteban's own devices: open the site once with ?me to stop counting this device (?me=off to undo).
+      let isMe = false;
+      try {
+        const q = new URLSearchParams(location.search);
+        if (q.has('me')) {
+          const off = q.get('me') === 'off';
+          off ? localStorage.removeItem('bv-me') : localStorage.setItem('bv-me', '1');
+          q.delete('me');
+          history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+          const toast = document.createElement('div');
+          toast.textContent = off ? '📊 This device is counted in analytics again.' : '✅ This device is no longer counted in analytics.';
+          toast.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;background:#0A3D52;color:#fff;padding:12px 18px;border-radius:9999px;font:600 14px system-ui;box-shadow:0 6px 20px rgba(0,0,0,.25)';
+          document.body.appendChild(toast); setTimeout(() => toast.remove(), 4000);
+        }
+        isMe = localStorage.getItem('bv-me') === '1';
+      } catch {}
+      if (m && !isMe && !/localhost|127\.0\.0\.1|workers\.dev/.test(location.hostname)) {
         const { default: posthog } = await import('posthog-js'); // only downloaded when analytics is on
         posthog.init(m.content, { api_host: m.dataset.host, defaults: '2026-01-30', person_profiles: 'identified_only', respect_dnt: true });
         (window as any).posthog = posthog; // lets tool pages send their own events
