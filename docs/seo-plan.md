@@ -80,11 +80,11 @@ When the list runs out, pick the next question tourists search that no guide ans
 Merge `guia/<slug>` into `main` and push. The site deploys automatically and the sitemap updates itself. Then send him the live link, `https://bostonventurestravel.com/guides/<slug>`, and remind him to request indexing in Google Search Console (URL inspection → **Request indexing**).
 
 
-## Nightly hotel batch (10 hotels per night, goal: every hotel in Cancún and the Riviera Maya)
+## Nightly hotel batch (20 hotels per night, goal: every hotel in Cancún and the Riviera Maya)
 
-Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 10 hotels from the list below that are not marked ✅ (and whose file does not exist on `main`). Mark each one you add with ✅ and its slug in the same commit.
+Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 20 hotels from the list below (rows marked ⭐ first: those are hotels visitors searched for and didn't find) that are not marked ✅ (and whose file does not exist on `main`). Mark each one you add with ✅ and its slug in the same commit.
 
-**When fewer than 10 hotels are left on the list, extend the list first** (commit the new rows in the same branch): add the next most-reviewed hotels on TripAdvisor's Cancún, Costa Mujeres, Puerto Morelos, Playa del Carmen, Riviera Maya, Tulum, Isla Mujeres and Cozumel hotel lists that are not on the site yet. Order: big resorts and all-inclusives first, then boutique hotels, then downtown/budget hotels. Keep going until every hotel with a real following is covered.
+**When fewer than 20 hotels are left on the list, extend the list first** (commit the new rows in the same branch): add the next most-reviewed hotels on TripAdvisor's Cancún, Costa Mujeres, Puerto Morelos, Playa del Carmen, Riviera Maya, Tulum, Isla Mujeres and Cozumel hotel lists that are not on the site yet. Order: big resorts and all-inclusives first, then boutique hotels, then downtown/budget hotels. Keep going until every hotel with a real following is covered.
 
 1. **Facts** (official hotel website first, then big booking sites only to cross-check): name, brand, area (schema enum), all-inclusive, adults-only, rooms, restaurants, minutes from CUN airport, `highlights`, `goodToKnow`, approximate `location` pin, `officialUrl`, `sources`, `factsChecked`. If two sources disagree on a number, leave the number out.
 2. **`about`:** 2–3 sentences in our own words. Never copy the hotel's marketing text.
@@ -100,8 +100,17 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
    - `dayPass`: whether outsiders can buy one, and the price with the month checked.
    - `accessibility`: accessible rooms, elevators, stairs to the beach.
    - `warnings`: timeshare pitches, renovations, shared beach, no service animals.
+   - `pools`: how many, adults-only pool, swim-up, heated, lazy river, kids' splash area.
+   - `activities`: what's included: shows, classes, kayaks, snorkel gear, gym, tennis/pickleball.
+   - `spa`: hydrotherapy free or paid, age limits, rough treatment prices (with month).
+   - `wifi`: free or paid, rooms or lobby only, listed speed, what guests say.
+   - `built`: "Opened 1998, renovated 2024" (only if a source says so).
+   - From public reviews, **in our own words, never quoted**: `beachReality` (swimmable? red flags? seaweed? lounger rush?), `walkable` (what's within a short walk), `bestRooms` and `avoidRooms` (rooms/buildings/floors guests recommend or warn about).
+   - **`ratings`** (top-level, not inside extras): the public rating you actually read, e.g. `{"site":"TripAdvisor","score":4.7,"outOf":5,"count":15184,"rank":"#9 of 252 hotels in Cancún","url":"…","checked":"Nov 2026"}`, plus Expedia (x/10). TripAdvisor (`/Hotel_Review-d…`) and Expedia (`…Hotel-Information`) pages open with WebFetch; Booking.com doesn't. Only numbers you read on the page.
+   - `dining` items can have a `note`: buffet / à la carte / reservations needed / extra cost.
+   - Check that every review/booking URL is for this exact hotel (names like Royalton CHIC vs Royalton Suites get mixed up).
    Leave out anything you can't confirm, and add each page you used to `sources`. Beach type, seaweed, distances, transfer price and the FAQ are worked out automatically from `location` and `area`, so every hotel needs an accurate `location` pin.
-7. **Backfill:** each night, also add `extras` to the next 5 hotels already on the site that don't have them yet, reviewed hotels included (never touch Esteban's `review` scores or text). Put them on the same `hoteles/<YYYY-MM-DD>` branch.
+7. **Backfill:** each night, also fill the missing `extras` fields above (including the new ones: pools, activities, spa, wifi, beachReality, walkable, bestRooms, avoidRooms, built) and `ratings` for the next 10 hotels already on the site that don't have them yet, reviewed hotels included (never touch Esteban's `review` scores or text). Put them on the same `hoteles/<YYYY-MM-DD>` branch.
 8. Every new hotel has `needsReview: true`. `bestFor` only from facts (adults-only → adults-only, kids club → families, etc.).
 9. Build must pass. Commit them all on one branch `hoteles/<YYYY-MM-DD>` and push only that branch. In the nightly message, list the new hotel names and say: "Reply OK hotels to publish them."
 10. On "OK hotels": merge into main, push.
