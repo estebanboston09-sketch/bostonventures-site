@@ -1,0 +1,159 @@
+---
+import Base from '../layouts/Base.astro';
+import HotelCard from '../components/HotelCard.astro';
+import 'leaflet/dist/leaflet.css';
+import { getCollection } from 'astro:content';
+import { COURSES, AREA_LABELS, LEVEL_LABEL, GOLF_TIPS, GOLF_FAQ, type GolfArea } from '../data/golf';
+import { AFFILIATE } from '../lib/site';
+import { km, distanceText } from '../lib/hotelExtras';
+
+const hotels = await getCollection('hotels');
+const linked = new Set(COURSES.flatMap((c) => c.siteHotels ?? []));
+const golfHotels = hotels.filter((h) => linked.has(h.id));
+// Every other hotel on the site: its closest course.
+const nearest = hotels
+  .filter((h) => !linked.has(h.id) && h.data.location)
+  .map((h) => {
+    const c = COURSES.map((c) => ({ c, d: km(h.data.location!, { lat: c.at[0], lng: c.at[1] }) })).sort((a, b) => a.d - b.d)[0];
+    return { h, c: c.c, text: distanceText(c.d) };
+  })
+  .sort((a, b) => a.h.data.name.localeCompare(b.h.data.name));
+const areas = Object.keys(AREA_LABELS) as GolfArea[];
+const fmtMonth = (ym: string) => new Date(ym + '-15T12:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+const holes18 = COURSES.filter((c) => c.holes.startsWith('18') || c.holes.startsWith('27')).length;
+---
+<Base title="Golf in Cancún & Riviera Maya: Every Course, Golf Hotels & Tips" description={`All ${COURSES.length} golf courses from Cancún to Tulum: who designed them, who can play, what the green fee includes, prices we found, golf hotels, and local tips for golfers.`}>
+  <script type="application/ld+json" set:html={JSON.stringify([
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: GOLF_FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+    { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Golf courses in Cancún and the Riviera Maya', itemListElement: COURSES.map((c, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@type': 'GolfCourse', name: c.name, geo: { '@type': 'GeoCoordinates', latitude: c.at[0], longitude: c.at[1] }, description: `${c.holes}. Designed by ${c.designer}. ${c.where}.` } })) },
+  ])} />
+  <section class="bg-navy py-8 text-white">
+    <div class="wrap">
+      <p class="eyebrow">Golf guide</p>
+      <h1 class="mt-2 text-3xl font-bold sm:text-4xl">⛳ Golf in Cancún & the Riviera Maya</h1>
+      <p class="mt-2 max-w-2xl text-white/75">Every course from Costa Mujeres to Tulum. You'll find who designed it, who can play, what the green fee includes, which hotels have golf, and what local golfers wish they'd known.</p>
+    </div>
+  </section>
+
+  <div class="wrap mt-6">
+    <div class="grid gap-3 sm:grid-cols-3">
+      <div class="card p-4"><p class="text-sm text-ink/60">Courses on this page</p><p class="mt-1 font-serif text-2xl font-bold text-navy">{COURSES.length} ({holes18} full-size)</p></div>
+      <div class="card p-4"><p class="text-sm text-ink/60">Designers</p><p class="mt-1 font-serif text-lg font-bold leading-snug text-navy">Nicklaus, Norman, Price, Dye, Weiskopf, Trent Jones II</p></div>
+      <div class="card p-4"><p class="text-sm text-ink/60">Best season</p><p class="mt-1 font-serif text-2xl font-bold text-navy">Nov – Apr</p></div>
+    </div>
+
+    <div class="mt-5 flex flex-wrap gap-2 text-sm" id="filters" aria-label="Filter courses">
+      <button type="button" data-f="all" class="chip is-on">All</button>
+      {areas.map((a) => <button type="button" data-f={a} class="chip">{AREA_LABELS[a].split(' (')[0]}</button>)}
+      <button type="button" data-f="beginner" class="chip">Good for beginners</button>
+    </div>
+    <div id="map" class="mt-3 h-[420px] sm:h-[520px] overflow-hidden rounded-2xl shadow-sm ring-1 ring-navy/10"></div>
+    <p class="mt-2 text-xs text-ink/50">Pins are approximate. Map data © OpenStreetMap contributors.</p>
+
+    <section class="mt-8">
+      <h2 class="text-2xl font-bold text-navy">Golf hotels on this site</h2>
+      <p class="mt-1 text-sm text-ink/60">Hotels with a course on site, next door, or a golf package.</p>
+      <div class="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {golfHotels.map((h) => <HotelCard hotel={h} />)}
+      </div>
+      <ul class="mt-4 space-y-1 text-sm">
+        {COURSES.filter((c) => c.siteHotels?.length).map((c) => <li><span class="font-semibold">{c.siteHotels!.map((s) => hotels.find((h) => h.id === s)?.data.name).filter(Boolean).join(' & ')}</span> <span class="text-ink/60">→ {c.name}</span></li>)}
+      </ul>
+      <details class="mt-4 rounded-xl bg-sand p-4">
+        <summary class="cursor-pointer font-semibold">Staying somewhere else? Closest course to every hotel</summary>
+        <dl class="mt-3 divide-y divide-sand-2 text-sm">
+          {nearest.map((n) => <div class="flex flex-wrap justify-between gap-x-4 py-2"><dt><a href={`/hotels/${n.h.id}`} class="font-semibold text-navy hover:underline">{n.h.data.name}</a></dt><dd class="text-ink/70">{n.c.name} · {n.text}</dd></div>)}
+        </dl>
+        <p class="mt-2 text-xs text-ink/45">Straight-line distance turned into a rough road distance.</p>
+      </details>
+    </section>
+
+    {areas.map((a) => (
+      <section class="mt-10" data-area-block={a}>
+        <h2 class="text-2xl font-bold text-navy">{AREA_LABELS[a]}</h2>
+        <div class="mt-4 grid gap-5 lg:grid-cols-2">
+          {COURSES.filter((c) => c.area === a).map((c) => (
+            <article id={c.slug} class="card reveal flex flex-col p-6" data-course data-area={c.area} data-level={c.level}>
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <h3 class="text-xl font-bold text-navy">{c.name}</h3>
+                <span class:list={['rounded-full px-2.5 py-0.5 text-xs font-bold', c.level === 'beginner' ? 'bg-green-100 text-green-800' : c.level === 'all' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800']}>{LEVEL_LABEL[c.level]}</span>
+              </div>
+              <p class="mt-1 text-sm text-ink/60">📍 {c.where}</p>
+              <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
+                <div class="rounded-lg bg-sand p-2"><dt class="text-xs text-ink/55">Course</dt><dd class="font-semibold">{c.holes}{c.yards && <span class="block text-xs font-normal text-ink/60">{c.yards} from the back</span>}</dd></div>
+                <div class="rounded-lg bg-sand p-2"><dt class="text-xs text-ink/55">Designer</dt><dd class="font-semibold">{c.designer}{c.opened && <span class="block text-xs font-normal text-ink/60">Opened {c.opened}</span>}</dd></div>
+              </dl>
+              <p class="mt-3 text-sm"><b>Who can play:</b> {c.access}</p>
+              {c.includes && <p class="mt-1 text-sm"><b>Green fee includes:</b> {c.includes}</p>}
+              <p class="mt-1 text-sm"><b>Price:</b> {c.price ? <>{c.price.text} <span class="text-ink/50">(checked {fmtMonth(c.price.checked)})</span></> : <span class="text-ink/70">no current price found. Check with the course.</span>}</p>
+              <ul class="mt-3 space-y-1 text-sm">{c.highlights.map((x) => <li class="flex gap-2"><span class="text-gold">●</span><span>{x}</span></li>)}</ul>
+              <div class="mt-3 rounded-xl bg-amber-50 p-3 text-sm"><p class="font-semibold text-amber-900">Good to know</p><ul class="mt-1 space-y-0.5 text-amber-900/85">{c.heads.map((x) => <li>• {x}</li>)}</ul></div>
+              {c.hotels.length > 0 && <p class="mt-3 text-sm"><b>Golf hotels:</b> <span class="text-ink/75">{c.hotels.join(' · ')}</span></p>}
+              {c.siteHotels?.length ? <p class="mt-1 text-sm">On this site: {c.siteHotels.map((s, i) => { const h = hotels.find((x) => x.id === s); return h && <>{i > 0 && ' · '}<a href={`/hotels/${s}`} class="font-semibold text-navy underline">{h.data.name}</a></>; })}</p> : null}
+              <p class="mt-auto pt-3 text-xs text-ink/45">Sources: {c.sources.map((u, i) => <>{i > 0 && ', '}<a href={u} target="_blank" rel="noopener" class="underline">{new URL(u).hostname.replace('www.', '')}</a></>)}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    <section class="mt-10 card border border-red-200 bg-red-50 p-5">
+      <p class="font-bold text-red-900">Closed: Pok-Ta-Pok (Cancún Golf Club, Hotel Zone Km 7.5)</p>
+      <p class="mt-1 text-sm text-red-900/80">Cancún's oldest course, from the 1970s, still shows up on many lists. Golf listings mark it as closed since 2023, so don't plan a round there. <a href="https://www.golfpass.com/travel-advisor/courses/22425-cancun-golf-club-at-pok-ta-pok" target="_blank" rel="noopener" class="underline">Source</a></p>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-2xl font-bold text-navy">What golfers should know before they come</h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {GOLF_TIPS.map(([t, d]) => <div class="card p-5"><p class="font-bold text-navy">{t}</p><p class="mt-1 text-sm text-ink/70">{d}</p></div>)}
+      </div>
+      <p class="mt-4 text-sm">Picking dates? <a href="/tools/best-time" class="font-bold text-navy underline">See the weather month by month →</a></p>
+    </section>
+
+    <section class="mt-8 flex flex-col gap-4 rounded-2xl bg-navy p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="font-bold">🚐 Traveling with golf bags?</p>
+        <p class="mt-1 text-sm text-white/75">A private van has room for clubs from the airport, with a fixed price. It's what I use.</p>
+      </div>
+      <a href={AFFILIATE.transfers.url} target="_blank" rel="sponsored nofollow noopener" data-track="golf_transfer" class="btn-sun shrink-0 justify-center">Check {AFFILIATE.transfers.name} prices →</a>
+    </section>
+
+    <section class="mt-8 card p-6">
+      <h2 class="text-2xl font-bold text-navy">Questions</h2>
+      <div class="mt-3 space-y-3">{GOLF_FAQ.map(([q, a]) => <details class="rounded-xl bg-sand p-4"><summary class="cursor-pointer font-semibold">{q}</summary><p class="mt-2 text-sm text-ink/75">{a}</p></details>)}</div>
+    </section>
+
+    <p class="mt-6 text-sm text-ink/60">I haven't reviewed these courses myself yet. Course facts come from each club or resort and from golf booking sites, linked on every card. Prices and access change, so confirm with the course before you book.</p>
+  </div>
+  <script id="courses" type="application/json" set:html={JSON.stringify(COURSES.map((c) => ({ slug: c.slug, name: c.name, at: c.at, holes: c.holes, area: c.area, level: c.level })))} />
+</Base>
+<style is:global>
+  .chip { border-radius: 9999px; background: #fff; padding: .35rem .8rem; font-weight: 600; box-shadow: inset 0 0 0 1px rgb(10 110 148 / .15); }
+  .chip.is-on { background: var(--color-navy, #0A6E94); color: #fff; }
+  .golf-pin { width: 22px; height: 22px; border-radius: 9999px; border: 3px solid #fff; background: #1f8a4c; box-shadow: 0 2px 6px rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; font-size: 11px; }
+  .leaflet-popup-content { margin: 12px 14px; font-family: var(--font-sans); }
+</style>
+<script>
+  import L from 'leaflet';
+  const courses = JSON.parse(document.getElementById('courses')!.textContent!);
+  const map = L.map('map', { scrollWheelZoom: false }).setView([20.85, -86.95], 9);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom: 19 }).addTo(map);
+  const icon = L.divIcon({ className: '', html: '<div class="golf-pin">⛳</div>', iconSize: [22, 22], iconAnchor: [11, 11] });
+  const markers = courses.map((c: any) => ({ c, m: L.marker(c.at, { icon, title: c.name }).bindPopup(`<p style="font-weight:700;color:#0A6E94;margin:0">${c.name}</p><p style="margin:2px 0;font-size:12px">${c.holes}</p><a href="#${c.slug}" style="font-size:12px">See details ↓</a>`) }));
+  const show = (f: string) => {
+    const pts: [number, number][] = [];
+    markers.forEach(({ c, m }: any) => {
+      const on = f === 'all' || c.area === f || c.level === f;
+      if (on) { m.addTo(map); pts.push(c.at); } else m.remove();
+    });
+    document.querySelectorAll<HTMLElement>('[data-course]').forEach((el) => { el.hidden = !(f === 'all' || el.dataset.area === f || el.dataset.level === f); });
+    document.querySelectorAll<HTMLElement>('[data-area-block]').forEach((el) => { el.hidden = !el.querySelector('[data-course]:not([hidden])'); });
+    if (pts.length) map.fitBounds(pts, { padding: [30, 30], maxZoom: 12 });
+  };
+  document.querySelectorAll<HTMLButtonElement>('#filters .chip').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('#filters .chip').forEach((x) => x.classList.toggle('is-on', x === b));
+    show(b.dataset.f!);
+  }));
+  show('all');
+  map.on('click', () => map.scrollWheelZoom.enable());
+</script>

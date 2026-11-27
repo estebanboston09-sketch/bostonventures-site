@@ -48,6 +48,7 @@ ${PRIVATE_TOURS.map((t) => `- [${t.name}](${u(`/tours/private/${t.slug}`)}): ${t
 - [Seaweed map](${u('/tools/seaweed-map')}): sargassum level by beach from the official Quintana Roo monitoring map, plus the seaweed season by month.
 - [Best time to visit](${u('/tools/best-time')}): weather, sea temperature, hurricane season, seaweed, crowds and prices for each month.
 - [Real trip cost](${u('/tools/trip-cost')}): calculator for hotel, food, airport transfers, tours, tips and the Visitax tourist tax.
+- [Golf in Cancún & Riviera Maya](${u('/golf')}): every golf course from Costa Mujeres to Tulum, golf hotels, green fee inclusions, prices found and tips.
 - [Compare hotels](${u('/hotels/compare')}): side-by-side scores and facts.
 - [Map](${u('/map')}): hotels and tours on one map.
 
