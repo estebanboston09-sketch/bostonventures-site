@@ -82,7 +82,7 @@ Merge `guia/<slug>` into `main` and push. The site deploys automatically and the
 
 ## Nightly hotel batch (20 hotels per night, goal: every hotel in Cancún and the Riviera Maya)
 
-Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 20 hotels from the list below (rows marked ⭐ first: those are hotels visitors searched for and didn't find) that are not marked ✅ (and whose file does not exist on `main`). Mark each one you add with ✅ and its slug in the same commit.
+Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, **in addition to the guide**, add the next 20 hotels (Esteban, Nov 2026: finish Cancún first, then the hotels in and around Playa del Carmen) from the list below (rows marked ⭐ first: those are hotels visitors searched for and didn't find) that are not marked ✅ (and whose file does not exist on `main`). Mark each one you add with ✅ and its slug in the same commit.
 
 **When fewer than 20 hotels are left on the list, extend the list first** (commit the new rows in the same branch): add the next most-reviewed hotels on TripAdvisor's Cancún, Costa Mujeres, Puerto Morelos, Playa del Carmen, Riviera Maya, Tulum, Isla Mujeres and Cozumel hotel lists that are not on the site yet. Order: big resorts and all-inclusives first, then boutique hotels, then downtown/budget hotels. Keep going until every hotel with a real following is covered.
 
@@ -161,6 +161,19 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 | 41 | ⭐ Sandos Cancún | hotel-zone | |
 | 42 | ⭐ Panama Jack Resorts Cancún | hotel-zone | |
 | 43 | ⭐ Club Med Cancún | hotel-zone | |
+| 44 | Hotel Riu Dunamar | costa-mujeres | ✅ added as `riu-dunamar` (map pin approximate: check it) |
+| 45 | ⭐ Grand Hyatt Playa del Carmen | playa-del-carmen | |
+| 46 | ⭐ Paradisus Playa del Carmen | playa-del-carmen | |
+| 47 | ⭐ Thompson Playa del Carmen | playa-del-carmen | |
+| 48 | ⭐ Mahekal Beach Resort | playa-del-carmen | |
+| 49 | ⭐ Viceroy Riviera Maya | playa-del-carmen | |
+| 50 | ⭐ Iberostar Selection Paraíso Maya | riviera-maya | |
+| 51 | ⭐ Catalonia Royal Tulum | riviera-maya | |
+| 52 | ⭐ Sandos Playacar | playa-del-carmen | |
+| 53 | ⭐ Riu Palace Riviera Maya | playa-del-carmen | |
+| 54 | ⭐ Riu Playacar | playa-del-carmen | |
+| 55 | ⭐ Royal Hideaway Playacar | playa-del-carmen | |
+| 56 | ⭐ Allegro Playacar | playa-del-carmen | |
 
 ## Nightly seaweed map refresh
 
