@@ -3,13 +3,32 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { AREAS } from '../../lib/site';
 import { overallScore } from '../../lib/score';
+// Public guest score: every rating we've read, turned into /10 and averaged (each site counts once).
+function guestInfo(d: any) {
+  const r = (d.ratings ?? []) as { site: string; score: number; outOf: number; count?: number; checked: string }[];
+  const avg = r.length ? Math.round((r.reduce((t, x) => t + (x.score / x.outOf) * 10, 0) / r.length) * 10) / 10 : null;
+  const ex = d.extras ?? {};
+  const two = (a?: string[]) => (a ?? []).slice(0, 2);
+  return {
+    guest: avg,
+    guestCount: r.reduce((t, x) => t + (x.count ?? 0), 0),
+    guestParts: r.map((x) => `${x.site} ${x.score}/${x.outOf}`),
+    built: ex.built ?? '',
+    pools: two(ex.pools), beach: two(ex.beachReality), kids: two(ex.kids), spa: two(ex.spa), walk: two(ex.walkable),
+    wifi: ex.wifi ?? '', bestRoom: two(ex.bestRooms), avoidRoom: (ex.avoidRooms ?? []).slice(0, 1),
+    restaurants: (d.dining ?? []).length,
+    love: two(d.travelers?.praise), watch: [...two(d.travelers?.complaints), ...(ex.warnings ?? []).slice(0, 1)].slice(0, 3),
+    guestSummary: d.travelers?.summary ?? '',
+  };
+}
 const hotels = (await getCollection('hotels'))
   .map((h) => ({
     id: h.id, name: h.data.name, area: AREAS[h.data.area]?.label ?? '', ai: h.data.allInclusive, adults: h.data.adultsOnly,
     price: h.data.priceLevel ?? 0, priceText: h.data.review?.pricePaid ?? (h.data.priceRangeUSD ? `$${h.data.priceRangeUSD.low}–${h.data.priceRangeUSD.high}/night` : ''),
     overall: overallScore(h.data.review), scores: h.data.review?.scores ?? [], verdict: h.data.review?.verdict ?? '',
     reviewed: !!h.data.review, bestFor: h.data.bestFor, airport: h.data.airportMinutes ?? null,
-    img: h.data.review?.videoId ? `https://i.ytimg.com/vi/${h.data.review.videoId}/hqdefault.jpg` : null,
+    img: h.data.review?.videoId ? `https://i.ytimg.com/vi/${h.data.review.videoId}/hqdefault.jpg` : (h.data.photos?.find((p) => !p.area)?.src ?? null),
+    ...guestInfo(h.data),
   }))
   .sort((a, b) => Number(b.reviewed) - Number(a.reviewed) || (b.overall ?? 0) - (a.overall ?? 0));
 ---
@@ -18,7 +37,7 @@ const hotels = (await getCollection('hotels'))
     <div class="wrap">
       <p class="eyebrow">Free tool</p>
       <h1 class="mt-2 text-3xl font-bold sm:text-4xl">Compare hotels side by side</h1>
-      <p class="mt-2 max-w-2xl text-white/75">Pick up to 3. Reviewed hotels show my real scores from the stay.</p>
+      <p class="mt-2 max-w-2xl text-white/75">Pick up to 3. Every hotel shows its average guest score from the big review sites, plus pools, beach, food and what guests love or complain about. ★ hotels also have my own scores from the stay.</p>
     </div>
   </section>
   <div class="wrap mt-8">
@@ -44,7 +63,8 @@ const hotels = (await getCollection('hotels'))
   .cmp .win { background: rgb(255 213 74 / .22); }
 </style>
 <script>
-  type H = { id: string; name: string; area: string; ai: boolean; adults: boolean; price: number; priceText: string; overall: number | null; scores: { label: string; value: number }[]; verdict: string; reviewed: boolean; bestFor: string[]; airport: number | null; img: string | null };
+  type H = { id: string; name: string; area: string; ai: boolean; adults: boolean; price: number; priceText: string; overall: number | null; scores: { label: string; value: number }[]; verdict: string; reviewed: boolean; bestFor: string[]; airport: number | null; img: string | null;
+    guest: number | null; guestCount: number; guestParts: string[]; built: string; pools: string[]; beach: string[]; kids: string[]; spa: string[]; walk: string[]; wifi: string; bestRoom: string[]; avoidRoom: string[]; restaurants: number; love: string[]; watch: string[]; guestSummary: string };
   const ALL: H[] = JSON.parse(document.getElementById('hotel-data')!.textContent!);
   const picked: string[] = [];
   const out = document.getElementById('out')!, chosen = document.getElementById('chosen')!, results = document.getElementById('results')!;
@@ -60,7 +80,7 @@ const hotels = (await getCollection('hotels'))
       : pool.filter((h) => h.reviewed);
     const shown = hits.slice(0, 8);
     results.innerHTML = (words.length ? '' : '<p class="text-xs font-semibold text-ink/50">Hotels I reviewed — or type to search all</p>') +
-      (shown.length ? shown.map((h) => `<button type="button" role="option" data-id="${h.id}" class="lift flex w-full items-center justify-between gap-3 rounded-xl bg-sand px-3 py-2 text-left text-sm"><span><b class="text-navy">${h.reviewed ? '★ ' : ''}${esc(h.name)}</b> <span class="text-ink/50">· ${esc(h.area)}</span></span><span class="shrink-0 font-bold text-navy">${h.overall != null ? h.overall + '/10' : '+ Add'}</span></button>`).join('')
+      (shown.length ? shown.map((h) => `<button type="button" role="option" data-id="${h.id}" class="lift flex w-full items-center justify-between gap-3 rounded-xl bg-sand px-3 py-2 text-left text-sm"><span><b class="text-navy">${h.reviewed ? '★ ' : ''}${esc(h.name)}</b> <span class="text-ink/50">· ${esc(h.area)}</span></span><span class="shrink-0 font-bold text-navy">${h.overall != null ? h.overall + '/10' : h.guest != null ? `<span class="text-xs font-normal text-ink/50">guests</span> ${h.guest}` : '+ Add'}</span></button>`).join('')
         : `<p class="text-sm text-ink/70"><b>"${esc(search.value.trim())}" isn't on the site yet.</b> Searches like this tell me which hotels to add next, and new hotels go up every week. Check the spelling, or try part of the name, like "riu" or "hyatt".</p>`) +
       (hits.length > shown.length ? `<p class="text-xs text-ink/50">${hits.length - shown.length} more — keep typing to narrow it down.</p>` : '');
   }
@@ -88,16 +108,38 @@ const hotels = (await getCollection('hotels'))
     const overall = hs.map((h) => h.overall);
     let html = `<div class="cmp card overflow-hidden" style="${cols}">`;
     html += `<div class="lab"></div>${hs.map((h) => `<div class="!bg-navy text-white">${h.img ? `<img src="${h.img}" alt="" class="mb-2 aspect-video w-full rounded-lg object-cover">` : ''}<a class="font-bold hover:underline" href="/hotels/${h.id}">${h.name}</a><p class="text-xs text-teal">${h.area}</p></div>`).join('')}`;
-    html += row('Overall', overall.map((v) => `${fmt(v)}${v == null ? '<p class="text-xs text-ink/50">Not scored</p>' : ''}${bar(v)}`), best(overall));
-    CATS.forEach(([lab, re]) => { const v = hs.map((h) => cat(h, re)); html += row(lab, v.map((x) => fmt(x) + bar(x)), best(v)); });
+    const anyReviewed = hs.some((h) => h.reviewed);
+    const g = hs.map((h) => h.guest);
+    const k = (n: number) => (n >= 1000 ? `${Math.round(n / 100) / 10}k` : String(n));
+    html += row('Guest score<p class="text-xs font-normal text-ink/50">Average of public review sites, out of 10</p>', hs.map((h) => h.guest == null ? '<span class="text-sm text-ink/50">—</span>'
+      : `${fmt(h.guest)}${bar(h.guest)}<p class="mt-1 text-xs text-ink/55">${h.guestParts.map(esc).join(' · ')}${h.guestCount ? ` · ${k(h.guestCount)} reviews` : ''}</p>`), best(g));
+    if (anyReviewed) {
+      html += row('My score<p class="text-xs font-normal text-ink/50">From my own stay</p>', overall.map((v) => `${fmt(v)}${v == null ? '<p class="text-xs text-ink/50">Not stayed yet</p>' : ''}${bar(v)}`), best(overall));
+      CATS.forEach(([lab, re]) => { const v = hs.map((h) => cat(h, re)); if (v.some((x) => x != null)) html += row(lab, v.map((x) => fmt(x) + bar(x)), best(v)); });
+    }
+    const ul = (a: string[]) => (a.length ? `<ul class="space-y-1 text-sm">${a.map((t) => `<li>• ${esc(t)}</li>`).join('')}</ul>` : '<span class="text-sm text-ink/40">—</span>');
+    const txt = (t: string) => (t ? `<span class="text-sm">${esc(t)}</span>` : '<span class="text-sm text-ink/40">—</span>');
+    const opt = (label: string, f: (h: H) => string, has: (h: H) => boolean) => { if (hs.some(has)) html += row(label, hs.map(f)); };
     html += row('Price', hs.map((h) => (h.priceText || (h.price ? '$'.repeat(h.price) : '—'))));
     html += row('All-inclusive', hs.map((h) => (h.ai ? '✓ Yes' : '✗ No')));
     html += row('Who', hs.map((h) => (h.adults ? 'Adults only' : 'All ages')));
     html += row('From airport', hs.map((h) => (h.airport ? `~${h.airport} min` : '—')));
+    opt('Built', (h) => txt(h.built), (h) => !!h.built);
+    opt('Restaurants', (h) => (h.restaurants ? `<b class="text-navy">${h.restaurants}</b> <span class="text-sm">restaurants & bars</span>` : txt('')), (h) => h.restaurants > 0);
+    opt('Pools', (h) => ul(h.pools), (h) => h.pools.length > 0);
+    opt('Beach, honestly', (h) => ul(h.beach), (h) => h.beach.length > 0);
+    opt('Kids', (h) => (h.adults ? txt('Adults only') : ul(h.kids)), (h) => h.kids.length > 0);
+    opt('Spa', (h) => ul(h.spa), (h) => h.spa.length > 0);
+    opt('Walk to', (h) => ul(h.walk), (h) => h.walk.length > 0);
+    opt('Wi-Fi', (h) => txt(h.wifi), (h) => !!h.wifi);
+    opt('Best rooms', (h) => ul(h.bestRoom), (h) => h.bestRoom.length > 0);
+    opt('Rooms to avoid', (h) => ul(h.avoidRoom), (h) => h.avoidRoom.length > 0);
+    opt('Guests love', (h) => ul(h.love), (h) => h.love.length > 0);
+    opt('Watch out for', (h) => ul(h.watch), (h) => h.watch.length > 0);
     html += row('Best for', hs.map((h) => h.bestFor.map((t) => `<span class="chip mr-1 mb-1 capitalize">${t.replace('-', ' ')}</span>`).join('')));
-    html += row('My verdict', hs.map((h) => (h.verdict ? `<p class="text-sm">"${h.verdict}"</p>` : '<span class="text-sm text-ink/50">—</span>')));
+    html += row(anyReviewed ? 'Verdict' : 'In short', hs.map((h) => (h.verdict ? `<p class="text-sm"><b>My verdict:</b> "${esc(h.verdict)}"</p>` : h.guestSummary ? `<p class="text-sm"><b>Guests say:</b> ${esc(h.guestSummary)}</p>` : '<span class="text-sm text-ink/50">—</span>')));
     html += row('', hs.map((h) => `<a href="/hotels/${h.id}" class="btn-sun w-full text-sm">See hotel →</a>`));
-    out.innerHTML = html + '</div><p class="mt-3 text-xs text-ink/50">Highlighted = the best score in that row. Categories are matched across reviews, so one may cover two of my video categories.</p>';
+    out.innerHTML = html + '</div><p class="mt-3 text-xs text-ink/50">Highlighted = the best score in that row. Guest score averages the public ratings I have read (TripAdvisor, Booking.com, Google, Expedia), each turned into a score out of 10. Pools, beach, rooms and \"guests love\" are summed up in my own words from hotel sites and public reviews.</p>';
   }
   results.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-id]'); if (!b) return;
