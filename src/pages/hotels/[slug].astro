@@ -1,4 +1,5 @@
 ---
+import { guestScore } from '../../lib/score';
 import { isoUploadDate } from '../../lib/videoDate';
 import Base from '../../layouts/Base.astro';
 import VerdictCard from '../../components/VerdictCard.astro';
@@ -311,7 +312,7 @@ schema.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: 
           {d.restaurants && <div class="flex justify-between gap-3"><dt class="text-ink/60">Restaurants</dt><dd class="text-right font-semibold">{d.restaurants}</dd></div>}
           {d.airportMinutes && <div class="flex justify-between gap-3"><dt class="text-ink/60">From airport</dt><dd class="text-right font-semibold">~{d.airportMinutes} min</dd></div>}
           {ex?.built && <div class="flex justify-between gap-3"><dt class="text-ink/60">Built</dt><dd class="text-right font-semibold">{ex.built}</dd></div>}
-          {d.ratings[0] && <div class="flex justify-between gap-3"><dt class="text-ink/60">{d.ratings[0].site}</dt><dd class="text-right font-semibold">{d.ratings[0].score}/{d.ratings[0].outOf}{d.ratings[0].count ? ` (${fmtCount(d.ratings[0].count)})` : ''}</dd></div>}
+          {guestScore(d.ratings) != null && <div class="flex justify-between gap-3"><dt class="text-ink/60">Guest score</dt><dd class="text-right font-semibold">{guestScore(d.ratings)!.toFixed(1)}/10 <span class="font-normal text-ink/50">({d.ratings.map((r) => r.site).join(', ')})</span></dd></div>}
           {d.address && <div class="flex justify-between gap-3"><dt class="text-ink/60">Address</dt><dd class="text-right font-semibold">{d.address}</dd></div>}
           {d.priceRangeUSD && <div class="flex justify-between gap-3"><dt class="text-ink/60">Typical price</dt><dd class="text-right font-semibold">${d.priceRangeUSD.low}–${d.priceRangeUSD.high}/night</dd></div>}
         </dl>

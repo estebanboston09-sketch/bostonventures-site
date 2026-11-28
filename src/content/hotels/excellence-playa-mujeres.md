@@ -23,5 +23,5 @@ sources: [{"url": "https://www.excellenceresorts.com/cancun/excellence-playa-muj
 factsChecked: "2026-11"
 needsReview: false
 photos: [{"src": "/hotels/excellence-playa-mujeres/main.webp", "alt": "Aerial view of Excellence Playa Mujeres", "credit": "Photo: Excellence Playa Mujeres"}]
-ratings: [{"site": "Expedia", "score": 9.2, "outOf": 10, "url": "https://www.expedia.com/Cancun-Hotels-Excellence-Playa-Mujeres-All-Inclusive-Adults-Only.h1672497.Hotel-Information", "checked": "Nov 2026", "count": 1587}]
+ratings: [{"site": "Expedia", "score": 9.2, "outOf": 10, "url": "https://www.expedia.com/Cancun-Hotels-Excellence-Playa-Mujeres-All-Inclusive-Adults-Only.h1672497.Hotel-Information", "checked": "Nov 2026", "count": 1587}, {"site": "Google", "score": 4.9, "outOf": 5, "count": 18504, "url": "https://www.google.com/maps/search/?api=1&query=Excellence%20Playa%20Mujeres%20hotel", "checked": "Nov 2026"}]
 ---

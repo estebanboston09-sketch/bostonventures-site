@@ -21,5 +21,5 @@ sources: [{"url": "https://atelierdehoteles.com/atelier-playa-mujeres-all-inclus
 factsChecked: "2026-11"
 needsReview: false
 photos: [{"src": "/hotels/atelier-playa-mujeres/main.webp", "alt": "Aerial view of Atelier Playa Mujeres", "credit": "Photo: Atelier Playa Mujeres"}]
-ratings: [{"site": "TripAdvisor", "score": 4.8, "outOf": 5, "url": "https://www.tripadvisor.com/Hotel_Review-d15144755", "checked": "Nov 2026", "count": 7563, "rank": "#1 of 11 hotels in Playa Mujeres"}]
+ratings: [{"site": "TripAdvisor", "score": 4.8, "outOf": 5, "url": "https://www.tripadvisor.com/Hotel_Review-d15144755", "checked": "Nov 2026", "count": 7563, "rank": "#1 of 11 hotels in Playa Mujeres"}, {"site": "Google", "score": 4.8, "outOf": 5, "count": 9564, "url": "https://www.google.com/maps/search/?api=1&query=Atelier%20Playa%20Mujeres%20hotel", "checked": "Nov 2026"}]
 ---

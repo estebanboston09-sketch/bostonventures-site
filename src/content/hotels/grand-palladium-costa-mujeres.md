@@ -20,5 +20,5 @@ sources: [{"url": "https://www.palladiumhotelgroup.com/en/hotels/mexico/costamuj
 factsChecked: "2026-11"
 needsReview: false
 photos: [{"src": "/hotels/grand-palladium-costa-mujeres/main.webp", "alt": "Aerial view of Grand Palladium Select Costa Mujeres", "credit": "Photo: Grand Palladium Select Costa Mujeres"}]
-ratings: [{"site": "TripAdvisor", "score": 4.4, "outOf": 5, "url": "https://www.tripadvisor.com/Hotel_Review-d13964145", "checked": "Nov 2026", "count": 14681, "rank": "#22 of 24 hotels in Costa Mujeres"}]
+ratings: [{"site": "TripAdvisor", "score": 4.4, "outOf": 5, "url": "https://www.tripadvisor.com/Hotel_Review-d13964145", "checked": "Nov 2026", "count": 14681, "rank": "#22 of 24 hotels in Costa Mujeres"}, {"site": "Booking.com", "score": 8.3, "outOf": 10, "count": 466, "url": "https://www.booking.com/hotel/mx/grand-palladium-costa-mujeres-resort-amp-spa.html", "checked": "Nov 2026"}]
 ---
