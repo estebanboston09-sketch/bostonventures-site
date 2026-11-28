@@ -152,28 +152,60 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 | 32 | Riu Palace Costa Mujeres | costa-mujeres |✅ added as `riu-palace-costa-mujeres` |
 | 33 | Dreams Sands Cancún | hotel-zone |✅ added as `dreams-sands-cancun` |
 | 34 | Dreams Playa Mujeres | costa-mujeres |✅ added as `dreams-playa-mujeres` |
-| 35 | ⭐ Secrets Playa Mujeres | costa-mujeres | |
-| 36 | ⭐ Planet Hollywood Cancún | costa-mujeres | |
-| 37 | ⭐ Krystal Grand Cancún | hotel-zone | |
+| 35 | ⭐ Secrets Playa Mujeres | costa-mujeres | ✅ added as `secrets-playa-mujeres` |
+| 36 | ⭐ Planet Hollywood Cancún | costa-mujeres | ✅ added as `planet-hollywood-cancun` |
+| 37 | ⭐ Krystal Grand Cancún | hotel-zone | ✅ added as `krystal-grand-cancun` |
 | 38 | Fiesta Americana Condesa Cancún | hotel-zone |✅ added as `fiesta-americana-condesa-cancun` |
-| 39 | ⭐ Crown Paradise Club Cancún | hotel-zone | |
-| 40 | ⭐ Seadust Cancún | hotel-zone | |
-| 41 | ⭐ Sandos Cancún | hotel-zone | |
-| 42 | ⭐ Panama Jack Resorts Cancún | hotel-zone | |
-| 43 | ⭐ Club Med Cancún | hotel-zone | |
+| 39 | ⭐ Crown Paradise Club Cancún | hotel-zone | ✅ added as `crown-paradise-club-cancun` |
+| 40 | ⭐ Seadust Cancún | hotel-zone | ✅ added as `seadust-cancun` |
+| 41 | ⭐ Sandos Cancún | hotel-zone | ✅ added as `sandos-cancun` |
+| 42 | ⭐ Panama Jack Resorts Cancún | hotel-zone | ✅ added as `sunscape-cancun-resort-and-spa` (now Sunscape Cancún; was Panama Jack, then Wyndham Alltra) |
+| 43 | ⭐ Club Med Cancún | hotel-zone | ✅ added as `club-med-cancun` |
 | 44 | Hotel Riu Dunamar | costa-mujeres | ✅ added as `riu-dunamar` (map pin approximate: check it) |
-| 45 | ⭐ Grand Hyatt Playa del Carmen | playa-del-carmen | |
-| 46 | ⭐ Paradisus Playa del Carmen | playa-del-carmen | |
-| 47 | ⭐ Thompson Playa del Carmen | playa-del-carmen | |
-| 48 | ⭐ Mahekal Beach Resort | playa-del-carmen | |
-| 49 | ⭐ Viceroy Riviera Maya | playa-del-carmen | |
-| 50 | ⭐ Iberostar Selection Paraíso Maya | riviera-maya | |
-| 51 | ⭐ Catalonia Royal Tulum | riviera-maya | |
-| 52 | ⭐ Sandos Playacar | playa-del-carmen | |
-| 53 | ⭐ Riu Palace Riviera Maya | playa-del-carmen | |
-| 54 | ⭐ Riu Playacar | playa-del-carmen | |
-| 55 | ⭐ Royal Hideaway Playacar | playa-del-carmen | |
-| 56 | ⭐ Allegro Playacar | playa-del-carmen | |
+| 45 | ⭐ Grand Hyatt Playa del Carmen | playa-del-carmen | ✅ added as `devossion-by-live-aqua-playa-del-carmen` (renamed Devossion by Live Aqua, Oct 2025) |
+| 46 | ⭐ Paradisus Playa del Carmen | playa-del-carmen | ✅ added as `paradisus-playa-del-carmen` |
+| 47 | ⭐ Thompson Playa del Carmen | playa-del-carmen | ✅ added as `hyatt-centric-playa-del-carmen` (renamed Hyatt Centric, 2024) |
+| 48 | ⭐ Mahekal Beach Resort | playa-del-carmen | ✅ added as `mahekal-beach-resort` |
+| 49 | ⭐ Viceroy Riviera Maya | playa-del-carmen | ✅ added as `viceroy-riviera-maya` |
+| 50 | ⭐ Iberostar Selection Paraíso Maya | riviera-maya | ✅ added as `iberostar-selection-paraiso-maya-suites` |
+| 51 | ⭐ Catalonia Royal Tulum | riviera-maya | ✅ added as `catalonia-royal-tulum` |
+| 52 | ⭐ Sandos Playacar | playa-del-carmen | ✅ added as `sandos-playacar` |
+| 53 | ⭐ Riu Palace Riviera Maya | playa-del-carmen | ✅ added as `riu-palace-riviera-maya` |
+| 54 | ⭐ Riu Playacar | playa-del-carmen | ✅ added as `riu-playacar` |
+| 55 | ⭐ Royal Hideaway Playacar | playa-del-carmen | ✅ added as `royal-hideaway-playacar` |
+| 56 | ⭐ Allegro Playacar | playa-del-carmen | ✅ added as `allegro-playacar` |
+| 57 | Paradisus La Perla (adults-only, next to Paradisus Playa del Carmen) | playa-del-carmen | |
+| 58 | Planet Hollywood Adult Scene Cancún | costa-mujeres | |
+| 59 | Presidente InterContinental Cancún | hotel-zone | |
+| 60 | Omni Cancún Hotel & Villas | hotel-zone | |
+| 61 | Grand Park Royal Cancún | hotel-zone | |
+| 62 | Park Royal Beach Cancún | hotel-zone | |
+| 63 | Royal Solaris Cancún | hotel-zone | |
+| 64 | GR Solaris Cancún | hotel-zone | |
+| 65 | Ocean Spa Hotel | hotel-zone | |
+| 66 | Cancún Bay Resort | hotel-zone | |
+| 67 | Oasis Palm | hotel-zone | |
+| 68 | Hyatt Ziva Riviera Cancún | puerto-morelos | |
+| 69 | Secrets Riviera Cancún | puerto-morelos | |
+| 70 | Breathless Riviera Cancún | puerto-morelos | |
+| 71 | Excellence Riviera Cancún | puerto-morelos | |
+| 72 | Azul Beach Resort Riviera Cancún | puerto-morelos | |
+| 73 | Zoëtry Paraíso de la Bonita | puerto-morelos | |
+| 74 | Grand Residences Riviera Cancún | puerto-morelos | |
+| 75 | Hotel Riu Palace Mexico | playa-del-carmen | |
+| 76 | Hotel Riu Yucatán | playa-del-carmen | |
+| 77 | Hotel Riu Tequila | playa-del-carmen | |
+| 78 | Ocean Riviera Paradise | playa-del-carmen | |
+| 79 | Rosewood Mayakoba | riviera-maya | |
+| 80 | Fairmont Mayakoba | riviera-maya | |
+| 81 | Banyan Tree Mayakoba | riviera-maya | |
+| 82 | Andaz Mayakoba | riviera-maya | |
+| 83 | Barceló Maya Palace | riviera-maya | |
+| 84 | Secrets Akumal Riviera Maya | riviera-maya | |
+| 85 | Dreams Tulum Resort & Spa | riviera-maya | |
+| 86 | UNICO 20°87° Hotel Riviera Maya | riviera-maya | |
+
+Rows 57–86 were added on 2026-11-27 (list ran low): Cancún-area resorts first, then Playa del Carmen / Riviera Maya. Confirm each hotel's current name and that it is open before adding it.
 
 ## Nightly seaweed map refresh
 
