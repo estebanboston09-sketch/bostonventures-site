@@ -149,18 +149,18 @@ Esteban wants every major Cancún / Riviera Maya hotel on the site. Each night, 
 | 29 | Bahia Principe Grand Tulum | tulum | (Google now lists it as Bahia Principe Explore Tulum: check the current name first) |
 | 30 | Hotel Riu Caribe | hotel-zone | ✅ added as `riu-caribe` |
 | 31 | Hotel Riu Latino | costa-mujeres | ✅ added as `riu-latino` |
-| 32 | Riu Palace Costa Mujeres | costa-mujeres | |
-| 33 | Dreams Sands Cancún | hotel-zone | |
-| 34 | Dreams Playa Mujeres | costa-mujeres | |
-| 35 | Secrets Playa Mujeres | costa-mujeres | |
-| 36 | Planet Hollywood Cancún | costa-mujeres | |
-| 37 | Krystal Grand Cancún | hotel-zone | |
-| 38 | Fiesta Americana Condesa Cancún | hotel-zone | |
-| 39 | Crown Paradise Club Cancún | hotel-zone | |
-| 40 | Seadust Cancún | hotel-zone | |
-| 41 | Sandos Cancún | hotel-zone | |
-| 42 | Panama Jack Resorts Cancún | hotel-zone | |
-| 43 | Club Med Cancún | hotel-zone | |
+| 32 | Riu Palace Costa Mujeres | costa-mujeres |✅ added as `riu-palace-costa-mujeres` |
+| 33 | Dreams Sands Cancún | hotel-zone |✅ added as `dreams-sands-cancun` |
+| 34 | Dreams Playa Mujeres | costa-mujeres |✅ added as `dreams-playa-mujeres` |
+| 35 | ⭐ Secrets Playa Mujeres | costa-mujeres | |
+| 36 | ⭐ Planet Hollywood Cancún | costa-mujeres | |
+| 37 | ⭐ Krystal Grand Cancún | hotel-zone | |
+| 38 | Fiesta Americana Condesa Cancún | hotel-zone |✅ added as `fiesta-americana-condesa-cancun` |
+| 39 | ⭐ Crown Paradise Club Cancún | hotel-zone | |
+| 40 | ⭐ Seadust Cancún | hotel-zone | |
+| 41 | ⭐ Sandos Cancún | hotel-zone | |
+| 42 | ⭐ Panama Jack Resorts Cancún | hotel-zone | |
+| 43 | ⭐ Club Med Cancún | hotel-zone | |
 
 ## Nightly seaweed map refresh
 
